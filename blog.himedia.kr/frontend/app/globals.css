@@ -1,6 +1,6 @@
-html {
+/* html {
   scrollbar-gutter: stable both-edges;
-}
+} */
 
 /*  구분선 스타일  */
 hr {
@@ -11,7 +11,7 @@ hr {
 
 .layout {
   width: 100%;
-  max-width: 1920px;
+  max-width: 1500px;
 
   height: 100%;
 
