@@ -10,6 +10,22 @@
 */frontend/docs
 */frontend/next-env.d.ts
 
+# ============ BackEnd ============
+**/backend/.env
+**/backend/.env.*
+**/backend/.vscode
+**/backend/node_modules
+**/backend/dist
+**/backend/build
+**/backend/logs
+**/backend/coverage
+**/backend/.nyc_output
+**/backend/temp
+**/backend/.temp
+**/backend/.tmp
+**/backend/pids
+**/backend/report.*.json
+
 # ============== shared ==============
 
 # IDE 및 에디터 설정 파일
