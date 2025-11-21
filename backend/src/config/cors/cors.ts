@@ -19,6 +19,6 @@ const DEFAULT_CORS_CONFIG: CorsConfig = {
 };
 
 // CORS 관련 전역 설정
-export const applyCors = (app: INestApplication) => {
+export const setupCors = (app: INestApplication) => {
   app.enableCors({ ...DEFAULT_CORS_CONFIG });
 };

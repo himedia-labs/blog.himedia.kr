@@ -4,6 +4,7 @@ import {
   HttpException,
   ExceptionFilter,
   Logger,
+  INestApplication,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import type {
@@ -33,9 +34,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const errorMessage = extractErrorMessage(exception);
 
     this.logger.error(
-      `Error to ${request.method} ${request.url} ${paramMessage} ${queryMessage} ${bodyMessage}
-      \n statusCode : ${status}
-      \n message : ${JSON.stringify(errorMessage, null, 2)}`,
+      `Error to ${request.method} ${request.url} ${paramMessage} ${queryMessage} ${bodyMessage}\n` +
+        `statusCode : ${status}\n` +
+        `message : ${JSON.stringify(errorMessage, null, 2)}`,
     );
 
     // 표준 에러 응답 페이로드 구성
@@ -76,4 +77,8 @@ const extractErrorMessage = (exception: HttpException): ExceptionMessage => {
   }
 
   return exception.message;
+};
+
+export const setupFilters = (app: INestApplication) => {
+  app.useGlobalFilters(new HttpExceptionFilter());
 };
