@@ -10,7 +10,7 @@ import type { Request, Response } from 'express';
 import type {
   ExceptionMessage,
   StandardErrorResponse,
-} from './HttpException.types';
+} from './httpException.types';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
