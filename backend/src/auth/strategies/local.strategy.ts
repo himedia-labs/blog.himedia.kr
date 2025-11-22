@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import * as passportLocal from 'passport-local';
 
 import { AuthService } from '../auth.service';
+
+import * as passportLocal from 'passport-local';
 
 type VerifyFunction = (
   username: string,

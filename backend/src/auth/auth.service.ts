@@ -1,20 +1,21 @@
+import * as bcrypt from 'bcryptjs';
+import { randomBytes, randomUUID } from 'crypto';
+
 import {
   ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcryptjs';
-import { randomBytes, randomUUID } from 'crypto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { ChangePasswordDto } from './dto/resetPassword.dto';
 import { RefreshToken } from './entities/refreshToken.entity';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 type HashFunction = (
   data: string | Buffer,

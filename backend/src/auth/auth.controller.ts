@@ -8,15 +8,15 @@ import {
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 
-import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { LocalGuard } from './guards/local.guard';
+import { AuthService } from './auth.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { User } from './entities/user.entity';
+import { RegisterDto } from './dto/register.dto';
+import { LocalGuard } from './guards/local.guard';
 import { JwtPayload } from './interfaces/jwt.interface';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { ChangePasswordDto } from './dto/resetPassword.dto';
 
 @Controller('auth')
 export class AuthController {
