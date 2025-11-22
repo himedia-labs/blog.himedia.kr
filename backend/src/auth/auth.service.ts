@@ -12,7 +12,7 @@ import { randomBytes, randomUUID } from 'crypto';
 
 import { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
-import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshToken } from './entities/refreshToken.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 

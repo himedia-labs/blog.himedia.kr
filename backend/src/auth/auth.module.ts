@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 import { User } from './entities/user.entity';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { RefreshToken } from './entities/refresh-token.entity';
+import { RefreshToken } from './entities/refreshToken.entity';
 
 @Module({
   imports: [

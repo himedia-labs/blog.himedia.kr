@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { RefreshToken } from './refresh-token.entity';
+import { RefreshToken } from './refreshToken.entity';
 
 export enum UserRole {
   TRAINEE = 'TRAINEE',
