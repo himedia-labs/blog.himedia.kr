@@ -7,9 +7,9 @@ import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User } from './entities/user.entity';
-import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshToken } from './entities/refreshToken.entity';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [

@@ -6,15 +6,15 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
+import type { Request as ExpressRequest } from 'express';
 
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { JwtGuard } from './guards/jwt.guard';
-import { User } from './entities/user.entity';
+import type { User } from './entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LocalGuard } from './guards/local.guard';
-import { JwtPayload } from './interfaces/jwt.interface';
+import type { JwtPayload } from './interfaces/jwt.interface';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { ChangePasswordDto } from './dto/resetPassword.dto';
 

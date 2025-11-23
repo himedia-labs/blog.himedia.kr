@@ -4,24 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { AuthService } from '../auth.service';
 
 import * as passportLocal from 'passport-local';
-
-type VerifyFunction = (
-  username: string,
-  password: string,
-  done: (error: Error | null, user?: any, info?: any) => void,
-) => void;
-
-type LocalStrategyConstructor = new (
-  options: {
-    usernameField?: string;
-    passwordField?: string;
-    session?: boolean;
-  },
-  verify: VerifyFunction,
-) => {
-  name: string;
-  authenticate: (...args: any[]) => void;
-};
+import type { LocalStrategyConstructor } from '../interfaces/local.strategy.interface';
 
 const { Strategy: LocalStrategyBase } = passportLocal as {
   Strategy: LocalStrategyConstructor;

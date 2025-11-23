@@ -2,16 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 
-import { JwtPayload } from '../interfaces/jwt.interface';
-
-import type { Request } from 'express';
+import type { JwtPayload } from '../interfaces/jwt.interface';
 import * as passportJwt from 'passport-jwt';
-
-type JwtFromRequestFunction = (req: Request) => string | null;
-type PassportJwtStrategy = new (...args: any[]) => {
-  name: string;
-  authenticate: (...args: any[]) => void;
-};
+import type {
+  JwtFromRequestFunction,
+  PassportJwtStrategy,
+} from '../interfaces/jwt.strategy.interface';
 
 const { Strategy: JwtStrategyBase, ExtractJwt } = passportJwt as {
   Strategy: PassportJwtStrategy;

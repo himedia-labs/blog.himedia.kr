@@ -16,15 +16,15 @@ import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { ChangePasswordDto } from './dto/resetPassword.dto';
 import { RefreshToken } from './entities/refreshToken.entity';
-
-type HashFunction = (
-  data: string | Buffer,
-  saltOrRounds: string | number,
-) => Promise<string>;
-type CompareFunction = (
-  data: string | Buffer,
-  encrypted: string,
-) => Promise<boolean>;
+import type {
+  AuthResponse,
+  AuthTokens,
+  AuthUserProfile,
+} from './interfaces/auth.interface';
+import type {
+  CompareFunction,
+  HashFunction,
+} from './interfaces/bcrypt.interface';
 
 const { hash: hashPassword, compare: comparePassword } = bcrypt as {
   hash: HashFunction;
@@ -42,11 +42,11 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async login(user: User) {
+  async login(user: User): Promise<AuthResponse> {
     return this.buildAuthResponse(user);
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const existingUser = await this.usersRepository.findOne({
       where: { email: registerDto.email },
     });
@@ -83,7 +83,9 @@ export class AuthService {
     return user;
   }
 
-  async refreshTokens({ refreshToken }: RefreshTokenDto) {
+  async refreshTokens({
+    refreshToken,
+  }: RefreshTokenDto): Promise<AuthResponse> {
     const storedToken = await this.getValidatedRefreshToken(refreshToken);
     const user = await this.usersRepository.findOne({
       where: { id: storedToken.userId },
@@ -107,7 +109,10 @@ export class AuthService {
     return { success: true };
   }
 
-  async resetPassword(userId: string, dto: ChangePasswordDto) {
+  async resetPassword(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<AuthResponse> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
@@ -129,7 +134,7 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
-  async getProfileById(userId: string) {
+  async getProfileById(userId: string): Promise<AuthUserProfile> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
@@ -141,7 +146,7 @@ export class AuthService {
     return this.buildUserProfile(user);
   }
 
-  private async buildAuthResponse(user: User) {
+  private async buildAuthResponse(user: User): Promise<AuthResponse> {
     const profile = this.buildUserProfile(user);
     const tokens = await this.generateTokens(user);
 
@@ -151,7 +156,7 @@ export class AuthService {
     };
   }
 
-  private async generateTokens(user: User) {
+  private async generateTokens(user: User): Promise<AuthTokens> {
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       role: user.role,
@@ -261,14 +266,14 @@ export class AuthService {
     );
   }
 
-  private buildUserProfile(user: User) {
+  private buildUserProfile(user: User): AuthUserProfile {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
       phone: user.phone,
-      course: user.course,
+      course: user.course ?? null,
     };
   }
 }
