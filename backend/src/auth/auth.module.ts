@@ -10,6 +10,7 @@ import { User } from './entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshToken } from './entities/refreshToken.entity';
 import { LocalStrategy } from './strategies/local.strategy';
+import { getRequiredEnv } from '../common/exception/config.exception';
 
 @Module({
   imports: [
@@ -18,20 +19,11 @@ import { LocalStrategy } from './strategies/local.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const secret = configService.get<string>('JWT_SECRET');
-        const expiresIn = configService.get(
+        const secret = getRequiredEnv(configService, 'JWT_SECRET');
+        const expiresIn = getRequiredEnv(
+          configService,
           'ACCESS_TOKEN_EXPIRES_IN',
         ) as JwtSignOptions['expiresIn'];
-
-        if (!secret) {
-          throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다.');
-        }
-
-        if (!expiresIn) {
-          throw new Error(
-            'ACCESS_TOKEN_EXPIRES_IN 환경변수가 설정되지 않았습니다.',
-          );
-        }
 
         return {
           secret,

@@ -25,6 +25,7 @@ import type {
   CompareFunction,
   HashFunction,
 } from './interfaces/bcrypt.interface';
+import { getRequiredEnv } from '../common/exception/config.exception';
 
 const { hash: hashPassword, compare: comparePassword } = bcrypt as {
   hash: HashFunction;
@@ -186,15 +187,12 @@ export class AuthService {
   }
 
   private getRefreshTokenExpiryDate() {
-    const configuredDays = Number(
-      this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN_DAYS'),
+    const value = getRequiredEnv(
+      this.configService,
+      'REFRESH_TOKEN_EXPIRES_IN_DAYS',
     );
 
-    if (!Number.isFinite(configuredDays) || configuredDays <= 0) {
-      throw new Error(
-        'REFRESH_TOKEN_EXPIRES_IN_DAYS 환경변수는 0보다 큰 숫자여야 합니다.',
-      );
-    }
+    const configuredDays = Number(value);
 
     return new Date(Date.now() + configuredDays * 24 * 60 * 60 * 1000);
   }
