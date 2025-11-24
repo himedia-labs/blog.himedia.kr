@@ -1,7 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FaCheck } from 'react-icons/fa';
+import { IoIosArrowDown } from 'react-icons/io';
 
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
@@ -32,6 +35,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('');
   const [course, setCourse] = useState('');
+  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -39,6 +43,7 @@ export default function RegisterPage() {
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [roleError, setRoleError] = useState('');
+  const [privacyError, setPrivacyError] = useState(false);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
@@ -105,6 +110,13 @@ export default function RegisterPage() {
       setRoleError('');
     }
 
+    if (!privacyConsent) {
+      setPrivacyError(true);
+      hasError = true;
+    } else {
+      setPrivacyError(false);
+    }
+
     if (hasError) return;
 
     // 전화번호에서 공백 제거
@@ -121,6 +133,7 @@ export default function RegisterPage() {
         phone: phoneNumber,
         role: upperRole,
         course: course || undefined,
+        privacyConsent,
       },
       {
         onSuccess: () => {
@@ -228,51 +241,24 @@ export default function RegisterPage() {
 
           <div className={styles.formGroup}>
             <label htmlFor="role" className={styles.label}>
-              역할 <span className={styles.required}>(필수)</span>
+              역할
             </label>
-            <div className={styles.radioGroup}>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="trainee"
-                  checked={role === 'trainee'}
-                  onChange={e => {
-                    setRole(e.target.value);
-                    if (roleError) setRoleError('');
-                  }}
-                  className={styles.radio}
-                />
-                <span>훈련생</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="mentor"
-                  checked={role === 'mentor'}
-                  onChange={e => {
-                    setRole(e.target.value);
-                    if (roleError) setRoleError('');
-                  }}
-                  className={styles.radio}
-                />
-                <span>멘토</span>
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="instructor"
-                  checked={role === 'instructor'}
-                  onChange={e => {
-                    setRole(e.target.value);
-                    if (roleError) setRoleError('');
-                  }}
-                  className={styles.radio}
-                />
-                <span>강사</span>
-              </label>
+            <div className={styles.selectWrapper}>
+              <select
+                id="role"
+                value={role}
+                onChange={e => {
+                  setRole(e.target.value);
+                  if (roleError) setRoleError('');
+                }}
+                className={roleError ? `${styles.select} ${styles.error}` : styles.select}
+              >
+                <option value="">선택해주세요</option>
+                <option value="trainee">훈련생</option>
+                <option value="mentor">멘토</option>
+                <option value="instructor">강사</option>
+              </select>
+              <IoIosArrowDown className={styles.selectIcon} aria-hidden />
             </div>
             {roleError && <p className={styles.errorMessage}>{roleError}</p>}
           </div>
@@ -281,21 +267,48 @@ export default function RegisterPage() {
             <label htmlFor="course" className={styles.label}>
               과정명 및 기수
             </label>
-            <select id="course" value={course} onChange={e => setCourse(e.target.value)} className={styles.select}>
-              <option value="">선택해주세요</option>
-              {COURSE_OPTIONS.map(option => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            <div className={styles.selectWrapper}>
+              <select id="course" value={course} onChange={e => setCourse(e.target.value)} className={styles.select}>
+                <option value="">선택해주세요</option>
+                {COURSE_OPTIONS.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <IoIosArrowDown className={styles.selectIcon} aria-hidden />
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <div className={styles.consentWrapper}>
+              <div className={styles.checkboxRow}>
+                <label className={styles.checkboxBox}>
+                  <input
+                    type="checkbox"
+                    checked={privacyConsent}
+                    onChange={e => {
+                      setPrivacyConsent(e.target.checked);
+                      if (privacyError) setPrivacyError(false);
+                    }}
+                    className={styles.checkbox}
+                  />
+                  <FaCheck className={styles.checkboxIcon} aria-hidden />
+                </label>
+                <div className={`${styles.checkboxText} ${privacyError ? styles.checkboxTextError : ''}`}>
+                  <Link href="/terms/privacy" className={styles.link}>
+                    [필수] 개인정보 수집 및 이용동의
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className={styles.footer}>
             <div className={styles.links}>
-              <a href="/login" className={styles.link}>
+              <Link href="/login" className={styles.link}>
                 이미 계정이 있으신가요?
-              </a>
+              </Link>
             </div>
             <button type="submit" className={styles.submitButton}>
               회원가입
