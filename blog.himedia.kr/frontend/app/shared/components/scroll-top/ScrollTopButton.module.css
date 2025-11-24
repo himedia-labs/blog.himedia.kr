@@ -3,7 +3,6 @@
 
   position: fixed;
   bottom: 1.5rem;
-  right: 6rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,6 +23,14 @@
   will-change: opacity, visibility, transform;
   transition: opacity 0.4s ease, transform 0.4s ease, visibility 0s linear var(--scroll-button-visibility-delay);
   pointer-events: none;
+}
+
+.innerPosition {
+  right: 1.5rem;
+}
+
+.homePosition {
+  right: 6rem;
 }
 
 .scrollButton.visible {
