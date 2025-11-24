@@ -1,6 +1,14 @@
-/* html {
-  scrollbar-gutter: stable both-edges;
-} */
+/*
+  스크롤 여부에 따른 여백
+  html, body
+*/
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  overflow-x: hidden;
+}
 
 /*  구분선 스타일  */
 hr {
