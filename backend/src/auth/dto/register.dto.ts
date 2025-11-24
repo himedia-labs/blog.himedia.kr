@@ -12,31 +12,32 @@ import {
 import { UserRole } from '../entities/user.entity';
 
 export class RegisterDto {
-  @IsString()
-  @MaxLength(100)
+  @IsString({ message: '이름은 문자열이어야 합니다.' })
+  @MaxLength(100, { message: '이름은 100자 이하여야 합니다.' })
   name!: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: '올바른 이메일 형식이 아닙니다.' })
+  @MaxLength(255, { message: '이메일은 255자 이하여야 합니다.' })
   email!: string;
 
-  @IsString()
-  @MinLength(8)
-  @MaxLength(255)
+  @IsString({ message: '비밀번호는 문자열이어야 합니다.' })
+  @MinLength(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' })
+  @MaxLength(255, { message: '비밀번호는 255자 이하여야 합니다.' })
   password!: string;
 
-  @IsString()
-  @MaxLength(20)
+  @IsString({ message: '전화번호는 문자열이어야 합니다.' })
+  @MaxLength(20, { message: '전화번호는 20자 이하여야 합니다.' })
   phone!: string;
 
-  @IsEnum(UserRole)
+  @IsEnum(UserRole, { message: '유효한 역할을 선택해주세요.' })
   role!: UserRole;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
+  @IsString({ message: '과정명은 문자열이어야 합니다.' })
+  @MaxLength(255, { message: '과정명은 255자 이하여야 합니다.' })
   course?: string | null;
 
-  @IsBoolean()
+  @IsBoolean({ message: '개인정보 동의는 불리언 값이어야 합니다.' })
   @Equals(true, { message: '개인정보 수집 및 이용에 동의가 필요합니다.' })
   privacyConsent!: boolean;
 }
