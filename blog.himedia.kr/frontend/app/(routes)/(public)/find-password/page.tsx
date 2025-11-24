@@ -11,6 +11,7 @@ import {
 import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/ToastProvider';
 import styles from './forgot-password.module.css';
+import Link from 'next/link';
 
 type Step = 'verify' | 'password';
 
@@ -55,7 +56,6 @@ export default function ForgotPasswordPage() {
           onError: (error: Error) => {
             const message = handleAuthError(error, '인증번호 발송에 실패했습니다.');
             showToast({ message, type: 'error' });
-            setEmailError(message);
           },
         }
       );
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '인증번호 확인에 실패했습니다.');
-          setCodeError(message);
+          showToast({ message, type: 'warning' });
         },
       }
     );
@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '비밀번호 재설정에 실패했습니다.');
-          setConfirmPasswordError(message);
+          showToast({ message, type: 'warning' });
         },
       }
     );
@@ -181,13 +181,13 @@ export default function ForgotPasswordPage() {
             </div>
             <div className={styles.footer}>
               <div className={styles.links}>
-                <a href="/login" className={styles.link} tabIndex={-1}>
+                <Link href="/login" className={styles.link} tabIndex={-1}>
                   로그인
-                </a>
+                </Link>
                 <span className={styles.separator}>|</span>
-                <a href="/register" className={styles.link} tabIndex={-1}>
+                <Link href="/register" className={styles.link} tabIndex={-1}>
                   회원가입
-                </a>
+                </Link>
               </div>
               <button
                 type="submit"

@@ -7,6 +7,7 @@ import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/ToastProvider';
 import styles from './login.module.css';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -98,13 +99,13 @@ export default function LoginPage() {
 
           <div className={styles.footer}>
             <div className={styles.links}>
-              <a href="/register" className={styles.link}>
+              <Link href="/register" className={styles.link}>
                 회원가입
-              </a>
+              </Link>
               <span className={styles.separator}>|</span>
-              <a href="/find-password" className={styles.link}>
+              <Link href="/find-password" className={styles.link}>
                 비밀번호 찾기
-              </a>
+              </Link>
             </div>
             <button type="submit" className={styles.submitButton}>
               로그인
