@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -15,6 +16,7 @@ export enum UserRole {
 }
 
 @Entity({ name: 'users' })
+@Index(['email'])
 export class User {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;

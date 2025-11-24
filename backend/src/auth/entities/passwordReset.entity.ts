@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,8 @@ import {
 import { User } from './user.entity';
 
 @Entity({ name: 'password_resets' })
+@Index(['userId', 'code', 'used'])
+@Index(['expiresAt'])
 export class PasswordReset {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -28,7 +31,7 @@ export class PasswordReset {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 }
