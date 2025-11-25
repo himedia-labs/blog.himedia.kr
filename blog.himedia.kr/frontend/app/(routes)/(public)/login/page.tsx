@@ -22,20 +22,21 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 에러 초기화
+    setEmailError('');
+    setPasswordError('');
+
     let hasError = false;
 
+    // 필수 입력 체크만 수행
     if (!email) {
       setEmailError('이메일을 입력해주세요.');
       hasError = true;
-    } else {
-      setEmailError('');
     }
 
     if (!password) {
       setPasswordError('비밀번호를 입력해주세요.');
       hasError = true;
-    } else {
-      setPasswordError('');
     }
 
     if (hasError) return;
@@ -51,7 +52,16 @@ export default function LoginPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '로그인에 실패했습니다.');
-          showToast({ message, type: 'warning' });
+
+          // 백엔드 에러 메시지를 각 필드에 맞게 설정
+          if (message.includes('이메일')) {
+            setEmailError(message);
+          } else if (message.includes('비밀번호')) {
+            setPasswordError(message);
+          } else {
+            // 특정 필드를 알 수 없는 경우 토스트로 표시
+            showToast({ message, type: 'warning' });
+          }
         },
       }
     );

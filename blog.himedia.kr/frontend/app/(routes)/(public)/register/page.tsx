@@ -8,6 +8,7 @@ import { IoIosArrowDown } from 'react-icons/io';
 
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
+import { useToast } from '@/app/shared/components/toast/ToastProvider';
 import styles from './register.module.css';
 
 const COURSE_OPTIONS = [
@@ -27,6 +28,7 @@ const COURSE_OPTIONS = [
 export default function RegisterPage() {
   const router = useRouter();
   const registerMutation = useRegisterMutation();
+  const { showToast } = useToast();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -35,6 +37,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('');
   const [course, setCourse] = useState('');
+  const [courseError, setCourseError] = useState('');
   const [privacyConsent, setPrivacyConsent] = useState(false);
 
   const [nameError, setNameError] = useState('');
@@ -63,27 +66,32 @@ export default function RegisterPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 에러 초기화
+    setNameError('');
+    setEmailError('');
+    setPasswordError('');
+    setPasswordConfirmError('');
+    setPhoneError('');
+    setRoleError('');
+    setCourseError('');
+    setPrivacyError(false);
+
     let hasError = false;
 
+    // 필수 입력 체크만 수행
     if (!name) {
       setNameError('이름을 입력해주세요.');
       hasError = true;
-    } else {
-      setNameError('');
     }
 
     if (!email) {
       setEmailError('이메일을 입력해주세요.');
       hasError = true;
-    } else {
-      setEmailError('');
     }
 
     if (!password) {
       setPasswordError('비밀번호를 입력해주세요.');
       hasError = true;
-    } else {
-      setPasswordError('');
     }
 
     if (!passwordConfirm) {
@@ -92,29 +100,26 @@ export default function RegisterPage() {
     } else if (password !== passwordConfirm) {
       setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
       hasError = true;
-    } else {
-      setPasswordConfirmError('');
     }
 
     if (!phone) {
       setPhoneError('전화번호를 입력해주세요.');
       hasError = true;
-    } else {
-      setPhoneError('');
     }
 
     if (!role) {
       setRoleError('역할을 선택해주세요.');
       hasError = true;
-    } else {
-      setRoleError('');
+    }
+
+    if (!course) {
+      setCourseError('과정명을 선택해주세요.');
+      hasError = true;
     }
 
     if (!privacyConsent) {
       setPrivacyError(true);
       hasError = true;
-    } else {
-      setPrivacyError(false);
     }
 
     if (hasError) return;
@@ -137,11 +142,36 @@ export default function RegisterPage() {
       },
       {
         onSuccess: () => {
-          router.push('/');
+          showToast({
+            message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
+            type: 'success',
+            duration: 5000,
+          });
+          setTimeout(() => {
+            router.push('/');
+          });
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '회원가입에 실패했습니다.');
-          setEmailError(message);
+
+          // 백엔드 에러 메시지를 각 필드에 맞게 설정
+          // 필드별 에러는 백엔드에서 validation error로 처리됨
+          if (message.includes('이름')) {
+            setNameError(message);
+          } else if (message.includes('이메일')) {
+            setEmailError(message);
+          } else if (message.includes('비밀번호')) {
+            setPasswordError(message);
+          } else if (message.includes('전화번호')) {
+            setPhoneError(message);
+          } else if (message.includes('역할')) {
+            setRoleError(message);
+          } else if (message.includes('과정')) {
+            setCourseError(message);
+          } else {
+            // 특정 필드를 알 수 없는 경우 이메일 필드에 표시
+            setEmailError(message);
+          }
         },
       }
     );
@@ -268,7 +298,15 @@ export default function RegisterPage() {
               과정명 및 기수
             </label>
             <div className={styles.selectWrapper}>
-              <select id="course" value={course} onChange={e => setCourse(e.target.value)} className={styles.select}>
+              <select
+                id="course"
+                value={course}
+                onChange={e => {
+                  setCourse(e.target.value);
+                  if (courseError) setCourseError('');
+                }}
+                className={courseError ? `${styles.select} ${styles.error}` : styles.select}
+              >
                 <option value="">선택해주세요</option>
                 {COURSE_OPTIONS.map(option => (
                   <option key={option} value={option}>
@@ -278,6 +316,7 @@ export default function RegisterPage() {
               </select>
               <IoIosArrowDown className={styles.selectIcon} aria-hidden />
             </div>
+            {courseError && <p className={styles.errorMessage}>{courseError}</p>}
           </div>
 
           <div className={styles.formGroup}>

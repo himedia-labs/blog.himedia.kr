@@ -37,13 +37,15 @@ export default function ForgotPasswordPage() {
   const handleVerifyFlow = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 에러 초기화
+    setEmailError('');
+    setCodeError('');
+
+    // 필수 입력 체크만 수행
     if (!email) {
       setEmailError('이메일을 입력해주세요.');
       return;
     }
-
-    setEmailError('');
-    setCodeError('');
 
     if (!codeSent) {
       sendCodeMutation.mutate(
@@ -55,7 +57,13 @@ export default function ForgotPasswordPage() {
           },
           onError: (error: Error) => {
             const message = handleAuthError(error, '인증번호 발송에 실패했습니다.');
-            showToast({ message, type: 'error' });
+
+            // 백엔드 에러 메시지를 각 필드에 맞게 설정
+            if (message.includes('이메일')) {
+              setEmailError(message);
+            } else {
+              showToast({ message, type: 'error' });
+            }
           },
         }
       );
@@ -67,13 +75,6 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    if (code.length !== 8) {
-      setCodeError('인증번호는 8자리입니다.');
-      return;
-    }
-
-    setCodeError('');
-
     verifyCodeMutation.mutate(
       { email, code },
       {
@@ -83,7 +84,15 @@ export default function ForgotPasswordPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '인증번호 확인에 실패했습니다.');
-          showToast({ message, type: 'warning' });
+
+          // 백엔드 에러 메시지를 각 필드에 맞게 설정
+          if (message.includes('인증번호')) {
+            setCodeError(message);
+          } else if (message.includes('이메일')) {
+            setEmailError(message);
+          } else {
+            showToast({ message, type: 'warning' });
+          }
         },
       }
     );
@@ -92,28 +101,27 @@ export default function ForgotPasswordPage() {
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 에러 초기화
+    setNewPasswordError('');
+    setConfirmPasswordError('');
+
+    let hasError = false;
+
+    // 필수 입력 체크만 수행
     if (!newPassword) {
       setNewPasswordError('새 비밀번호를 입력해주세요.');
-      return;
+      hasError = true;
     }
 
     if (!confirmPassword) {
       setConfirmPasswordError('비밀번호 확인을 입력해주세요.');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
+      hasError = true;
+    } else if (newPassword !== confirmPassword) {
       setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
-      return;
+      hasError = true;
     }
 
-    if (newPassword.length < 8) {
-      setNewPasswordError('비밀번호는 최소 8자 이상이어야 합니다.');
-      return;
-    }
-
-    setNewPasswordError('');
-    setConfirmPasswordError('');
+    if (hasError) return;
 
     resetPasswordMutation.mutate(
       { email, code, newPassword },
@@ -124,7 +132,15 @@ export default function ForgotPasswordPage() {
         },
         onError: (error: Error) => {
           const message = handleAuthError(error, '비밀번호 재설정에 실패했습니다.');
-          showToast({ message, type: 'warning' });
+
+          // 백엔드 에러 메시지를 각 필드에 맞게 설정
+          if (message.includes('비밀번호')) {
+            setNewPasswordError(message);
+          } else if (message.includes('인증번호')) {
+            setCodeError(message);
+          } else {
+            showToast({ message, type: 'warning' });
+          }
         },
       }
     );
