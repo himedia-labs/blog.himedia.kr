@@ -3,7 +3,7 @@
   top: clamp(12px, 4vw, 22px);
   left: 50%;
   transform: translateX(-50%);
-  width: min(30svw, 500px);
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -22,6 +22,8 @@
   color: #3a414d;
   pointer-events: auto;
   animation: fadeInUp 180ms ease forwards;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .toast.leaving {
