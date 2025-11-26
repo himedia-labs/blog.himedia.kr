@@ -17,14 +17,3 @@ export interface AuthTokens {
 export interface AuthResponse extends AuthTokens {
   user: AuthUserProfile;
 }
-
-// bcrypt 타입 정의
-export type HashFunction = (
-  data: string | Buffer,
-  saltOrRounds: string | number,
-) => Promise<string>;
-
-export type CompareFunction = (
-  data: string | Buffer,
-  encrypted: string,
-) => Promise<boolean>;
