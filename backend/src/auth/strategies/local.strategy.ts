@@ -1,24 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-local';
 
 import { AuthService } from '../services/auth.service';
+import type { User } from '../entities/user.entity';
 
-import * as passportLocal from 'passport-local';
-import type { LocalStrategyConstructor } from '../interfaces/local.strategy.interface';
-
-const { Strategy: LocalStrategyBase } = passportLocal as {
-  Strategy: LocalStrategyConstructor;
-};
-
+/**
+ * 로컬 인증
+ * @description 이메일/비밀번호 기반 로그인
+ */
 @Injectable()
-export class LocalStrategy extends PassportStrategy(LocalStrategyBase) {
+export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
+      // username 대신 email 필드 사용
       usernameField: 'email',
     });
   }
 
-  async validate(email: string, password: string) {
+  /**
+   * 사용자 검증
+   * @description 이메일과 비밀번호로 사용자 인증
+   */
+  async validate(email: string, password: string): Promise<User> {
     return this.authService.validateUser(email, password);
   }
 }
