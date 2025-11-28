@@ -1,58 +1,41 @@
 import type { Response } from 'express';
-import { ConfigValidationException } from '../../common/exception/config.exception';
+import type { ConfigType } from '@nestjs/config';
+
+import appConfig from '../../config/app.config';
 
 /**
- * 쿠키 기본 옵션
- * @description 보안을 위한 쿠키 설정
+ * 쿠키 기본 옵션 생성
+ * @description 환경에 따른 보안 쿠키 설정
  */
-const COOKIE_OPTIONS = {
+const getCookieOptions = (env?: string) => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: env === 'production', // .env.production 일 경우
   sameSite: 'lax' as const,
   path: '/',
-};
+});
 
 /**
  * 인증 쿠키 설정
- * @description Access Token과 Refresh Token을 쿠키에 저장
+ * @description Type-safe하게 Access Token과 Refresh Token을 쿠키에 저장
  */
 export const setCookies = (
   res: Response,
   accessToken: string,
   refreshToken: string,
+  config: ConfigType<typeof appConfig>,
 ) => {
-  // Access Token 만료 시간
-  const accessTokenExpires = process.env.ACCESS_TOKEN_EXPIRES_IN;
-  if (!accessTokenExpires) {
-    throw new ConfigValidationException('ACCESS_TOKEN_EXPIRES_IN');
-  }
+  const cookieOptions = getCookieOptions(config.env);
 
-  const accessTokenMaxAge = Number(accessTokenExpires) * 1000;
-  if (!Number.isFinite(accessTokenMaxAge) || accessTokenMaxAge <= 0) {
-    throw new ConfigValidationException('ACCESS_TOKEN_EXPIRES_IN');
-  }
-
-  // Refresh Token 만료 일수
-  const refreshTokenDays = process.env.REFRESH_TOKEN_EXPIRES_IN_DAYS;
-  if (!refreshTokenDays) {
-    throw new ConfigValidationException('REFRESH_TOKEN_EXPIRES_IN_DAYS');
-  }
-
-  const refreshTokenDaysNum = Number(refreshTokenDays);
-  if (!Number.isFinite(refreshTokenDaysNum) || refreshTokenDaysNum <= 0) {
-    throw new ConfigValidationException('REFRESH_TOKEN_EXPIRES_IN_DAYS');
-  }
-
-  // Access Token 쿠키 설정
+  // Access Token 쿠키 설정 (초 → 밀리초)
   res.cookie('accessToken', accessToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: accessTokenMaxAge,
+    ...cookieOptions,
+    maxAge: config.jwt.accessExpiresIn * 1000,
   });
 
-  // Refresh Token 쿠키 설정
+  // Refresh Token 쿠키 설정 (일 → 밀리초)
   res.cookie('refreshToken', refreshToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: refreshTokenDaysNum * 24 * 60 * 60 * 1000,
+    ...cookieOptions,
+    maxAge: config.jwt.refreshExpiresInDays * 24 * 60 * 60 * 1000,
   });
 };
 
@@ -60,7 +43,11 @@ export const setCookies = (
  * 인증 쿠키 삭제
  * @description 로그아웃 시 Access Token과 Refresh Token 쿠키 제거
  */
-export const clearCookies = (res: Response) => {
-  res.clearCookie('accessToken', COOKIE_OPTIONS);
-  res.clearCookie('refreshToken', COOKIE_OPTIONS);
+export const clearCookies = (
+  res: Response,
+  config: ConfigType<typeof appConfig>,
+) => {
+  const cookieOptions = getCookieOptions(config.env);
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
 };
