@@ -27,48 +27,34 @@ export const setCookies = (
     throw new ConfigValidationException('ACCESS_TOKEN_EXPIRES_IN');
   }
 
+  const accessTokenMaxAge = Number(accessTokenExpires) * 1000;
+  if (!Number.isFinite(accessTokenMaxAge) || accessTokenMaxAge <= 0) {
+    throw new ConfigValidationException('ACCESS_TOKEN_EXPIRES_IN');
+  }
+
   // Refresh Token 만료 일수
   const refreshTokenDays = process.env.REFRESH_TOKEN_EXPIRES_IN_DAYS;
   if (!refreshTokenDays) {
     throw new ConfigValidationException('REFRESH_TOKEN_EXPIRES_IN_DAYS');
   }
 
+  const refreshTokenDaysNum = Number(refreshTokenDays);
+  if (!Number.isFinite(refreshTokenDaysNum) || refreshTokenDaysNum <= 0) {
+    throw new ConfigValidationException('REFRESH_TOKEN_EXPIRES_IN_DAYS');
+  }
+
   // Access Token 쿠키 설정
   res.cookie('accessToken', accessToken, {
     ...COOKIE_OPTIONS,
-    maxAge: parseTimeToMs(accessTokenExpires),
+    maxAge: accessTokenMaxAge,
   });
 
   // Refresh Token 쿠키 설정
   res.cookie('refreshToken', refreshToken, {
     ...COOKIE_OPTIONS,
-    maxAge: parseInt(refreshTokenDays, 10) * 24 * 60 * 60 * 1000,
+    maxAge: refreshTokenDaysNum * 24 * 60 * 60 * 1000,
   });
 };
-
-/**
- * 시간 문자열을 밀리초로 변환
- */
-function parseTimeToMs(timeStr: string): number {
-  const match = timeStr.match(/^(\d+)([smhd])$/);
-  if (!match) return 0;
-
-  const [, value, unit] = match;
-  const num = parseInt(value, 10);
-
-  switch (unit) {
-    case 's':
-      return num * 1000;
-    case 'm':
-      return num * 60 * 1000;
-    case 'h':
-      return num * 60 * 60 * 1000;
-    case 'd':
-      return num * 24 * 60 * 60 * 1000;
-    default:
-      return 0;
-  }
-}
 
 /**
  * 인증 쿠키 삭제
