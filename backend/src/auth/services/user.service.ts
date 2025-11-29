@@ -28,7 +28,7 @@ export class UserService {
   }
 
   /**
-   * 사용자 조회
+   * 사용자 조회 (ID)
    * @description ID로 사용자 조회, 없으면 예외 발생
    */
   async getUserByIdOrThrow(userId: string): Promise<User> {
@@ -40,6 +40,24 @@ export class UserService {
     // 사용자 없음
     if (!user) {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    return user;
+  }
+
+  /**
+   * 사용자 조회 (이메일)
+   * @description 이메일로 사용자 조회, 없으면 예외 발생
+   */
+  async getUserByEmailOrThrow(email: string): Promise<User> {
+    // 사용자 조회
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    // 사용자 없음
+    if (!user) {
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.EMAIL_NOT_FOUND);
     }
 
     return user;

@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
+import { UserService } from './user.service';
 import { TokenService } from './token.service';
 import { EmailService } from '../../email/email.service';
 
@@ -33,15 +34,21 @@ export class PasswordService {
     private readonly passwordResetRepository: Repository<PasswordReset>,
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
+    private readonly userService: UserService,
   ) {}
 
   /**
    * 비밀번호 변경
    * @description 현재 비밀번호 검증 후 새 비밀번호로 변경하고 모든 토큰 무효화
    */
-  async changePassword(userId: string, dto: ChangePasswordDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+    userAgent?: string,
+    ipAddress?: string,
+  ): Promise<AuthResponse> {
     // 사용자 조회
-    const user = await this.getUserByIdOrThrow(userId);
+    const user = await this.userService.getUserByIdOrThrow(userId);
 
     // 현재 비밀번호 검증
     const isValid = await comparePassword(dto.currentPassword, user.password);
@@ -57,7 +64,7 @@ export class PasswordService {
     // DB 저장
     await this.usersRepository.save(user);
 
-    // 보안: 모든 토큰 무효화
+    // 모든 토큰 무효화
     await this.tokenService.revokeAllUserTokens(user.id);
 
     // 새 토큰 및 프로필 반환
@@ -70,7 +77,7 @@ export class PasswordService {
    */
   async sendPasswordResetCode(dto: ForgotPasswordDto) {
     // 사용자 조회
-    const user = await this.getUserByEmailOrThrow(dto.email);
+    const user = await this.userService.getUserByEmailOrThrow(dto.email);
 
     // 인증 코드 생성
     const code = this.generateResetCode();
@@ -131,42 +138,6 @@ export class PasswordService {
   }
 
   /**
-   * 사용자 조회 (ID) [내부]
-   * @description ID로 사용자 조회, 없으면 예외 발생
-   */
-  private async getUserByIdOrThrow(userId: string): Promise<User> {
-    // 사용자 조회
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-    });
-
-    // 사용자 없음
-    if (!user) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.USER_NOT_FOUND);
-    }
-
-    return user;
-  }
-
-  /**
-   * 사용자 조회 (이메일) [사용자 전용]
-   * @description 이메일로 사용자 조회, 없으면 예외 발생
-   */
-  private async getUserByEmailOrThrow(email: string): Promise<User> {
-    // 사용자 조회
-    const user = await this.usersRepository.findOne({
-      where: { email },
-    });
-
-    // 사용자 없음
-    if (!user) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.EMAIL_NOT_FOUND);
-    }
-
-    return user;
-  }
-
-  /**
    * 재설정 코드 검증
    * @description 이메일과 코드로 유효성 확인
    */
@@ -175,7 +146,7 @@ export class PasswordService {
     code: string,
   ): Promise<{ user: User; resetRecord: PasswordReset }> {
     // 사용자 조회
-    const user = await this.getUserByEmailOrThrow(email);
+    const user = await this.userService.getUserByEmailOrThrow(email);
 
     // 최근 미사용 코드 조회
     const resetRecord = await this.passwordResetRepository.findOne({
