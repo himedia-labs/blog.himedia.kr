@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService, ConfigType } from '@nestjs/config';
 
 import { CorsConfig } from './cors.types';
-import appConfig from '../../config/app.config';
+import appConfig from '../config/app.config';
 
 /**
  * CORS 설정 생성
@@ -13,13 +13,7 @@ const getCorsConfig = (config: ConfigType<typeof appConfig>): CorsConfig => {
     origin: config.cors.origins,
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-    ],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
     maxAge: 3600,
   };
 };
