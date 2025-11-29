@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { AuthModule } from './auth/auth.module';
-import appConfig from './config/app.config';
+import appConfig from './common/config/app.config';
 
 @Module({
   imports: [
