@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Request,
-  Response,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Request, Response, UseGuards } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 
 import { LoginDto } from './dto/login.dto';
@@ -32,10 +23,7 @@ import { setCookies, clearCookies } from './utils/cookie.util';
 import type { User } from './entities/user.entity';
 import type { JwtPayload } from './interfaces/jwt.interface';
 
-import type {
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-} from 'express';
+import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
 /**
  * 인증 컨트롤러
@@ -64,12 +52,7 @@ export class AuthController {
     @Response() res: ExpressResponse,
   ) {
     const authResponse = await this.authService.login(req.user);
-    setCookies(
-      res,
-      authResponse.accessToken,
-      authResponse.refreshToken,
-      this.config,
-    );
+    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
 
@@ -78,17 +61,9 @@ export class AuthController {
    * @description 새 사용자 등록 후 토큰 발급
    */
   @Post('register')
-  async register(
-    @Body() registerDto: RegisterDto,
-    @Response() res: ExpressResponse,
-  ) {
+  async register(@Body() registerDto: RegisterDto, @Response() res: ExpressResponse) {
     const authResponse = await this.authService.register(registerDto);
-    setCookies(
-      res,
-      authResponse.accessToken,
-      authResponse.refreshToken,
-      this.config,
-    );
+    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
 
@@ -97,10 +72,7 @@ export class AuthController {
    * @description Refresh Token으로 새로운 Access/Refresh Token 발급
    */
   @Post('refresh')
-  async refresh(
-    @Request() req: ExpressRequest,
-    @Response() res: ExpressResponse,
-  ) {
+  async refresh(@Request() req: ExpressRequest, @Response() res: ExpressResponse) {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token not found' });
@@ -109,12 +81,7 @@ export class AuthController {
     const authResponse = await this.tokenService.refreshTokens({
       refreshToken,
     });
-    setCookies(
-      res,
-      authResponse.accessToken,
-      authResponse.refreshToken,
-      this.config,
-    );
+    setCookies(res, authResponse.accessToken, authResponse.refreshToken, this.config);
     return res.json({ user: authResponse.user });
   }
 
@@ -123,10 +90,7 @@ export class AuthController {
    * @description Refresh Token 무효화 및 쿠키 삭제
    */
   @Post('logout')
-  async logout(
-    @Request() req: ExpressRequest,
-    @Response() res: ExpressResponse,
-  ) {
+  async logout(@Request() req: ExpressRequest, @Response() res: ExpressResponse) {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     if (refreshToken) {
       await this.tokenService.logout({ refreshToken });
@@ -178,10 +142,7 @@ export class AuthController {
    */
   @UseGuards(JwtGuard)
   @Post('password/change')
-  changePassword(
-    @Request() req: ExpressRequest & { user: JwtPayload },
-    @Body() changePasswordDto: ChangePasswordDto,
-  ) {
+  changePassword(@Request() req: ExpressRequest & { user: JwtPayload }, @Body() changePasswordDto: ChangePasswordDto) {
     return this.passwordService.changePassword(req.user.sub, changePasswordDto);
   }
 }

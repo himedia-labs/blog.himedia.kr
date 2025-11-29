@@ -41,13 +41,6 @@ import appConfig from '../config/app.config';
     EmailModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    TokenService,
-    PasswordService,
-    UserService,
-    LocalStrategy,
-    JwtStrategy,
-  ],
+  providers: [AuthService, TokenService, PasswordService, UserService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}
