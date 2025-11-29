@@ -19,7 +19,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
 import { EmailModule } from '../email/email.module';
-import appConfig from '../config/app.config';
+import appConfig from '../common/config/app.config';
 
 @Module({
   imports: [

@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 import type { ConfigType } from '@nestjs/config';
 
-import appConfig from '../../config/app.config';
+import appConfig from '../../common/config/app.config';
 
 /**
  * 쿠키 기본 옵션 생성

@@ -16,7 +16,7 @@ import { PasswordService } from './services/password.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { LocalGuard } from './guards/local.guard';
 
-import appConfig from '../config/app.config';
+import appConfig from '../common/config/app.config';
 
 import { setCookies, clearCookies } from './utils/cookie.util';
 

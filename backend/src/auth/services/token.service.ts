@@ -10,7 +10,7 @@ import { User } from '../entities/user.entity';
 import { RefreshToken } from '../entities/refreshToken.entity';
 
 import { UserService } from './user.service';
-import appConfig from '../../config/app.config';
+import appConfig from '../../common/config/app.config';
 import { RefreshTokenDto } from '../dto/refreshToken.dto';
 import { comparePassword, hashPassword } from '../utils/bcrypt.util';
 
@@ -85,7 +85,11 @@ export class TokenService {
    * 토큰 갱신
    * @description Refresh Token 검증 후 기존 토큰 무효화하고 새 토큰 발급
    */
-  async refreshTokens({ refreshToken }: RefreshTokenDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
+  async refreshTokens(
+    { refreshToken }: RefreshTokenDto,
+    userAgent?: string,
+    ipAddress?: string,
+  ): Promise<AuthResponse> {
     // 토큰 검증
     const storedToken = await this.getValidatedRefreshToken(refreshToken);
 
