@@ -1,4 +1,14 @@
-import { IsEmail, IsEnum, IsBoolean, IsOptional, IsString, MaxLength, MinLength, Equals } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  Equals,
+  Matches,
+} from 'class-validator';
 
 import { UserRole } from '../entities/user.entity';
 
@@ -15,6 +25,9 @@ export class RegisterDto {
   @IsString({ message: '비밀번호는 문자열이어야 합니다.' })
   @MinLength(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' })
   @MaxLength(255, { message: '비밀번호는 255자 이하여야 합니다.' })
+  @Matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: '최소 8자의 영문, 숫자, 특수문자를 입력해주세요.',
+  })
   password!: string;
 
   @IsString({ message: '전화번호는 문자열이어야 합니다.' })

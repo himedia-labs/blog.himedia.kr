@@ -92,6 +92,9 @@ export default function RegisterPage() {
     if (!password) {
       setPasswordError('비밀번호를 입력해주세요.');
       hasError = true;
+    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
+      setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+      hasError = true;
     }
 
     if (!passwordConfirm) {
@@ -173,7 +176,7 @@ export default function RegisterPage() {
             setEmailError(message);
           }
         },
-      }
+      },
     );
   };
 
@@ -226,8 +229,13 @@ export default function RegisterPage() {
               id="password"
               value={password}
               onChange={e => {
-                setPassword(e.target.value);
-                if (passwordError) setPasswordError('');
+                const value = e.target.value;
+                setPassword(value);
+                if (value && !/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+                  setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+                } else {
+                  setPasswordError('');
+                }
               }}
               className={passwordError ? `${styles.input} ${styles.error}` : styles.input}
             />

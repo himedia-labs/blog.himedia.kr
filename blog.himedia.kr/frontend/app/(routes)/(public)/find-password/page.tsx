@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
               showToast({ message, type: 'error' });
             }
           },
-        }
+        },
       );
       return;
     }
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
             showToast({ message, type: 'warning' });
           }
         },
-      }
+      },
     );
   };
 
@@ -110,6 +110,9 @@ export default function ForgotPasswordPage() {
     // 필수 입력 체크만 수행
     if (!newPassword) {
       setNewPasswordError('새 비밀번호를 입력해주세요.');
+      hasError = true;
+    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(newPassword)) {
+      setNewPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
       hasError = true;
     }
 
@@ -142,7 +145,7 @@ export default function ForgotPasswordPage() {
             showToast({ message, type: 'warning' });
           }
         },
-      }
+      },
     );
   };
 
@@ -234,8 +237,13 @@ export default function ForgotPasswordPage() {
                 id="newPassword"
                 value={newPassword}
                 onChange={e => {
-                  setNewPassword(e.target.value);
-                  if (newPasswordError) setNewPasswordError('');
+                  const value = e.target.value;
+                  setNewPassword(value);
+                  if (value && !/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+                    setNewPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+                  } else {
+                    setNewPasswordError('');
+                  }
                 }}
                 className={newPasswordError ? `${styles.input} ${styles.error}` : styles.input}
                 disabled={resetPasswordMutation.isPending}
