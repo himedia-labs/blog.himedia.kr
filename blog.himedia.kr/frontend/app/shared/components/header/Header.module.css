@@ -51,8 +51,21 @@
 }
 
 .logoText {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
   font-size: 1.25rem;
-  font-weight: 500;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.logoSub {
+  font-size: 0.7rem;
+  font-weight: normal;
+  letter-spacing: 3px;
+  color: #555;
+  white-space: nowrap;
 }
 
 .nav ul {
