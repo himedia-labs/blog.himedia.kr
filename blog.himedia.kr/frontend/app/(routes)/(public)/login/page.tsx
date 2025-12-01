@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
-import { useToast } from '@/app/shared/components/toast/ToastProvider';
+import { useToast } from '@/app/shared/components/toast/toast';
 import { authKeys } from '@/app/api/auth/auth.keys';
 
 import styles from './login.module.css';

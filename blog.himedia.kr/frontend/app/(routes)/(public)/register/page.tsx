@@ -10,7 +10,7 @@ import { TbExternalLink } from 'react-icons/tb';
 
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
-import { useToast } from '@/app/shared/components/toast/ToastProvider';
+import { useToast } from '@/app/shared/components/toast/toast';
 
 import styles from './register.module.css';
 

@@ -11,7 +11,7 @@ import {
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { handleAuthError } from '@/app/api/auth/auth.error';
-import { useToast } from '@/app/shared/components/toast/ToastProvider';
+import { useToast } from '@/app/shared/components/toast/toast';
 
 import styles from './searchPassword.module.css';
 import type { AuthStep } from './searchPassword.types';
