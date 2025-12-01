@@ -5,26 +5,8 @@ import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 
-import styles from './BlogList.module.css';
-
-type ViewMode = 'list' | 'card';
-
-type BlogPost = {
-  id: string;
-  title: string;
-  summary: string;
-  category: string;
-  date: string;
-  readTime: string;
-  views: number;
-  accent: string;
-  accentLight: string;
-};
-
-type TopPost = {
-  id: string;
-  title: string;
-};
+import styles from './blogList.module.css';
+import { BlogPost, TopPost, ViewMode } from './blogList.types';
 
 const BLOG_POSTS: BlogPost[] = [
   {

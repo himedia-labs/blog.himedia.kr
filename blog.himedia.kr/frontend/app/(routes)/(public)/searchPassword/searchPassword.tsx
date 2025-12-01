@@ -13,8 +13,8 @@ import {
 import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/ToastProvider';
 
-import styles from './page.module.css';
-import type { AuthStep } from './types';
+import styles from './searchPassword.module.css';
+import type { AuthStep } from './searchPassword.types';
 
 const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);

@@ -11,7 +11,7 @@ import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/ToastProvider';
 import { authKeys } from '@/app/api/auth/auth.keys';
 
-import styles from './page.module.css';
+import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();

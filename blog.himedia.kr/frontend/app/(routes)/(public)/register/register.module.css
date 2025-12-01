@@ -2,13 +2,56 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 5rem 1.5rem;
+}
 
-  padding: 5rem 0rem;
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.brandMark {
+  position: relative;
+  display: block;
+  width: 50px;
+  height: 40px;
+}
+
+.brandMark :global(img) {
+  object-fit: contain;
+}
+
+.brandLink {
+  color: inherit;
+  align-items: center;
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.brandText {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+.brandSub {
+  font-size: 0.7rem;
+  font-weight: normal;
+  letter-spacing: 3px;
+  color: #555;
+  white-space: nowrap;
 }
 
 .signupBox {
   width: 100%;
-  max-width: 480px;
+  max-width: 100%;
 }
 
 .title {
@@ -216,6 +259,19 @@
   outline: none;
   border-color: #ff6363;
   box-shadow: 0 0 0 3px rgba(255, 99, 99, 0.25);
+}
+
+.consentLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.2;
+}
+
+.consentIcon {
+  width: 16px;
+  height: 16px;
+  color: #999;
 }
 
 .submitButton:hover {
