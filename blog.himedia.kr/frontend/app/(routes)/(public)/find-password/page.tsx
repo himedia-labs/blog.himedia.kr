@@ -10,11 +10,10 @@ import {
   useVerifyResetCodeMutation,
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
-import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/toast';
 
-import styles from './searchPassword.module.css';
-import type { AuthStep } from './searchPassword.types';
+import styles from './find-password.module.css';
+import type { AuthStep } from './find-password.types';
 
 const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);
@@ -75,7 +74,7 @@ export default function ForgotPasswordPage() {
           setCodeSent(true);
         },
         onError: (error: Error) => {
-          const message = handleAuthError(error, '인증번호 발송에 실패했습니다.');
+          const message = error.message;
 
           if (message.includes('이메일')) {
             setEmailError(message);
@@ -112,7 +111,7 @@ export default function ForgotPasswordPage() {
           setStep('password');
         },
         onError: (error: Error) => {
-          const message = handleAuthError(error, '인증번호 확인에 실패했습니다.');
+          const message = error.message;
 
           if (message.includes('인증번호')) {
             setCodeError(message);
@@ -163,7 +162,7 @@ export default function ForgotPasswordPage() {
           router.push('/login');
         },
         onError: (error: Error) => {
-          const message = handleAuthError(error, '비밀번호 재설정에 실패했습니다.');
+          const message = error.message;
 
           // 백엔드 에러 메시지를 각 필드에 맞게 설정
           if (message.includes('비밀번호')) {
