@@ -1,8 +1,3 @@
-/**
- * auth.api.ts
- * auth.mutations.ts
- */
-
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -48,18 +43,15 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
+export interface User {
+  id: string;
   email: string;
   name: string;
+  role: 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+  phone: string;
+  course?: string | null;
 }
 
-// auth.types.ts
-export interface ApiErrorResponse {
-  response?: {
-    data?: {
-      message?: string | string[];
-    };
-  };
+export interface AuthResponse {
+  user: User;
 }

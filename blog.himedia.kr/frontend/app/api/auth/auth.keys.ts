@@ -1,5 +1,3 @@
 export const authKeys = {
-  all: ['auth'] as const,
-  login: () => [...authKeys.all, 'login'] as const,
-  register: () => [...authKeys.all, 'register'] as const,
+  currentUser: ['auth', 'currentUser'] as const,
 };
