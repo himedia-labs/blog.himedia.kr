@@ -1,24 +1,12 @@
-import {
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  ExceptionFilter,
-  Logger,
-  INestApplication,
-} from '@nestjs/common';
+import { Catch, ArgumentsHost, HttpException, ExceptionFilter, Logger, INestApplication } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import type {
-  ExceptionMessage,
-  StandardErrorResponse,
-} from './httpException.types';
+import type { ExceptionMessage, StandardErrorResponse } from './httpException.types';
 
 /**
  * 요청 데이터를 로그용 문자열로 변환
  */
 const formatSection = (label: string, data: Record<string, unknown>) =>
-  data && Object.keys(data).length
-    ? ` \n ${label}: ${JSON.stringify(data, null, 2)}`
-    : '';
+  data && Object.keys(data).length ? ` \n ${label}: ${JSON.stringify(data, null, 2)}` : '';
 
 /**
  * HttpException에서 에러 메시지 추출
@@ -30,11 +18,7 @@ const extractErrorMessage = (exception: HttpException): ExceptionMessage => {
     return exceptionResponse;
   }
 
-  if (
-    typeof exceptionResponse === 'object' &&
-    exceptionResponse !== null &&
-    'message' in exceptionResponse
-  ) {
+  if (typeof exceptionResponse === 'object' && exceptionResponse !== null && 'message' in exceptionResponse) {
     const messageValue = (exceptionResponse as { message?: unknown }).message;
     if (typeof messageValue === 'string' || Array.isArray(messageValue)) {
       return messageValue;
