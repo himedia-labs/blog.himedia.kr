@@ -1,20 +1,21 @@
 import { IsEmail, IsString, Length, MaxLength, MinLength, Matches } from 'class-validator';
+import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
 
 // 인증번호 확인 후 새 비밀번호로 재설정 요청에 사용
 export class ResetPasswordWithCodeDto {
-  @IsEmail({}, { message: '올바른 이메일 형식이 아닙니다.' })
-  @MaxLength(255, { message: '이메일은 255자 이하여야 합니다.' })
+  @IsEmail({}, { message: VALIDATION_MESSAGES.EMAIL_FORMAT })
+  @MaxLength(255, { message: VALIDATION_MESSAGES.EMAIL_MAX_LENGTH })
   email!: string;
 
-  @IsString({ message: '인증번호는 문자열이어야 합니다.' })
-  @Length(8, 8, { message: '인증번호는 8자리여야 합니다.' })
+  @IsString({ message: VALIDATION_MESSAGES.CODE_STRING })
+  @Length(8, 8, { message: VALIDATION_MESSAGES.CODE_LENGTH })
   code!: string;
 
-  @IsString({ message: '새 비밀번호는 문자열이어야 합니다.' })
-  @MinLength(8, { message: '새 비밀번호는 최소 8자 이상이어야 합니다.' })
-  @MaxLength(255, { message: '새 비밀번호는 255자 이하여야 합니다.' })
+  @IsString({ message: VALIDATION_MESSAGES.NEW_PASSWORD_STRING })
+  @MinLength(8, { message: VALIDATION_MESSAGES.NEW_PASSWORD_MIN_LENGTH })
+  @MaxLength(255, { message: VALIDATION_MESSAGES.NEW_PASSWORD_MAX_LENGTH })
   @Matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: '최소 8자의 영문, 숫자, 특수문자를 입력해주세요.',
+    message: VALIDATION_MESSAGES.PASSWORD_PATTERN,
   })
   newPassword!: string;
 }
