@@ -11,13 +11,13 @@ export default registerAs('app', () => ({
   jwt: {
     secret: process.env.JWT_SECRET!,
     accessExpiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRES_IN!),
-    refreshExpiresInDays: parseInt(process.env.REFRESH_TOKEN_EXPIRES_IN_DAYS!),
+    refreshExpiresInSeconds: parseInt(process.env.REFRESH_TOKEN_EXPIRES_IN_SECONDS!),
   },
 
   cors: {
     origins: process.env
       .CORS_ORIGINS!.split(',')
-      .map((origin) => origin.trim())
+      .map(origin => origin.trim())
       .filter(Boolean),
   },
 
