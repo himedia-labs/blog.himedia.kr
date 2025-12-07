@@ -15,7 +15,6 @@ import type { User } from '../entities/user.entity';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
-      // username 대신 email 필드 사용
       usernameField: 'email',
     });
   }
