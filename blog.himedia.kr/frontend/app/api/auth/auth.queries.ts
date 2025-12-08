@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 
 import { authApi } from './auth.api';
 import { authKeys } from './auth.keys';
-import type { User } from './auth.types';
 import { useAuthStore } from '@/app/shared/store/authStore';
+
+import type { User } from '@/app/shared/types/auth';
 
 /**
  * 사용자 조회
