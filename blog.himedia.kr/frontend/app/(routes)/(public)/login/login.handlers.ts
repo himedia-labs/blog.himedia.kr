@@ -1,10 +1,16 @@
 import type { AxiosError } from 'axios';
-import type { UseMutationResult } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-// 로그인
+/**
+ * @description
+    1. 폼 제출 시 이메일/비밀번호 유효성 검증
+    2. 로그인 API 호출
+    3. 성공 : 사용자 데이터 캐싱 + 홈으로 이동
+    4. 실패 : 에러 메시지 처리
+ */
 export const authenticateUser = (params: {
   email: string;
   password: string;
