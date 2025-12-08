@@ -1,17 +1,17 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { authApi } from './auth.api';
-import type {
-  RegisterRequest,
-  LoginRequest,
+import {
   AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   SendResetCodeRequest,
   SendResetCodeResponse,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
-  ResetPasswordRequest,
-  ResetPasswordResponse,
-} from './auth.types';
+} from '@/app/shared/types/auth';
 
 // 회원가입
 export const useRegisterMutation = () => {
