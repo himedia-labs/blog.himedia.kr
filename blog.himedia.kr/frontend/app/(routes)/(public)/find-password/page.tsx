@@ -11,12 +11,16 @@ import {
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { resetPasswordState, sendCode, verifyCode, resetPassword } from './find-password.handlers';
 
 import styles from './find-password.module.css';
-import type { AuthStep } from './find-password.types';
+import type { AuthStep } from '@/app/shared/types/auth';
 
+// 비밀번호 유효성 검사 (최소 8자, 영문+숫자+특수문자)
 const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);
+
+// 인증번호 포맷팅 (영문+숫자만, 대문자 변환, 8자 제한)
 const formatCode = (value: string) =>
   value
     .replace(/[^a-zA-Z0-9]/g, '')
@@ -24,158 +28,78 @@ const formatCode = (value: string) =>
     .slice(0, 8);
 
 export default function ForgotPasswordPage() {
+  // Hooks & Mutations
   const router = useRouter();
   const sendCodeMutation = useSendResetCodeMutation();
   const verifyCodeMutation = useVerifyResetCodeMutation();
   const resetPasswordMutation = useResetPasswordMutation();
+  const { showToast } = useToast();
 
-  const [code, setCode] = useState('');
+  // Form
   const [email, setEmail] = useState('');
-  const [step, setStep] = useState<AuthStep>('verify');
-  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // UI
+  const [step, setStep] = useState<AuthStep>('verify');
+  const [codeSent, setCodeSent] = useState(false);
+
+  // Error
   const [emailError, setEmailError] = useState('');
   const [codeError, setCodeError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  const { showToast } = useToast();
-
+  // Loading
   const isSending = sendCodeMutation.isPending;
   const isVerifying = verifyCodeMutation.isPending;
   const isResetting = resetPasswordMutation.isPending;
 
-  const resetPasswordState = () => {
-    setNewPassword('');
-    setConfirmPassword('');
-    setNewPasswordError('');
-    setConfirmPasswordError('');
-  };
+  // Handlers
+  // 비밀번호 상태 초기화
+  const handleResetPasswordState = resetPasswordState({
+    setNewPassword,
+    setConfirmPassword,
+    setNewPasswordError,
+    setConfirmPasswordError,
+  });
 
   // 인증번호 발송
-  const handleSendCode = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setEmailError('');
-    setCodeError('');
-
-    if (!email) {
-      setEmailError('이메일을 입력해주세요.');
-      return;
-    }
-
-    sendCodeMutation.mutate(
-      { email },
-      {
-        onSuccess: data => {
-          showToast({ message: data.message, type: 'success' });
-          setCodeSent(true);
-        },
-        onError: (error: Error) => {
-          const message = error.message;
-
-          if (message.includes('이메일')) {
-            setEmailError(message);
-          } else {
-            showToast({ message, type: 'error' });
-          }
-        },
-      },
-    );
-  };
+  const handleSendCode = sendCode({
+    email,
+    setEmailError,
+    setCodeError,
+    setCodeSent,
+    sendCodeMutation,
+    showToast,
+  });
 
   // 인증번호 검증
-  const handleVerifyCode = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyCode = verifyCode({
+    email,
+    code,
+    setEmailError,
+    setCodeError,
+    setStep,
+    verifyCodeMutation,
+    showToast,
+  });
 
-    setEmailError('');
-    setCodeError('');
-
-    if (!email) {
-      setEmailError('이메일을 입력해주세요.');
-      return;
-    }
-
-    if (!code) {
-      setCodeError('인증번호를 입력해주세요.');
-      return;
-    }
-
-    verifyCodeMutation.mutate(
-      { email, code },
-      {
-        onSuccess: data => {
-          showToast({ message: data.message, type: 'success' });
-          setStep('password');
-        },
-        onError: (error: Error) => {
-          const message = error.message;
-
-          if (message.includes('인증번호')) {
-            setCodeError(message);
-          } else if (message.includes('이메일')) {
-            setEmailError(message);
-          } else {
-            showToast({ message, type: 'warning' });
-          }
-        },
-      },
-    );
-  };
-
-  // 새 비밀번호 입력
-  const handleResetPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // 에러 초기화
-    setNewPasswordError('');
-    setConfirmPasswordError('');
-
-    let hasError = false;
-
-    // 필수 입력 체크만 수행
-    if (!newPassword) {
-      setNewPasswordError('새 비밀번호를 입력해주세요.');
-      hasError = true;
-    } else if (!isValidPassword(newPassword)) {
-      setNewPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!confirmPassword) {
-      setConfirmPasswordError('비밀번호 확인을 입력해주세요.');
-      hasError = true;
-    } else if (newPassword !== confirmPassword) {
-      setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    resetPasswordMutation.mutate(
-      { email, code, newPassword },
-      {
-        onSuccess: data => {
-          showToast({ message: data.message, type: 'success' });
-          router.push('/login');
-        },
-        onError: (error: Error) => {
-          const message = error.message;
-
-          // 백엔드 에러 메시지를 각 필드에 맞게 설정
-          if (message.includes('비밀번호')) {
-            setNewPasswordError(message);
-          } else if (message.includes('인증번호')) {
-            setCodeError(message);
-          } else {
-            showToast({ message, type: 'warning' });
-          }
-        },
-      },
-    );
-  };
+  // 새 비밀번호 설정
+  const handleResetPassword = resetPassword({
+    email,
+    code,
+    newPassword,
+    confirmPassword,
+    setNewPasswordError,
+    setConfirmPasswordError,
+    setCodeError,
+    resetPasswordMutation,
+    showToast,
+    router,
+    isValidPassword,
+  });
 
   return (
     <div className={styles.container}>
@@ -314,7 +238,7 @@ export default function ForgotPasswordPage() {
                   tabIndex={-1}
                   onClick={() => {
                     setStep('verify');
-                    resetPasswordState();
+                    handleResetPasswordState();
                   }}
                 >
                   이전으로
