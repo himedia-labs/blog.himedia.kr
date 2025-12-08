@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
-import axiosInstance from '@/app/shared/network/axiosInstance';
-import { useAuthStore } from '@/app/shared/store/authStore';
+
 import { getTokenExpiry } from '../utils/token';
+import { axiosInstance } from '../network/axios.config';
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 const TOKEN_REFRESH_THRESHOLD_MS = 1000 * 90; // 만료 90초 전부터 갱신
 const REFRESH_ENDPOINT = '/auth/refresh';
