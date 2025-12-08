@@ -1,15 +1,14 @@
 'use client';
-
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { TbExclamationMark } from 'react-icons/tb';
+import { IconType } from 'react-icons';
 import { IoMdCheckmark } from 'react-icons/io';
 import { AiOutlineInfo } from 'react-icons/ai';
+import { TbExclamationMark } from 'react-icons/tb';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 import styles from './toast.module.css';
 import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from './toast.types';
-import type { IconType } from 'react-icons';
 
+// 토스트 표시/닫기를 제공하는 컨텍스트
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const iconStyles: Record<ToastType, { bg: string; color: string }> = {
@@ -29,6 +28,7 @@ const iconMap: Record<ToastType, IconType> = {
   error: TbExclamationMark,
 };
 
+// 토스트 타입별 아이콘/배경색 렌더
 function ToastIcon({ type }: { type: ToastType }) {
   const Icon = iconMap[type];
   const { bg, color } = iconStyles[type];
@@ -39,6 +39,7 @@ function ToastIcon({ type }: { type: ToastType }) {
   );
 }
 
+// 단일 토스트 카드 렌더 + 닫기 버튼
 function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: (id: string) => void }) {
   return (
     <div className={`${styles.toast} ${toast.leaving ? styles.leaving : ''}`} role="status" aria-live="polite">
@@ -51,9 +52,9 @@ function ToastCard({ toast, onClose }: { toast: ToastItem; onClose: (id: string)
   );
 }
 
+// 토스트 컨텍스트 제공 및 큐 관리
 export default function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const mounted = typeof window !== 'undefined';
 
   const hideToast = useCallback((id: string) => {
     setToasts(prev => {
@@ -90,15 +91,11 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      {mounted &&
-        createPortal(
-          <div className={styles.container} aria-live="polite" aria-atomic="true">
-            {toasts.map(toast => (
-              <ToastCard key={toast.id} toast={toast} onClose={hideToast} />
-            ))}
-          </div>,
-          document.body,
-        )}
+      <div className={styles.container} aria-live="polite" aria-atomic="true">
+        {toasts.map(toast => (
+          <ToastCard key={toast.id} toast={toast} onClose={hideToast} />
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 }
