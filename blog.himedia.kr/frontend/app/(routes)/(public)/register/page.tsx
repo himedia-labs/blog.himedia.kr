@@ -212,6 +212,7 @@ export default function RegisterPage() {
                   if (nameError) setNameError('');
                 }}
                 className={nameError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="name"
               />
               {nameError && <p className={styles.errorMessage}>{nameError}</p>}
             </div>
@@ -229,6 +230,7 @@ export default function RegisterPage() {
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="username"
               />
               {emailError && <p className={styles.errorMessage}>{emailError}</p>}
             </div>
@@ -251,6 +253,7 @@ export default function RegisterPage() {
                   }
                 }}
                 className={passwordError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="new-password"
               />
               {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
             </div>
@@ -268,6 +271,7 @@ export default function RegisterPage() {
                   if (passwordConfirmError) setPasswordConfirmError('');
                 }}
                 className={passwordConfirmError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="new-password"
               />
               {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}
             </div>
@@ -284,6 +288,7 @@ export default function RegisterPage() {
                 className={phoneError ? `${styles.input} ${styles.error}` : styles.input}
                 placeholder="010 1234 5678"
                 maxLength={13}
+                autoComplete="tel"
               />
               {phoneError && <p className={styles.errorMessage}>{phoneError}</p>}
             </div>
@@ -352,6 +357,7 @@ export default function RegisterPage() {
                         if (privacyError) setPrivacyError(false);
                       }}
                       className={styles.checkbox}
+                      autoComplete="new-password"
                     />
                     <FaCheck className={styles.checkboxIcon} aria-hidden />
                   </label>

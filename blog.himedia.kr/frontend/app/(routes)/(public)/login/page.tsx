@@ -101,6 +101,7 @@ export default function LoginPage() {
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="username"
               />
               {emailError && <p className={styles.errorMessage}>{emailError}</p>}
             </div>
@@ -118,6 +119,7 @@ export default function LoginPage() {
                   if (passwordError) setPasswordError('');
                 }}
                 className={passwordError ? `${styles.input} ${styles.error}` : styles.input}
+                autoComplete="current-password"
               />
               {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
             </div>

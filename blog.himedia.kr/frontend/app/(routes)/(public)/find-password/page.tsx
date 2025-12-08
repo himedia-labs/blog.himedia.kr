@@ -212,6 +212,7 @@ export default function ForgotPasswordPage() {
                   className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                   disabled={isSending || isVerifying || codeSent}
                   placeholder="example@email.com"
+                  autoComplete="username"
                 />
                 {emailError && <p className={styles.errorMessage}>{emailError}</p>}
               </div>
@@ -232,6 +233,7 @@ export default function ForgotPasswordPage() {
                   disabled={!codeSent || isVerifying}
                   placeholder="8자리 인증번호"
                   maxLength={8}
+                  autoComplete="one-time-code"
                 />
                 {codeError && <p className={styles.errorMessage}>{codeError}</p>}
               </div>
@@ -280,6 +282,7 @@ export default function ForgotPasswordPage() {
                   className={newPasswordError ? `${styles.input} ${styles.error}` : styles.input}
                   disabled={isResetting}
                   placeholder="최소 8자 이상"
+                  autoComplete="new-password"
                 />
                 {newPasswordError && <p className={styles.errorMessage}>{newPasswordError}</p>}
               </div>
@@ -299,6 +302,7 @@ export default function ForgotPasswordPage() {
                   className={confirmPasswordError ? `${styles.input} ${styles.error}` : styles.input}
                   disabled={isResetting}
                   placeholder="비밀번호 재입력"
+                  autoComplete="new-password"
                 />
                 {confirmPasswordError && <p className={styles.errorMessage}>{confirmPasswordError}</p>}
               </div>
