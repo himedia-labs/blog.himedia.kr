@@ -7,7 +7,7 @@ export default function Banner() {
     <section className={styles.banner} aria-label="하이미디어 배너">
       <Image
         src="/banner.png"
-        alt="하이미디어 로고 배너"
+        alt="Banner"
         width={3000}
         height={500}
         priority
