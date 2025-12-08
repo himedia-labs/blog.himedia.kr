@@ -9,11 +9,16 @@ import { IoIosArrowDown } from 'react-icons/io';
 import { TbExternalLink } from 'react-icons/tb';
 
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
-import { handleAuthError } from '@/app/api/auth/auth.error';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { formatPhone, register } from './register.handlers';
 
 import styles from './register.module.css';
 
+// 비밀번호 유효성 검사 (최소 8자, 영문+숫자+특수문자)
+const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);
+
+// 교육과정 리스트
 const COURSE_OPTIONS = [
   '프론트엔드 개발자 양성과정 1기',
   '프론트엔드 개발자 양성과정 2기',
@@ -29,10 +34,12 @@ const COURSE_OPTIONS = [
 ];
 
 export default function RegisterPage() {
+  // Hooks & Mutations
   const router = useRouter();
   const registerMutation = useRegisterMutation();
   const { showToast } = useToast();
 
+  // Form
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,146 +47,49 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('');
   const [course, setCourse] = useState('');
-  const [courseError, setCourseError] = useState('');
   const [privacyConsent, setPrivacyConsent] = useState(false);
 
+  // Error
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [roleError, setRoleError] = useState('');
+  const [courseError, setCourseError] = useState('');
   const [privacyError, setPrivacyError] = useState(false);
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
+  // 전화번호 포맷팅
+  const handlePhoneChange = formatPhone({
+    phone,
+    setPhone,
+    phoneError,
+    setPhoneError,
+  });
 
-    if (value.length <= 11) {
-      let formatted = value;
-      if (value.length > 3 && value.length <= 7) {
-        formatted = `${value.slice(0, 3)} ${value.slice(3)}`;
-      } else if (value.length > 7) {
-        formatted = `${value.slice(0, 3)} ${value.slice(3, 7)} ${value.slice(7, 11)}`;
-      }
-      setPhone(formatted);
-      if (phoneError) setPhoneError('');
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // 에러 초기화
-    setNameError('');
-    setEmailError('');
-    setPasswordError('');
-    setPasswordConfirmError('');
-    setPhoneError('');
-    setRoleError('');
-    setCourseError('');
-    setPrivacyError(false);
-
-    let hasError = false;
-
-    // 필수 입력 체크만 수행
-    if (!name) {
-      setNameError('이름을 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!email) {
-      setEmailError('이메일을 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!password) {
-      setPasswordError('비밀번호를 입력해주세요.');
-      hasError = true;
-    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
-      setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!passwordConfirm) {
-      setPasswordConfirmError('비밀번호 확인을 입력해주세요.');
-      hasError = true;
-    } else if (password !== passwordConfirm) {
-      setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
-      hasError = true;
-    }
-
-    if (!phone) {
-      setPhoneError('전화번호를 입력해주세요.');
-      hasError = true;
-    }
-
-    if (!role) {
-      setRoleError('역할을 선택해주세요.');
-      hasError = true;
-    }
-
-    if (!course) {
-      setCourseError('과정명을 선택해주세요.');
-      hasError = true;
-    }
-
-    if (!privacyConsent) {
-      setPrivacyError(true);
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    // 전화번호에서 공백 제거
-    const phoneNumber = phone.replace(/\s/g, '');
-
-    // role을 대문자로 변환
-    const upperRole = role.toUpperCase() as 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
-
-    registerMutation.mutate(
-      {
-        name,
-        email,
-        password,
-        phone: phoneNumber,
-        role: upperRole,
-        course: course || undefined,
-        privacyConsent,
-      },
-      {
-        onSuccess: () => {
-          showToast({
-            message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
-            type: 'success',
-            duration: 5000,
-          });
-          setTimeout(() => {
-            router.push('/');
-          });
-        },
-        onError: (error: Error) => {
-          const message = handleAuthError(error, '회원가입에 실패했습니다.');
-
-          if (message.includes('이름')) {
-            setNameError(message);
-          } else if (message.includes('이메일')) {
-            setEmailError(message);
-          } else if (message.includes('비밀번호')) {
-            setPasswordError(message);
-          } else if (message.includes('전화번호')) {
-            setPhoneError(message);
-          } else if (message.includes('역할')) {
-            setRoleError(message);
-          } else if (message.includes('과정')) {
-            setCourseError(message);
-          } else {
-            // 특정 필드를 알 수 없는 경우 이메일 필드에 표시
-            setEmailError(message);
-          }
-        },
-      },
-    );
-  };
+  // 회원가입
+  const handleSubmit = register({
+    name,
+    email,
+    password,
+    passwordConfirm,
+    phone,
+    role,
+    course,
+    privacyConsent,
+    setNameError,
+    setEmailError,
+    setPasswordError,
+    setPasswordConfirmError,
+    setPhoneError,
+    setRoleError,
+    setCourseError,
+    setPrivacyError,
+    registerMutation,
+    showToast,
+    router,
+    isValidPassword,
+  });
 
   return (
     <div className={styles.container}>
@@ -246,7 +156,7 @@ export default function RegisterPage() {
                 onChange={e => {
                   const value = e.target.value;
                   setPassword(value);
-                  if (value && !/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)) {
+                  if (value && !isValidPassword(value)) {
                     setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
                   } else {
                     setPasswordError('');
