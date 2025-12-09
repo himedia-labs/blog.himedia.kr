@@ -3,14 +3,9 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { useAuthStore } from '@/app/shared/store/authStore';
 
-/**
- * @description
-    1. 폼 제출 시 이메일/비밀번호 유효성 검증
-    2. 로그인 API 호출
-    3. 성공 : 사용자 데이터 캐싱 + 홈으로 이동
-    4. 실패 : 에러 메시지 처리
- */
+// 로그인 로직
 export const authenticateUser = (params: {
   email: string;
   password: string;
@@ -48,14 +43,24 @@ export const authenticateUser = (params: {
         password: params.password,
       },
       {
+        // 로그인 성공 시
         onSuccess: (data: AuthResponse) => {
+          // authStore 업데이트
+          const { setAccessToken, setAuthenticated, setInitialized } = useAuthStore.getState();
+          setAccessToken(data.accessToken);
+          setAuthenticated(true);
+          setInitialized(true);
+
+          // 사용자 정보 캐시 업데이트
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
           params.router.push('/');
         },
+        // 로그인 실패 시
         onError: (error: unknown) => {
           const axiosError = error as AxiosError<{ message: string }>;
           const message = axiosError.response?.data?.message;
 
+          // 에러 메시지 필드별 처리
           if (message?.includes('이메일')) {
             params.setEmailError(message);
           } else if (message?.includes('비밀번호')) {
