@@ -10,7 +10,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CiBellOff, CiBellOn, CiMenuBurger, CiSearch, CiUser } from 'react-icons/ci';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useCurrentUser } from '@/app/api/auth/auth.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -19,6 +18,7 @@ import styles from './Header.module.css';
 
 import { HeaderProps, NavItem } from './Header.types';
 import { HeaderConfig } from './Header.config';
+import { handleLogout as createHandleLogout } from './Header.handlers';
 
 const NAV_ITEMS: NavItem[] = [
   { label: '알림', Icon: CiBellOn },
@@ -29,10 +29,10 @@ const NAV_ITEMS: NavItem[] = [
 export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: currentUser } = useCurrentUser();
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
   const [isBellOn, setIsBellOn] = useState(true);
+  const { accessToken, isInitialized } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
   const { showToast } = useToast();
 
@@ -41,32 +41,26 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
     return null;
   }
 
-  // React Query 데이터가 없으면 서버에서 받은 초기값 사용
-  // 이렇게 하면 서버 렌더링과 클라이언트 hydration 시 같은 값을 사용 → 깜빡임 없음
-  const isLoggedIn = currentUser !== undefined ? !!currentUser : initialIsLoggedIn;
-  const toggleBell = () => setIsBellOn(prev => !prev);
-  const isActive = (href?: string) => {
-    if (!href) return false;
-    if (href === '/') return pathname === '/';
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  /**
+   * 로그인 상태 계산
+   * @description 로그인 후 "/" 로 이동되었을때 header Icon 변경을 위함
+   * - 초기화 전 (isInitialized = false): 서버에서 전달받은 initialIsLoggedIn 사용
+   * - 초기화 후 (isInitialized = true): accessToken 존재 여부로 실시간 로그인 상태 확인
+   */
+  const isLoggedIn = isInitialized ? !!accessToken : initialIsLoggedIn;
 
-  const handleLogout = async () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        // Zustand: accessToken 제거
-        clearAuth();
-        // React Query: user 캐시 제거
-        queryClient.setQueryData(authKeys.currentUser, null);
-        queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
-        showToast({ message: '로그아웃되었습니다.', type: 'success' });
-        router.push('/');
-      },
-      onError: () => {
-        showToast({ message: '로그아웃에 실패했습니다.', type: 'error' });
-      },
-    });
-  };
+  // 알림 아이콘 토글 (on/off)
+  const toggleBell = () => setIsBellOn(prev => !prev);
+
+  // 로그아웃 핸들러
+  const handleLogout = createHandleLogout({
+    logoutMutation,
+    clearAuth,
+    queryClient,
+    authKeys,
+    showToast,
+    router,
+  });
 
   return (
     <header className={styles.container}>
@@ -116,8 +110,6 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
               }
 
               const isLink = Boolean(item.href);
-              const active = isLink ? isActive(item.href) : false;
-              const linkClassName = active ? `${styles.navLink} ${styles.navActive}` : styles.navLink;
               const isBellItem = item.label === '알림';
               const IconComponent = isBellItem ? (isBellOn ? CiBellOn : CiBellOff) : item.Icon!;
 
@@ -126,10 +118,10 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                   {isLink ? (
                     <Link
                       href={item.href as string}
-                      className={linkClassName}
+                      className={styles.navLink}
                       aria-label={item.label}
                       title={item.label}
-                      aria-current={active ? 'page' : undefined}
+                      aria-current={undefined}
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </Link>
