@@ -34,9 +34,12 @@ export const sendCode = (params: {
   setCodeSent: (value: boolean) => void;
   sendCodeMutation: UseMutationResult<SendResetCodeResponse, Error, SendResetCodeRequest>;
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning' }) => void;
+  onSendSuccess?: () => void;
 }) => {
-  return (e: React.FormEvent) => {
-    e.preventDefault();
+  return (e?: React.FormEvent) => {
+    if (e?.preventDefault) {
+      e.preventDefault();
+    }
 
     params.setEmailError('');
     params.setCodeError('');
@@ -52,6 +55,7 @@ export const sendCode = (params: {
         onSuccess: (data: SendResetCodeResponse) => {
           params.showToast({ message: data.message, type: 'success' });
           params.setCodeSent(true);
+          params.onSendSuccess?.();
         },
         onError: (error: unknown) => {
           const axiosError = error as AxiosError<{ message: string }>;

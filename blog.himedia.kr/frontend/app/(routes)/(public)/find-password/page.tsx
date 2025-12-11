@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -27,6 +27,19 @@ const formatCode = (value: string) =>
     .toUpperCase()
     .slice(0, 8);
 
+const formatRemainingTime = (seconds: number) => {
+  const clamped = Math.max(seconds, 0);
+  const minutes = Math.floor(clamped / 60)
+    .toString()
+    .padStart(2, '0');
+  const secs = Math.floor(clamped % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${minutes}:${secs}`;
+};
+
+const RESET_CODE_EXPIRY_SECONDS = 600;
+
 export default function ForgotPasswordPage() {
   // Hooks & Mutations
   const router = useRouter();
@@ -44,6 +57,7 @@ export default function ForgotPasswordPage() {
   // UI
   const [step, setStep] = useState<AuthStep>('verify');
   const [codeSent, setCodeSent] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
 
   // Error
   const [emailError, setEmailError] = useState('');
@@ -55,6 +69,16 @@ export default function ForgotPasswordPage() {
   const isSending = sendCodeMutation.isPending;
   const isVerifying = verifyCodeMutation.isPending;
   const isResetting = resetPasswordMutation.isPending;
+
+  useEffect(() => {
+    if (!codeSent || remainingSeconds <= 0) return undefined;
+
+    const timerId = window.setTimeout(() => {
+      setRemainingSeconds(prev => Math.max(prev - 1, 0));
+    }, 1000);
+
+    return () => window.clearTimeout(timerId);
+  }, [codeSent, remainingSeconds]);
 
   // Handlers
   // 비밀번호 상태 초기화
@@ -73,6 +97,9 @@ export default function ForgotPasswordPage() {
     setCodeSent,
     sendCodeMutation,
     showToast,
+    onSendSuccess: () => {
+      setRemainingSeconds(RESET_CODE_EXPIRY_SECONDS);
+    },
   });
 
   // 인증번호 검증
@@ -145,20 +172,31 @@ export default function ForgotPasswordPage() {
                 <label htmlFor="code" className={styles.label}>
                   인증번호
                 </label>
-                <input
-                  type="text"
-                  id="code"
-                  value={code}
-                  onChange={e => {
-                    setCode(formatCode(e.target.value));
-                    if (codeError) setCodeError('');
-                  }}
-                  className={codeError ? `${styles.input} ${styles.error}` : styles.input}
-                  disabled={!codeSent || isVerifying}
-                  placeholder="8자리 인증번호"
-                  maxLength={8}
-                  autoComplete="one-time-code"
-                />
+                <div className={styles.inputWrapper}>
+                  <input
+                    type="text"
+                    id="code"
+                    value={code}
+                    onChange={e => {
+                      setCode(formatCode(e.target.value));
+                      if (codeError) setCodeError('');
+                    }}
+                    className={
+                      codeError
+                        ? `${styles.input} ${styles.error} ${styles.inputWithTimer}`
+                        : `${styles.input} ${styles.inputWithTimer}`
+                    }
+                    disabled={!codeSent || isVerifying}
+                    placeholder="8자리 인증번호"
+                    maxLength={8}
+                    autoComplete="one-time-code"
+                  />
+                  {codeSent && remainingSeconds > 0 && (
+                    <span className={styles.timerInline} aria-live="polite">
+                      {formatRemainingTime(remainingSeconds)}
+                    </span>
+                  )}
+                </div>
                 {codeError && <p className={styles.errorMessage}>{codeError}</p>}
               </div>
               <div className={styles.footer}>
@@ -170,6 +208,21 @@ export default function ForgotPasswordPage() {
                   <Link href="/register" className={styles.link} tabIndex={-1}>
                     회원가입
                   </Link>
+                  {codeSent && (
+                    <>
+                      <span className={styles.separator}>|</span>
+                      <button
+                        type="button"
+                        className={`${styles.link} ${styles.linkButton}`}
+                        disabled={isSending || isVerifying}
+                        onClick={() => {
+                          handleSendCode();
+                        }}
+                      >
+                        재전송
+                      </button>
+                    </>
+                  )}
                 </div>
                 <button type="submit" className={styles.submitButton} disabled={isSending || isVerifying}>
                   {!codeSent
