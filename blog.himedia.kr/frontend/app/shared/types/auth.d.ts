@@ -10,6 +10,7 @@ export interface User {
 
 // Auth Response
 export interface AuthResponse {
+  accessToken: string;
   user: User;
 }
 
