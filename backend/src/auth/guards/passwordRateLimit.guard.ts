@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 import { PASSWORD_RATE_LIMIT_CONFIG } from '../../constants/config/rate-limit.config';
 import { RateLimitService } from '../services/rateLimit.service';
+import { UserService } from '../services/user.service';
 
 import type { Request } from 'express';
 import type { RateLimitRule } from '../interfaces/rateLimit.interface';
@@ -14,9 +15,12 @@ import type { RateLimitRule } from '../interfaces/rateLimit.interface';
  */
 @Injectable()
 export class PasswordRateLimitGuard implements CanActivate {
-  constructor(private readonly rateLimitService: RateLimitService) {}
+  constructor(
+    private readonly rateLimitService: RateLimitService,
+    private readonly userService: UserService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     // 요청에서 이메일/IP 추출 (없으면 undefined/unknown)
     const request = context.switchToHttp().getRequest<Request>();
     const body = (request.body ?? {}) as Partial<{ email?: string }>;
@@ -26,23 +30,27 @@ export class PasswordRateLimitGuard implements CanActivate {
     // 룰 정의
     const rules: RateLimitRule[] = [];
 
-    // 이메일 기준 레이트 리밋
-    if (email) {
-      rules.push(
-        {
-          key: `email:1m:${email}`,
-          windowMs: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_MINUTE.WINDOW_MS,
-          limit: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_MINUTE.LIMIT,
-        },
-        {
-          key: `email:1h:${email}`,
-          windowMs: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_HOUR.WINDOW_MS,
-          limit: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_HOUR.LIMIT,
-        },
-      );
+    // 가입된 이메일이 아닐 경우 레이트 리밋을 건너뛰고 바로 진행
+    const existingUser = email ? await this.userService.findUserByEmail(email) : null;
+    if (!existingUser) {
+      return true;
     }
 
-    // IP 기준 레이트 리밋
+    // 이메일 기준 레이트 리밋
+    rules.push(
+      {
+        key: `email:1m:${email}`,
+        windowMs: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_MINUTE.WINDOW_MS,
+        limit: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_MINUTE.LIMIT,
+      },
+      {
+        key: `email:1h:${email}`,
+        windowMs: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_HOUR.WINDOW_MS,
+        limit: PASSWORD_RATE_LIMIT_CONFIG.EMAIL.PER_HOUR.LIMIT,
+      },
+    );
+
+    // IP 기준 레이트 리밋 (가입된 이메일 요청에 한해 적용)
     if (ip) {
       rules.push(
         {
