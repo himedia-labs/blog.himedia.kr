@@ -44,7 +44,10 @@ export class UserService {
 
     // 사용자 없음
     if (!user) {
-      throw new UnauthorizedException({ message: AUTH_ERROR_MESSAGES.USER_NOT_FOUND, code: ERROR_CODES.AUTH_USER_NOT_FOUND });
+      throw new UnauthorizedException({
+        message: AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+        code: ERROR_CODES.AUTH_USER_NOT_FOUND,
+      });
     }
 
     return user;
@@ -69,6 +72,16 @@ export class UserService {
     }
 
     return user;
+  }
+
+  /**
+   * 사용자 존재 여부 조회 (이메일, 예외 없이 확인용)
+   * @description 가입 여부 확인용으로 사용, 없으면 null 반환
+   */
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email },
+    });
   }
 
   /**
