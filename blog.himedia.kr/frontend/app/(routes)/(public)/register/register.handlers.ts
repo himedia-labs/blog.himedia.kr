@@ -55,6 +55,7 @@ export const register = (params: {
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning'; duration?: number }) => void;
   router: AppRouterInstance;
   isValidPassword: (value: string) => boolean;
+  onSuccessCleanup?: () => void;
 }) => {
   return (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +140,7 @@ export const register = (params: {
       {
         // 성공 시
         onSuccess: () => {
+          params.onSuccessCleanup?.();
           params.showToast({
             message: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',
             type: 'success',

@@ -46,12 +46,11 @@ export const authenticateUser = (params: {
         // 로그인 성공 시
         onSuccess: (data: AuthResponse) => {
           // authStore 업데이트
-          const { setAccessToken, setAuthenticated, setInitialized } = useAuthStore.getState();
+          const { setAccessToken, setInitialized } = useAuthStore.getState();
           setAccessToken(data.accessToken);
-          setAuthenticated(true);
           setInitialized(true);
 
-          // 사용자 정보 캐시 업데이트
+          // 로그인 응답의 사용자 정보를 React Query 캐시에 저장 (GET /auth/me 중복 호출 방지)
           params.queryClient.setQueryData(params.authKeys.currentUser, data.user);
           params.router.push('/');
         },

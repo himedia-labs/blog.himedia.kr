@@ -2,16 +2,16 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbExternalLink } from 'react-icons/tb';
 
-import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import useRegisterForm from './register.hooks';
+import { register } from './register.handlers';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { formatPhone, register } from './register.handlers';
-import sanitizeEmailInput from '@/app/shared/utils/email';
+import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 
 import styles from './register.module.css';
 
@@ -39,36 +39,50 @@ export default function RegisterPage() {
   const router = useRouter();
   const registerMutation = useRegisterMutation();
   const { showToast } = useToast();
+  const restoredToastShownRef = useRef(false);
 
-  // Form
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [phone, setPhone] = useState('');
-  const [role, setRole] = useState('');
-  const [course, setCourse] = useState('');
-  const [privacyConsent, setPrivacyConsent] = useState(false);
+  // Form state/handlers (includes cache load/save, phone formatting, etc.)
+  const {
+    form,
+    setFormField,
+    errors,
+    setErrors,
+    handlers: { handlePhoneChange, clearFormCache, markKeepCache, sanitizeEmailInput },
+    hasCache,
+    restoredFromKeep,
+  } = useRegisterForm();
 
-  // Error
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordConfirmError, setPasswordConfirmError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
-  const [roleError, setRoleError] = useState('');
-  const [courseError, setCourseError] = useState('');
-  const [privacyError, setPrivacyError] = useState(false);
-
-  // 전화번호 포맷팅
-  const handlePhoneChange = formatPhone({
-    phone,
-    setPhone,
+  const { name, email, password, passwordConfirm, phone, role, course, privacyConsent } = form;
+  const {
+    nameError,
+    emailError,
+    passwordError,
+    passwordConfirmError,
     phoneError,
+    roleError,
+    courseError,
+    privacyError,
+  } = errors;
+  const {
+    setNameError,
+    setEmailError,
+    setPasswordError,
+    setPasswordConfirmError,
     setPhoneError,
-  });
+    setRoleError,
+    setCourseError,
+    setPrivacyError,
+  } = setErrors;
 
-  // 회원가입
+  // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트 (1회)
+  useEffect(() => {
+    if (hasCache && restoredFromKeep && !restoredToastShownRef.current) {
+      showToast({ message: '임시 저장된 내용을 불러왔습니다.', type: 'info' });
+      restoredToastShownRef.current = true;
+    }
+  }, [hasCache, restoredFromKeep, showToast]);
+
+  // 회원가입 핸들러
   const handleSubmit = register({
     name,
     email,
@@ -90,6 +104,7 @@ export default function RegisterPage() {
     showToast,
     router,
     isValidPassword,
+    onSuccessCleanup: clearFormCache,
   });
 
   return (
@@ -119,7 +134,7 @@ export default function RegisterPage() {
                 id="name"
                 value={name}
                 onChange={e => {
-                  setName(e.target.value);
+                  setFormField('name', e.target.value);
                   if (nameError) setNameError('');
                 }}
                 className={nameError ? `${styles.input} ${styles.error}` : styles.input}
@@ -137,7 +152,7 @@ export default function RegisterPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  setEmail(sanitizeEmailInput(e.target.value));
+                  setFormField('email', sanitizeEmailInput(e.target.value));
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
@@ -156,7 +171,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={e => {
                   const value = e.target.value;
-                  setPassword(value);
+                  setFormField('password', value);
                   if (value && !isValidPassword(value)) {
                     setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
                   } else {
@@ -178,7 +193,7 @@ export default function RegisterPage() {
                 id="passwordConfirm"
                 value={passwordConfirm}
                 onChange={e => {
-                  setPasswordConfirm(e.target.value);
+                  setFormField('passwordConfirm', e.target.value);
                   if (passwordConfirmError) setPasswordConfirmError('');
                 }}
                 className={passwordConfirmError ? `${styles.input} ${styles.error}` : styles.input}
@@ -215,7 +230,7 @@ export default function RegisterPage() {
                   id="role"
                   value={role}
                   onChange={e => {
-                    setRole(e.target.value);
+                    setFormField('role', e.target.value);
                     if (roleError) setRoleError('');
                   }}
                   className={roleError ? `${styles.select} ${styles.error}` : styles.select}
@@ -239,7 +254,7 @@ export default function RegisterPage() {
                   id="course"
                   value={course}
                   onChange={e => {
-                    setCourse(e.target.value);
+                    setFormField('course', e.target.value);
                     if (courseError) setCourseError('');
                   }}
                   className={courseError ? `${styles.select} ${styles.error}` : styles.select}
@@ -264,7 +279,7 @@ export default function RegisterPage() {
                       type="checkbox"
                       checked={privacyConsent}
                       onChange={e => {
-                        setPrivacyConsent(e.target.checked);
+                        setFormField('privacyConsent', e.target.checked);
                         if (privacyError) setPrivacyError(false);
                       }}
                       className={styles.checkbox}
@@ -273,7 +288,16 @@ export default function RegisterPage() {
                     <FaCheck className={styles.checkboxIcon} aria-hidden />
                   </label>
                   <div className={`${styles.checkboxText} ${privacyError ? styles.checkboxTextError : ''}`}>
-                    <Link href="/terms/privacy" className={`${styles.link} ${styles.consentLink}`}>
+                    <Link
+                      href="/terms/privacy"
+                      className={`${styles.link} ${styles.consentLink}`}
+                      onClick={() => {
+                        if (name || email || password || phone || role || course || passwordConfirm) {
+                          markKeepCache();
+                          showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
+                        }
+                      }}
+                    >
                       <span>[필수] 개인정보 수집 및 이용동의</span>
                       <TbExternalLink aria-hidden className={styles.consentIcon} />
                     </Link>
