@@ -8,6 +8,7 @@ import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dto/register.dto';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
 
@@ -44,10 +45,16 @@ export class AuthService {
 
     if (existingUser) {
       if (existingUser.email === registerDto.email) {
-        throw new ConflictException(AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
+        throw new ConflictException({
+          message: AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS,
+          code: ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
+        });
       }
       if (existingUser.phone === registerDto.phone) {
-        throw new ConflictException(AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS);
+        throw new ConflictException({
+          message: AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
+          code: ERROR_CODES.AUTH_PHONE_ALREADY_EXISTS,
+        });
       }
     }
 
@@ -68,12 +75,19 @@ export class AuthService {
       return this.tokenService.buildAuthResponseForUser(savedUser, userAgent, ipAddress);
     } catch (error) {
       if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
-        const detail = (error as { detail?: string }).detail ?? '';
+        const detailRaw = (error as { detail?: unknown }).detail;
+        const detail = typeof detailRaw === 'string' ? detailRaw : '';
         if (detail.includes('email')) {
-          throw new ConflictException(AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
+          throw new ConflictException({
+            message: AUTH_ERROR_MESSAGES.EMAIL_ALREADY_EXISTS,
+            code: ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
+          });
         }
         if (detail.includes('phone')) {
-          throw new ConflictException(AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS);
+          throw new ConflictException({
+            message: AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
+            code: ERROR_CODES.AUTH_PHONE_ALREADY_EXISTS,
+          });
         }
       }
 
