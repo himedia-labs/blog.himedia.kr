@@ -95,6 +95,17 @@ export class PasswordService {
   async sendPasswordResetCode(dto: ForgotPasswordDto): Promise<{ success: true; message: string }> {
     // 사용자 조회
     const user = await this.userService.getUserByEmailOrThrow(dto.email);
+    const now = new Date();
+
+    // 이전에 발급된 미사용 코드가 있다면 모두 무효화
+    await this.passwordResetRepository.update(
+      {
+        userId: user.id,
+        used: false,
+        expiresAt: MoreThanOrEqual(now),
+      },
+      { used: true },
+    );
 
     // 인증 코드 생성 및 해싱
     const { code, hashedCode } = await this.generateAndHashResetCode();
