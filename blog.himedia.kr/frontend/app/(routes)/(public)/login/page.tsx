@@ -10,6 +10,7 @@ import { authKeys } from '@/app/api/auth/auth.keys';
 import { authenticateUser } from './login.handlers';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
+import sanitizeEmailInput from '@/app/shared/utils/email';
 
 import styles from './login.module.css';
 
@@ -68,7 +69,7 @@ export default function LoginPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  setEmail(e.target.value);
+                  setEmail(sanitizeEmailInput(e.target.value));
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}

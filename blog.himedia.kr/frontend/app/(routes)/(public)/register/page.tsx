@@ -11,6 +11,7 @@ import { TbExternalLink } from 'react-icons/tb';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { formatPhone, register } from './register.handlers';
+import sanitizeEmailInput from '@/app/shared/utils/email';
 
 import styles from './register.module.css';
 
@@ -136,7 +137,7 @@ export default function RegisterPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  setEmail(e.target.value);
+                  setEmail(sanitizeEmailInput(e.target.value));
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}

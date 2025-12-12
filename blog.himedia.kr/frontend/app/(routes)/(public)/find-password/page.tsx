@@ -11,6 +11,7 @@ import {
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
+import sanitizeEmailInput from '@/app/shared/utils/email';
 import { resetPasswordState, sendCode, verifyCode, resetPassword } from './find-password.handlers';
 
 import styles from './find-password.module.css';
@@ -80,8 +81,7 @@ export default function ForgotPasswordPage() {
     return () => window.clearTimeout(timerId);
   }, [codeSent, remainingSeconds]);
 
-  // Handlers
-  // 비밀번호 상태 초기화
+  // 비밀번호 상태 초기화 핸들러
   const handleResetPasswordState = resetPasswordState({
     setNewPassword,
     setConfirmPassword,
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
     setConfirmPasswordError,
   });
 
-  // 인증번호 발송
+  // 인증번호 발송 핸들러
   const handleSendCode = sendCode({
     email,
     setEmailError,
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  // 인증번호 검증
+  // 인증번호 검증 핸들러
   const handleVerifyCode = verifyCode({
     email,
     code,
@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
     showToast,
   });
 
-  // 새 비밀번호 설정
+  // 새 비밀번호 설정 핸들러
   const handleResetPassword = resetPassword({
     email,
     code,
@@ -156,7 +156,7 @@ export default function ForgotPasswordPage() {
                   id="email"
                   value={email}
                   onChange={e => {
-                    setEmail(e.target.value);
+                    setEmail(sanitizeEmailInput(e.target.value));
                     if (emailError) setEmailError('');
                     if (codeError) setCodeError('');
                   }}
