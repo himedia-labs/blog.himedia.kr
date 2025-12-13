@@ -117,7 +117,10 @@ export const register = (params: {
       hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) {
+      params.showToast({ message: '입력 내용을 한 번만 더 확인해주세요.', type: 'warning' });
+      return;
+    }
 
     // 전화번호에서 공백 제거
     const phoneNumber = params.phone.replace(/\s/g, '');
