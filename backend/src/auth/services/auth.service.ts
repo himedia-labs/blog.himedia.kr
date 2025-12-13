@@ -110,17 +110,17 @@ export class AuthService {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
     }
 
-    // 승인 상태 확인
-    if (!user.approved) {
-      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.PENDING_APPROVAL);
-    }
-
     // 비밀번호 검증
     const isMatch = await comparePassword(password, user.password);
 
     // 비밀번호 불일치
     if (!isMatch) {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    // 승인 상태 확인
+    if (!user.approved) {
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.PENDING_APPROVAL);
     }
 
     return user;
