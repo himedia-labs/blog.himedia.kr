@@ -1,7 +1,7 @@
 import { randomInt } from 'crypto';
-import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import { TokenService } from './token.service';
@@ -15,10 +15,10 @@ import { ForgotPasswordDto } from '../dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
 
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import { PASSWORD_CONFIG } from '../../constants/config/password.config';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
-import { ERROR_CODES } from '../../constants/error/error-codes';
 
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
@@ -125,7 +125,14 @@ export class PasswordService {
     await this.passwordResetRepository.save(passwordReset);
 
     // 이메일 발송
-    await this.emailService.sendPasswordResetCode(user.email, code);
+    try {
+      await this.emailService.sendPasswordResetCode(user.email, code);
+    } catch {
+      throw new InternalServerErrorException({
+        message: PASSWORD_ERROR_MESSAGES.EMAIL_SEND_FAILED,
+        code: ERROR_CODES.EMAIL_SEND_FAILED,
+      });
+    }
 
     return { success: true, message: PASSWORD_SUCCESS_MESSAGES.RESET_CODE_SENT };
   }
