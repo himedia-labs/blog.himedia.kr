@@ -6,9 +6,9 @@ import { Repository } from 'typeorm';
 import { TokenService } from './token.service';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dto/register.dto';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
-import { ERROR_CODES } from '../../constants/error/error-codes';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
 
