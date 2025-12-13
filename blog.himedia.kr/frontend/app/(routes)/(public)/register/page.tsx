@@ -196,7 +196,7 @@ export default function RegisterPage() {
                 }}
                 onBlur={() => {
                   if (passwordConfirm && passwordConfirm !== password) {
-                    setPasswordConfirmError('두 비밀번호가 달라요!');
+                    setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
                   } else if (passwordConfirmError) {
                     setPasswordConfirmError('');
                   }
