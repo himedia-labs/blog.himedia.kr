@@ -194,6 +194,13 @@ export default function RegisterPage() {
                   setFormField('passwordConfirm', e.target.value);
                   if (passwordConfirmError) setPasswordConfirmError('');
                 }}
+                onBlur={() => {
+                  if (passwordConfirm && passwordConfirm !== password) {
+                    setPasswordConfirmError('두 비밀번호가 달라요!');
+                  } else if (passwordConfirmError) {
+                    setPasswordConfirmError('');
+                  }
+                }}
                 className={passwordConfirmError ? `${styles.input} ${styles.error}` : styles.input}
                 autoComplete="new-password"
               />
