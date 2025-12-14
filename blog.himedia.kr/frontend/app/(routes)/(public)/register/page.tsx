@@ -10,10 +10,10 @@ import { TbExternalLink } from 'react-icons/tb';
 
 import useRegisterForm from './register.hooks';
 import { register } from './register.handlers';
+import { hasKoreanInput } from '@/app/shared/utils/email';
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
-import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
 
 import styles from './register.module.css';
 
@@ -151,7 +151,11 @@ export default function RegisterPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  setFormField('email', sanitizeEmailInput(e.target.value));
+                  const inputValue = e.target.value;
+                  if (hasKoreanInput(inputValue)) {
+                    showToast({ message: '이메일은 영문, 숫자, 특수문자(@._+-)만 입력 가능합니다.', type: 'warning' });
+                  }
+                  setFormField('email', sanitizeEmailInput(inputValue));
                   if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
@@ -196,9 +200,8 @@ export default function RegisterPage() {
                   if (passwordConfirmError) setPasswordConfirmError('');
                 }}
                 onBlur={() => {
-                  if (passwordConfirm && passwordConfirm !== password) {
-                    setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatchFriendly);
-                  } else if (passwordConfirmError) {
+                  // 에러 메시지는 백엔드에서만 표시
+                  if (passwordConfirmError) {
                     setPasswordConfirmError('');
                   }
                 }}

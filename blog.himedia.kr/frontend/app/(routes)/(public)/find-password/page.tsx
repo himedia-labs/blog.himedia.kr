@@ -11,7 +11,7 @@ import {
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import sanitizeEmailInput from '@/app/shared/utils/email';
+import sanitizeEmailInput, { hasKoreanInput } from '@/app/shared/utils/email';
 import { resetPasswordState, sendCode, verifyCode, resetPassword } from './find-password.handlers';
 
 import styles from './find-password.module.css';
@@ -164,7 +164,14 @@ export default function ForgotPasswordPage() {
                   id="email"
                   value={email}
                   onChange={e => {
-                    setEmail(sanitizeEmailInput(e.target.value));
+                    const inputValue = e.target.value;
+                    if (hasKoreanInput(inputValue)) {
+                      showToast({
+                        message: '이메일은 영문, 숫자, 특수문자(@._+-)만 입력 가능합니다.',
+                        type: 'warning',
+                      });
+                    }
+                    setEmail(sanitizeEmailInput(inputValue));
                     if (emailError) setEmailError('');
                     if (codeError) setCodeError('');
                   }}
