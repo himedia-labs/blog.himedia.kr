@@ -24,8 +24,7 @@ export const authenticateUser = (params: {
   return (e: React.FormEvent) => {
     e.preventDefault();
 
-    params.setEmailError('');
-    params.setPasswordError('');
+    if (params.loginMutation.isPending) return;
 
     let hasError = false;
     if (!params.email) {

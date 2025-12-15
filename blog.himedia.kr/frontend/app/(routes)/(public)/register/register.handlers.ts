@@ -61,15 +61,7 @@ export const register = (params: {
   return (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 에러 초기화
-    params.setNameError('');
-    params.setEmailError('');
-    params.setPasswordError('');
-    params.setPasswordConfirmError('');
-    params.setPhoneError('');
-    params.setRoleError('');
-    params.setCourseError('');
-    params.setPrivacyError('');
+    if (params.registerMutation.isPending) return;
 
     // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
     let hasError = false;

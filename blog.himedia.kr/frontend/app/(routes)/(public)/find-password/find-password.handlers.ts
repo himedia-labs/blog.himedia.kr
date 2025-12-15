@@ -42,8 +42,7 @@ export const sendCode = (params: {
       e.preventDefault();
     }
 
-    params.setEmailError('');
-    params.setCodeError('');
+    if (params.sendCodeMutation.isPending) return;
 
     // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
     if (!params.email) {
@@ -113,8 +112,7 @@ export const verifyCode = (params: {
   return (e: React.FormEvent) => {
     e.preventDefault();
 
-    params.setEmailError('');
-    params.setCodeError('');
+    if (params.verifyCodeMutation.isPending) return;
 
     // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
     if (!params.email || !params.code) {
@@ -181,8 +179,7 @@ export const resetPassword = (params: {
   return (e: React.FormEvent) => {
     e.preventDefault();
 
-    params.setNewPasswordError('');
-    params.setConfirmPasswordError('');
+    if (params.resetPasswordMutation.isPending) return;
 
     // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
     if (
