@@ -61,18 +61,11 @@ export class AuthController {
 
   /**
    * 회원가입
-   * @description 새 사용자 등록 후 토큰 발급
+   * @description 새 사용자 등록 후 승인 대기 안내
    */
   @Post('register')
-  async register(
-    @Body() registerDto: RegisterDto,
-    @Response() res: ExpressResponse,
-    @Headers('user-agent') userAgent?: string,
-    @Ip() ipAddress?: string,
-  ) {
-    const authResponse = await this.authService.register(registerDto, userAgent, ipAddress);
-    setCookies(res, authResponse.refreshToken, this.config);
-    return res.json({ accessToken: authResponse.accessToken, user: authResponse.user });
+  async register(@Body() registerDto: RegisterDto) {
+    await this.authService.register(registerDto);
   }
 
   /**

@@ -6,7 +6,7 @@ import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { RegisterRequest, AuthResponse } from '@/app/shared/types/auth';
+import type { RegisterRequest } from '@/app/shared/types/auth';
 
 /**
  * 전화번호 포맷팅
@@ -53,7 +53,7 @@ export const register = (params: {
   setRoleError: (value: string) => void;
   setCourseError: (value: string) => void;
   setPrivacyError: (value: string) => void;
-  registerMutation: UseMutationResult<AuthResponse, Error, RegisterRequest>;
+  registerMutation: UseMutationResult<void, Error, RegisterRequest>;
   showToast: (options: { message: string; type: 'success' | 'error' | 'warning'; duration?: number }) => void;
   router: AppRouterInstance;
   onSuccessCleanup?: () => void;

@@ -14,7 +14,7 @@ export interface AuthResponse {
   user: User;
 }
 
-// Register
+// Register Request
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -25,7 +25,7 @@ export interface RegisterRequest {
   privacyConsent: boolean;
 }
 
-// Login
+// Login Request
 export interface LoginRequest {
   email: string;
   password: string;

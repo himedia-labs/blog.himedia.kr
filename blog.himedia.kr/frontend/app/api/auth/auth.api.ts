@@ -13,8 +13,8 @@ import {
 } from '@/app/shared/types/auth';
 
 // 회원가입
-const register = async (data: RegisterRequest): Promise<AuthResponse> => {
-  const res = await axiosInstance.post<AuthResponse>('/auth/register', data);
+const register = async (data: RegisterRequest): Promise<void> => {
+  const res = await axiosInstance.post('/auth/register', data);
   return res.data;
 };
 

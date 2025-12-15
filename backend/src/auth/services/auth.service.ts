@@ -39,7 +39,7 @@ export class AuthService {
    * 회원가입
    * @description 이메일/전화번호 중복 확인 후 비밀번호 해싱하여 사용자 생성
    */
-  async register(registerDto: RegisterDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
+  async register(registerDto: RegisterDto): Promise<void> {
     // 이메일 중복 확인
     const existingUser = await this.usersRepository.findOne({
       where: [{ email: registerDto.email }, { phone: registerDto.phone }],
@@ -75,10 +75,7 @@ export class AuthService {
 
     // DB 저장
     try {
-      const savedUser = await this.usersRepository.save(userEntity);
-
-      // 토큰 및 프로필 반환
-      return this.tokenService.buildAuthResponseForUser(savedUser, userAgent, ipAddress);
+      await this.usersRepository.save(userEntity);
     } catch (error) {
       if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
         const detailRaw = (error as { detail?: unknown }).detail;

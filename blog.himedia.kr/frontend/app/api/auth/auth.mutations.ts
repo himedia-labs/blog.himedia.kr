@@ -15,7 +15,7 @@ import {
 
 // 회원가입
 export const useRegisterMutation = () => {
-  return useMutation<AuthResponse, Error, RegisterRequest>({
+  return useMutation<void, Error, RegisterRequest>({
     mutationFn: authApi.register,
   });
 };
