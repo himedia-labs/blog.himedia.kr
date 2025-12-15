@@ -27,8 +27,17 @@ export const authenticateUser = (params: {
     params.setEmailError('');
     params.setPasswordError('');
 
-    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
-    if (!params.email || !params.password) {
+    let hasError = false;
+    if (!params.email) {
+      params.setEmailError(LOGIN_MESSAGES.missingEmail);
+      hasError = true;
+    }
+    if (!params.password) {
+      params.setPasswordError(LOGIN_MESSAGES.missingPassword);
+      hasError = true;
+    }
+    if (hasError) {
+      params.showToast({ message: LOGIN_MESSAGES.missingCredentials, type: 'warning' });
       return;
     }
 

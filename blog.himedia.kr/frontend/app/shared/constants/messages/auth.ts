@@ -7,6 +7,9 @@
 export const LOGIN_MESSAGES = {
   success: '로그인 되었습니다.',
   fallbackError: '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  missingEmail: '이메일을 입력해주세요.',
+  missingPassword: '비밀번호를 입력해주세요.',
+  missingCredentials: '이메일과 비밀번호를 입력해주세요.',
 } as const;
 
 // 회원가입 관련 메시지
