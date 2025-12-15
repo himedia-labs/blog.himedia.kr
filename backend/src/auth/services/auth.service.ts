@@ -7,6 +7,7 @@ import { TokenService } from './token.service';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dto/register.dto';
 import { ERROR_CODES } from '../../constants/error/error-codes';
+import { SnowflakeService } from '../../common/services/snowflake.service';
 import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
@@ -22,6 +23,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly tokenService: TokenService,
+    private readonly snowflakeService: SnowflakeService,
   ) {}
 
   /**
@@ -61,8 +63,12 @@ export class AuthService {
     // 비밀번호 해싱
     const password = await hashWithAuthRounds(registerDto.password);
 
+    // Snowflake ID 생성
+    const id = this.snowflakeService.generate();
+
     // 사용자 엔티티 생성
     const userEntity = this.usersRepository.create({
+      id,
       ...registerDto,
       password,
     });

@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'password_resets' })
@@ -7,7 +7,7 @@ import { User } from './user.entity';
 @Index(['expiresAt'])
 @Index(['userId', 'code', 'used'])
 export class PasswordReset {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({ type: 'bigint' })
   id!: string;
 
   @Column({ type: 'bigint', name: 'user_id' })

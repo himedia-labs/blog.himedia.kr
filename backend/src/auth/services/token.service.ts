@@ -2,8 +2,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
-import { IsNull, Repository } from 'typeorm';
 import { randomBytes, randomUUID } from 'crypto';
+import { IsNull, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { RefreshToken } from '../entities/refreshToken.entity';

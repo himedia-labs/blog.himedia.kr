@@ -16,11 +16,11 @@ import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
 
 import { ERROR_CODES } from '../../constants/error/error-codes';
+import { SnowflakeService } from '../../common/services/snowflake.service';
 import { PASSWORD_CONFIG } from '../../constants/config/password.config';
+import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
-
-import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 
 import type { AuthResponse } from '../interfaces/auth.interface';
 import type { PasswordResetValidation } from '../interfaces/password.interface';
@@ -40,6 +40,7 @@ export class PasswordService {
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
+    private readonly snowflakeService: SnowflakeService,
   ) {}
 
   /**
@@ -113,8 +114,12 @@ export class PasswordService {
     // 만료 시간 설정 (10분)
     const expiresAt = new Date(Date.now() + PASSWORD_CONFIG.RESET_CODE_EXPIRY_MINUTES * 60 * 1000);
 
+    // Snowflake ID 생성
+    const id = this.snowflakeService.generate();
+
     // 재설정 레코드 생성
     const passwordReset = this.passwordResetRepository.create({
+      id,
       userId: user.id,
       code: hashedCode,
       expiresAt,

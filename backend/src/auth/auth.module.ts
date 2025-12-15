@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 
 import { AuthController } from './auth.controller';
 
@@ -19,9 +19,10 @@ import { PasswordReset } from './entities/passwordReset.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
-import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 import { EmailModule } from '../email/email.module';
 import appConfig from '../common/config/app.config';
+import { SnowflakeService } from '../common/services/snowflake.service';
+import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import appConfig from '../common/config/app.config';
     PasswordService,
     RateLimitService,
     UserService,
+    SnowflakeService,
     LocalStrategy,
     JwtStrategy,
     PasswordRateLimitGuard,

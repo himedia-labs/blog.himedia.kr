@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { RefreshToken } from './refreshToken.entity';
 
 // 권한
@@ -15,7 +15,7 @@ export enum UserRole {
 @Index(['approved'])
 @Index(['role', 'approved'])
 export class User {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'bigint' })
   id!: string;
 
   @Column({ length: 100 })

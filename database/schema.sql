@@ -1,11 +1,11 @@
 -- Himedia 커뮤니티 데이터베이스 스키마
 
--- UUID 확장 활성화
+-- UUID 확장 활성화 (Refresh Token용)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 사용자 테이블
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -56,7 +56,7 @@ CREATE INDEX idx_refresh_tokens_user_revoked ON refresh_tokens(user_id, revoked_
 
 -- 비밀번호 재설정 테이블
 CREATE TABLE password_resets (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     code VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
@@ -72,7 +72,7 @@ CREATE INDEX idx_password_resets_user_code_used ON password_resets(user_id, code
 
 -- 테이블/컬럼 설명
 COMMENT ON TABLE users IS '사용자 테이블';
-COMMENT ON COLUMN users.id IS '사용자 고유 ID';
+COMMENT ON COLUMN users.id IS '사용자 고유 ID (Snowflake ID)';
 COMMENT ON COLUMN users.name IS '사용자 이름';
 COMMENT ON COLUMN users.email IS '이메일 (로그인 ID)';
 COMMENT ON COLUMN users.password IS '암호화된 비밀번호';
@@ -85,7 +85,7 @@ COMMENT ON COLUMN users.created_at IS '생성 일시';
 COMMENT ON COLUMN users.updated_at IS '수정 일시';
 
 COMMENT ON TABLE refresh_tokens IS '리프레시 토큰 테이블';
-COMMENT ON COLUMN refresh_tokens.id IS '토큰 고유 ID (UUID)';
+COMMENT ON COLUMN refresh_tokens.id IS '토큰 고유 ID (UUID - 보안)';
 COMMENT ON COLUMN refresh_tokens.user_id IS '사용자 ID';
 COMMENT ON COLUMN refresh_tokens.token_hash IS '토큰 해시값';
 COMMENT ON COLUMN refresh_tokens.expires_at IS '토큰 만료 시간';
@@ -95,7 +95,7 @@ COMMENT ON COLUMN refresh_tokens.ip_address IS '요청 IP 주소';
 COMMENT ON COLUMN refresh_tokens.created_at IS '생성 일시';
 
 COMMENT ON TABLE password_resets IS '비밀번호 재설정 인증번호 테이블';
-COMMENT ON COLUMN password_resets.id IS '고유 ID';
+COMMENT ON COLUMN password_resets.id IS '고유 ID (Snowflake ID)';
 COMMENT ON COLUMN password_resets.user_id IS '사용자 ID';
 COMMENT ON COLUMN password_resets.code IS '인증코드 해시(bcrypt)';
 COMMENT ON COLUMN password_resets.expires_at IS '인증번호 만료 시간';
