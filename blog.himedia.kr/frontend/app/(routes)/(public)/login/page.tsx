@@ -10,7 +10,7 @@ import { authKeys } from '@/app/api/auth/auth.keys';
 import { authenticateUser } from './login.handlers';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
-import sanitizeEmailInput, { hasKoreanInput } from '@/app/shared/utils/email';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth';
 
 import styles from './login.module.css';
 
@@ -69,12 +69,13 @@ export default function LoginPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  const inputValue = e.target.value;
-                  if (hasKoreanInput(inputValue)) {
-                    showToast({ message: '이메일은 영문, 숫자, 특수문자(@._+-)만 입력 가능합니다.', type: 'warning' });
+                  setEmail(e.target.value);
+                  const next = e.target.value;
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) {
+                    setEmailError(EMAIL_MESSAGES.invalid);
+                  } else if (emailError) {
+                    setEmailError('');
                   }
-                  setEmail(sanitizeEmailInput(inputValue));
-                  if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                 autoComplete="username"

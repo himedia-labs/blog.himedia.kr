@@ -10,12 +10,14 @@ import { TbExternalLink } from 'react-icons/tb';
 
 import useRegisterForm from './register.hooks';
 import { register } from './register.handlers';
-import { hasKoreanInput } from '@/app/shared/utils/email';
 import { isValidPassword } from '@/app/shared/utils/password';
-import { useToast } from '@/app/shared/components/toast/toast';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import { useToast } from '@/app/shared/components/toast/toast';
 
 import styles from './register.module.css';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 교육과정 리스트 (임시 데이터)
 const COURSE_OPTIONS = [
@@ -44,7 +46,7 @@ export default function RegisterPage() {
     setFormField,
     errors,
     setErrors,
-    handlers: { handlePhoneChange, clearFormCache, markKeepCache, sanitizeEmailInput },
+    handlers: { handlePhoneChange, clearFormCache, markKeepCache },
     hasCache,
     restoredFromKeep,
   } = useRegisterForm();
@@ -151,12 +153,13 @@ export default function RegisterPage() {
                 id="email"
                 value={email}
                 onChange={e => {
-                  const inputValue = e.target.value;
-                  if (hasKoreanInput(inputValue)) {
-                    showToast({ message: '이메일은 영문, 숫자, 특수문자(@._+-)만 입력 가능합니다.', type: 'warning' });
+                  const next = e.target.value;
+                  setFormField('email', next);
+                  if (!EMAIL_REGEX.test(next)) {
+                    setEmailError(EMAIL_MESSAGES.invalid);
+                  } else if (emailError) {
+                    setEmailError('');
                   }
-                  setFormField('email', sanitizeEmailInput(inputValue));
-                  if (emailError) setEmailError('');
                 }}
                 className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                 autoComplete="username"

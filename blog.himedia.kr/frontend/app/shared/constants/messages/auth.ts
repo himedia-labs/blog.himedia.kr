@@ -12,6 +12,10 @@ export const LOGIN_MESSAGES = {
   missingCredentials: '이메일과 비밀번호를 입력해주세요.',
 } as const;
 
+export const EMAIL_MESSAGES = {
+  invalid: '올바른 메일 형식으로 입력해주세요.',
+} as const;
+
 // 회원가입 관련 메시지
 export const REGISTER_MESSAGES = {
   success: '회원가입이 완료되었습니다.\n관리자 승인 후 로그인하실 수 있습니다.',

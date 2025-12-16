@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { formatPhone } from './register.handlers';
-import sanitizeEmailInput from '@/app/shared/utils/email';
 import { sessionStorage } from '@/app/shared/utils/session-storage';
 
 import type { RegisterFormCache } from '@/app/shared/types/register';
@@ -114,7 +113,6 @@ export const useRegisterForm = () => {
       clearFormCache,
       // 약관 페이지 이동 시 캐시 보존 플래그 설정
       markKeepCache: () => sessionStorage.setItem(FORM_CACHE_KEEP_KEY, '1'),
-      sanitizeEmailInput,
     },
     hasCache,
     restoredFromKeep,
