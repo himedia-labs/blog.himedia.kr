@@ -33,6 +33,9 @@ export class User {
   @Column({ type: 'varchar', length: 20 })
   role!: UserRole;
 
+  @Column({ type: 'varchar', length: 20, name: 'requested_role', nullable: true })
+  requestedRole!: UserRole | null;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   course!: string | null;
 

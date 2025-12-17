@@ -1,14 +1,4 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsBoolean,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-  Equals,
-  Matches,
-} from 'class-validator';
+import { IsEmail, IsBoolean, IsOptional, IsString, IsIn, MaxLength, MinLength, Equals, Matches } from 'class-validator';
 
 import { UserRole } from '../entities/user.entity';
 import { VALIDATION_MESSAGES } from '../../constants/message/dto.messages';
@@ -35,7 +25,7 @@ export class RegisterDto {
   @MaxLength(20, { message: VALIDATION_MESSAGES.PHONE_MAX_LENGTH })
   phone!: string;
 
-  @IsEnum(UserRole, { message: VALIDATION_MESSAGES.ROLE_ENUM })
+  @IsIn([UserRole.TRAINEE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: VALIDATION_MESSAGES.ROLE_ENUM })
   role!: UserRole;
 
   @IsOptional()

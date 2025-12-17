@@ -4,7 +4,7 @@ import { ConflictException, ForbiddenException, Injectable, UnauthorizedExceptio
 import { Repository } from 'typeorm';
 
 import { TokenService } from './token.service';
-import { User } from '../entities/user.entity';
+import { User, UserRole } from '../entities/user.entity';
 import { RegisterDto } from '../dto/register.dto';
 import { ERROR_CODES } from '../../constants/error/error-codes';
 import { SnowflakeService } from '../../common/services/snowflake.service';
@@ -62,6 +62,7 @@ export class AuthService {
 
     // 비밀번호 해싱
     const password = await hashWithAuthRounds(registerDto.password);
+    const { role: requestedRole, ...registerData } = registerDto;
 
     // Snowflake ID 생성
     const id = this.snowflakeService.generate();
@@ -69,8 +70,10 @@ export class AuthService {
     // 사용자 엔티티 생성
     const userEntity = this.usersRepository.create({
       id,
-      ...registerDto,
+      ...registerData,
       password,
+      role: UserRole.TRAINEE,
+      requestedRole,
     });
 
     // DB 저장
