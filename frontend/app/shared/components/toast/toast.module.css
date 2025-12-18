@@ -23,13 +23,13 @@
   box-shadow: 0 18px 44px rgba(17, 24, 39, 0.12), 0 4px 14px rgba(17, 24, 39, 0.08);
   color: #3a414d;
   pointer-events: auto;
-  animation: fadeInUp 180ms ease forwards;
+  animation: popIn 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   width: fit-content;
   max-width: min(90vw, 500px);
 }
 
 .toast.leaving {
-  animation: fadeOutDown 180ms ease forwards;
+  animation: popOut 260ms cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
 .icon {
@@ -73,24 +73,28 @@
   color: #4b5563;
 }
 
-@keyframes fadeInUp {
-  from {
+@keyframes popIn {
+  0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(10px) scale(0.92);
   }
-  to {
+  60% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-2px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes fadeOutDown {
+@keyframes popOut {
   from {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   to {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px) scale(0.96);
   }
 }

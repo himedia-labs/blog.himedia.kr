@@ -20,7 +20,7 @@ const iconStyles: Record<ToastType, { bg: string; color: string }> = {
 };
 
 const MAX_TOASTS = 3; // 최대 표시 토스트 수
-const exitDuration = 200; // 토스트 퇴장 애니메이션 시간 (ms) // 현재 0.2초
+const exitDuration = 260; // 토스트 퇴장 애니메이션 시간 (ms)
 const defaultDuration: number = 3000; // 기본 자동 종료 시간 (ms) // 현재 3초
 
 // 토스트 타입별 아이콘 매핑
