@@ -21,7 +21,8 @@ const iconStyles: Record<ToastType, { bg: string; color: string }> = {
 
 const MAX_TOASTS = 3; // 최대 표시 토스트 수
 const exitDuration = 260; // 토스트 퇴장 애니메이션 시간 (ms)
-const defaultDuration: number = 3000; // 기본 자동 종료 시간 (ms) // 현재 3초
+const defaultDuration: number = 3500; // 기본 자동 종료 시간 (ms)
+const resetOnNewToast = true; // 새 토스트가 뜰 때 기존 토스트 타이머 리셋 여부
 
 // 토스트 타입별 아이콘 매핑
 const iconMap: Record<ToastType, IconType> = {
@@ -60,8 +61,21 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timersRef = useRef<Record<string, number>>({});
 
+  // 토스트 자동 종료 예약
+  const scheduleAutoExit = useCallback((toast: ToastItem, exit: (id: string) => void) => {
+    if (typeof toast.duration !== 'number' || toast.duration <= 0) return;
+    timersRef.current[toast.id] = window.setTimeout(() => exit(toast.id), toast.duration);
+  }, []);
+
   // 토스트 퇴장 처리: leaving 플래그 후 애니메이션 끝에 제거
   const startExit = useCallback((id: string) => {
+    // 기존 자동 종료 타이머가 있으면 즉시 해제
+    const existingTimer = timersRef.current[id];
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+      delete timersRef.current[id];
+    }
+
     setToasts(prev => {
       const target = prev.find(toast => toast.id === id);
       if (!target || target.leaving) return prev;
@@ -82,15 +96,6 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
     }, exitDuration);
   }, []);
 
-  // 토스트 자동 종료 예약
-  const scheduleAutoExit = useCallback(
-    (toast: ToastItem) => {
-      if (typeof toast.duration !== 'number' || toast.duration <= 0) return;
-      timersRef.current[toast.id] = window.setTimeout(() => startExit(toast.id), toast.duration);
-    },
-    [startExit],
-  );
-
   // 새 토스트 표시
   const showToast = useCallback(
     ({ message, type = 'warning', duration = defaultDuration }: ToastOptions) => {
@@ -101,24 +106,28 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
       const newToast = { id, message, type, duration };
 
       setToasts(prev => {
-        // 최대 표시 수를 넘으면 가장 오래된 토스트를 제거 (타이머도 해제)
-        const trimmed = prev.length >= MAX_TOASTS ? prev.slice(1) : prev;
-
+        // 최대 표시 수 초과 시, 신규 토스트는 무시
         if (prev.length >= MAX_TOASTS) {
-          const oldest = prev[0];
-          const timer = timersRef.current[oldest.id];
-          if (timer) {
-            window.clearTimeout(timer);
-            delete timersRef.current[oldest.id];
-          }
+          return prev;
+        }
+
+        // 새 토스트 추가 시 기존 토스트 타이머를 리셋해 마지막 토스트 이후 duration 동안 유지
+        if (resetOnNewToast) {
+          prev.forEach(existing => {
+            const existingTimer = timersRef.current[existing.id];
+            if (existingTimer) {
+              window.clearTimeout(existingTimer);
+            }
+            scheduleAutoExit(existing, startExit);
+          });
         }
 
         // 새 토스트 자동 종료 설정 후 추가
-        scheduleAutoExit(newToast);
-        return [...trimmed, newToast];
+        scheduleAutoExit(newToast, startExit);
+        return [...prev, newToast];
       });
     },
-    [scheduleAutoExit],
+    [scheduleAutoExit, startExit],
   );
 
   const contextValue = useMemo(() => ({ showToast, hideToast: startExit }), [showToast, startExit]);
