@@ -1,9 +1,12 @@
 'use client';
+
 import { IconType } from 'react-icons';
 import { IoMdCheckmark } from 'react-icons/io';
 import { AiOutlineInfo } from 'react-icons/ai';
 import { TbExclamationMark } from 'react-icons/tb';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { TOAST_CONFIG } from '../../constants/config/toast.config';
 
 import styles from './toast.module.css';
 import type { ToastContextValue, ToastItem, ToastOptions, ToastType } from '../../types/toast';
@@ -18,11 +21,6 @@ const iconStyles: Record<ToastType, { bg: string; color: string }> = {
   warning: { bg: '#ffdf8f', color: '#333D4B' },
   error: { bg: '#ffe4e6', color: '#b91c1c' },
 };
-
-const MAX_TOASTS = 3; // 최대 표시 토스트 수
-const exitDuration = 260; // 토스트 퇴장 애니메이션 시간 (ms)
-const defaultDuration: number = 3500; // 기본 자동 종료 시간 (ms)
-const resetOnNewToast = true; // 새 토스트가 뜰 때 기존 토스트 타이머 리셋 여부
 
 // 토스트 타입별 아이콘 매핑
 const iconMap: Record<ToastType, IconType> = {
@@ -63,8 +61,10 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
 
   // 토스트 자동 종료 예약
   const scheduleAutoExit = useCallback((toast: ToastItem, exit: (id: string) => void) => {
-    if (typeof toast.duration !== 'number' || toast.duration <= 0) return;
-    timersRef.current[toast.id] = window.setTimeout(() => exit(toast.id), toast.duration);
+    const duration =
+      typeof toast.duration === 'number' && toast.duration > 0 ? toast.duration : TOAST_CONFIG.defaultDurationMs;
+    if (duration <= 0) return;
+    timersRef.current[toast.id] = window.setTimeout(() => exit(toast.id), duration);
   }, []);
 
   // 토스트 퇴장 처리: leaving 플래그 후 애니메이션 끝에 제거
@@ -93,12 +93,12 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
 
         return filtered;
       });
-    }, exitDuration);
+    }, TOAST_CONFIG.exitDurationMs);
   }, []);
 
   // 새 토스트 표시
   const showToast = useCallback(
-    ({ message, type = 'warning', duration = defaultDuration }: ToastOptions) => {
+    ({ message, type = 'warning', duration = TOAST_CONFIG.defaultDurationMs }: ToastOptions) => {
       const id =
         typeof crypto !== 'undefined' && 'randomUUID' in crypto
           ? crypto.randomUUID()
@@ -107,12 +107,12 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
 
       setToasts(prev => {
         // 최대 표시 수 초과 시, 신규 토스트는 무시
-        if (prev.length >= MAX_TOASTS) {
+        if (prev.length >= TOAST_CONFIG.maxToasts) {
           return prev;
         }
 
         // 새 토스트 추가 시 기존 토스트 타이머를 리셋해 마지막 토스트 이후 duration 동안 유지
-        if (resetOnNewToast) {
+        if (TOAST_CONFIG.resetOnNewToast) {
           prev.forEach(existing => {
             const existingTimer = timersRef.current[existing.id];
             if (existingTimer) {
