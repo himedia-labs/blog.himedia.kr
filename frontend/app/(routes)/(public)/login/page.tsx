@@ -10,7 +10,7 @@ import { authKeys } from '@/app/api/auth/auth.keys';
 import { authenticateUser } from './login.handlers';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useLoginMutation } from '@/app/api/auth/auth.mutations';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import styles from './login.module.css';
 

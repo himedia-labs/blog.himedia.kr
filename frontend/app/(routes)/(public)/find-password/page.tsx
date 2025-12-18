@@ -11,7 +11,7 @@ import {
   useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { resetPasswordState, sendCode, verifyCode, resetPassword } from './find-password.handlers';
 
 import styles from './find-password.module.css';

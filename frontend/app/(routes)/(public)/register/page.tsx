@@ -11,7 +11,7 @@ import { TbExternalLink } from 'react-icons/tb';
 import useRegisterForm from './register.hooks';
 import { register } from './register.handlers';
 import { isValidPassword } from '@/app/shared/utils/password';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
 

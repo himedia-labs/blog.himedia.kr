@@ -3,7 +3,7 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { isValidPassword } from '@/app/shared/utils/password';
-import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth';
+import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { RegisterRequest } from '@/app/shared/types/auth';
