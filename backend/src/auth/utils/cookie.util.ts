@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import type { ConfigType } from '@nestjs/config';
 
 import appConfig from '../../common/config/app.config';
+import { TOKEN_CONFIG } from '../../constants/config/token.config';
 
 /**
  * 쿠키 기본 옵션 생성
@@ -23,7 +24,7 @@ export const setCookies = (res: Response, refreshToken: string, config: ConfigTy
   const refreshMaxAgeSeconds = Number(config.jwt.refreshExpiresInSeconds);
 
   // Refresh Token 쿠키 설정 (초 > 밀리초)
-  res.cookie('refreshToken', refreshToken, {
+  res.cookie(TOKEN_CONFIG.REFRESH_COOKIE_NAME, refreshToken, {
     ...cookieOptions,
     maxAge: refreshMaxAgeSeconds * 1000,
   });
@@ -35,5 +36,5 @@ export const setCookies = (res: Response, refreshToken: string, config: ConfigTy
  */
 export const clearCookies = (res: Response, config: ConfigType<typeof appConfig>) => {
   const cookieOptions = getCookieOptions(config.env);
-  res.clearCookie('refreshToken', cookieOptions);
+  res.clearCookie(TOKEN_CONFIG.REFRESH_COOKIE_NAME, cookieOptions);
 };

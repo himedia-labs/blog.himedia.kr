@@ -1,4 +1,5 @@
 export const TOKEN_CONFIG = {
+  REFRESH_COOKIE_NAME: 'refreshToken',
   REFRESH_TOKEN_SECRET_LENGTH: 32,
 
   /**
