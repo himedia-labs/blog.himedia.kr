@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Headers, Inject, Ip, Post, Request, Response, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Inject,
+  Ip,
+  Post,
+  Request,
+  Response,
+  UseGuards,
+} from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 
 import { LoginDto } from './dto/login.dto';
@@ -122,6 +134,7 @@ export class AuthController {
    */
   @UseGuards(PasswordRateLimitGuard)
   @Post('password/send-code')
+  @HttpCode(200)
   sendPasswordResetCode(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.passwordService.sendPasswordResetCode(forgotPasswordDto);
   }
@@ -131,6 +144,7 @@ export class AuthController {
    * @description 인증번호 유효성 확인 (비인증)
    */
   @Post('password/verify-code')
+  @HttpCode(200)
   verifyResetCode(@Body() verifyResetCodeDto: VerifyResetCodeDto) {
     return this.passwordService.verifyResetCode(verifyResetCodeDto);
   }
@@ -140,6 +154,7 @@ export class AuthController {
    * @description 인증번호 확인 후 새 비밀번호로 변경 (비인증)
    */
   @Post('password/reset-with-code')
+  @HttpCode(200)
   resetPasswordWithCode(@Body() resetPasswordDto: ResetPasswordWithCodeDto) {
     return this.passwordService.resetPasswordWithCode(resetPasswordDto);
   }
@@ -150,6 +165,7 @@ export class AuthController {
    */
   @UseGuards(JwtGuard)
   @Post('password/change')
+  @HttpCode(200)
   changePassword(
     @Request() req: ExpressRequest & { user: JwtPayload },
     @Body() changePasswordDto: ChangePasswordDto,
