@@ -2,17 +2,9 @@ import { AxiosError } from 'axios';
 
 import { useAuthStore } from '../store/authStore';
 import { axiosBare, axiosInstance } from './axios.config';
+import { PUBLIC_AUTH_PATHS } from '../constants/config/publicPaths.config';
 
 import type { RetriableConfig } from '../types/axios';
-
-// 비인증용 엔드포인트
-const PUBLIC_AUTH_PATHS = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/password/send-code',
-  '/auth/password/verify-code',
-  '/auth/password/reset-with-code',
-];
 
 /**
  * Request 인터셉터
