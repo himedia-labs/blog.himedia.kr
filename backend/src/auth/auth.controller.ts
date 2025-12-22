@@ -32,6 +32,7 @@ import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
 import { LoginValidationGuard } from './guards/loginValidation.guard';
 
 import appConfig from '../common/config/app.config';
+import { TOKEN_CONFIG } from '../constants/config/token.config';
 
 import { setCookies, clearCookies } from './utils/cookie.util';
 
@@ -95,7 +96,7 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
     @Ip() ipAddress?: string,
   ) {
-    const refreshToken = req.cookies?.refreshToken as string | undefined;
+    const refreshToken = req.cookies?.[TOKEN_CONFIG.REFRESH_COOKIE_NAME] as string | undefined;
     if (!refreshToken) {
       // 쿠키가 없으면 204 No Content 반환 (비로그인 상태)
       return res.status(204).send();
@@ -112,7 +113,7 @@ export class AuthController {
    */
   @Post('logout')
   async logout(@Request() req: ExpressRequest, @Response() res: ExpressResponse) {
-    const refreshToken = req.cookies?.refreshToken as string | undefined;
+    const refreshToken = req.cookies?.[TOKEN_CONFIG.REFRESH_COOKIE_NAME] as string | undefined;
     if (refreshToken) {
       await this.tokenService.logout({ refreshToken });
     }
@@ -168,12 +169,20 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Post('password/change')
   @HttpCode(200)
-  changePassword(
+  async changePassword(
     @Request() req: ExpressRequest & { user: JwtPayload },
+    @Response() res: ExpressResponse,
     @Body() changePasswordDto: ChangePasswordDto,
     @Headers('user-agent') userAgent?: string,
     @Ip() ipAddress?: string,
   ) {
-    return this.passwordChangeService.changePassword(req.user.sub, changePasswordDto, userAgent, ipAddress);
+    const authResponse = await this.passwordChangeService.changePassword(
+      req.user.sub,
+      changePasswordDto,
+      userAgent,
+      ipAddress,
+    );
+    setCookies(res, authResponse.refreshToken, this.config);
+    return res.status(200).json({ accessToken: authResponse.accessToken, user: authResponse.user });
   }
 }

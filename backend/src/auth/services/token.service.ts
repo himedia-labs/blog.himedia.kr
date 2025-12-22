@@ -14,8 +14,8 @@ import { TOKEN_CONFIG } from '../../constants/config/token.config';
 import { UserService } from './user.service';
 import { RefreshTokenDto } from '../dto/refreshToken.dto';
 import { ERROR_CODES } from '../../constants/error/error-codes';
-import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
 import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
+import { hashRefreshTokenSecret, verifyRefreshTokenSecret } from '../utils/token-hash.util';
 
 import type { ConfigType } from '@nestjs/config';
 import type { AuthResponse } from '../interfaces/auth.interface';
@@ -74,7 +74,7 @@ export class TokenService {
     // 토큰 엔티티 생성
     const refreshToken = this.refreshTokensRepository.create({
       id: tokenId,
-      tokenHash: await hashWithAuthRounds(secret),
+      tokenHash: hashRefreshTokenSecret(secret, this.config.jwt.refreshTokenHashSecret),
       expiresAt,
       userId: user.id,
       user,
@@ -158,7 +158,11 @@ export class TokenService {
     }
 
     // 시크릿 검증
-    const isMatch = await comparePassword(parsed.secret, storedToken.tokenHash);
+    const isMatch = await verifyRefreshTokenSecret(
+      parsed.secret,
+      storedToken.tokenHash,
+      this.config.jwt.refreshTokenHashSecret,
+    );
 
     // 시크릿 불일치
     if (!isMatch) {
