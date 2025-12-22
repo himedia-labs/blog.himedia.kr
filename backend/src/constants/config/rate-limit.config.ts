@@ -1,10 +1,3 @@
-export const RATE_LIMIT_CONFIG = {
-  // 기본 레이트 리밋 TTL(초)
-  DEFAULT_TTL: 60,
-  // 기본 레이트 리밋 허용 횟수
-  DEFAULT_LIMIT: 100,
-} as const;
-
 export const LOGIN_RATE_LIMIT_CONFIG = {
   EMAIL: {
     // 로그인: 이메일 기준 분당/시간당 허용 횟수
