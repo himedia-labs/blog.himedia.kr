@@ -57,7 +57,11 @@ export class AuthService {
           code: ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
         });
       }
-      if (existingUser.phone === registerDto.phone) {
+      if (
+        existingUser.phone === registerDto.phone ||
+        existingUser.phone === normalizedPhone ||
+        existingUser.phone === formattedPhone
+      ) {
         throw new ConflictException({
           message: AUTH_ERROR_MESSAGES.PHONE_ALREADY_EXISTS,
           code: ERROR_CODES.AUTH_PHONE_ALREADY_EXISTS,

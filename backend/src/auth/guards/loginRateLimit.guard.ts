@@ -1,11 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
-import { LOGIN_RATE_LIMIT_CONFIG } from '../../constants/config/rate-limit.config';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
-import type { ErrorCode } from '../../constants/error/error-codes';
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import { RateLimitService } from '../services/rateLimit.service';
+import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { LOGIN_RATE_LIMIT_CONFIG } from '../../constants/config/rate-limit.config';
 
 import type { Request } from 'express';
+import type { ErrorCode } from '../../constants/error/error-codes';
 import type { RateLimitRule } from '../interfaces/rateLimit.interface';
 
 /**
@@ -57,7 +58,7 @@ export class LoginRateLimitGuard implements CanActivate {
     }
 
     if (rules.length) {
-      const errorCode: ErrorCode = 'AUTH_TOO_MANY_LOGIN_ATTEMPTS';
+      const errorCode: ErrorCode = ERROR_CODES.AUTH_TOO_MANY_LOGIN_ATTEMPTS;
       this.rateLimitService.consume(rules, {
         message: AUTH_ERROR_MESSAGES.TOO_MANY_LOGIN_ATTEMPTS,
         code: errorCode,

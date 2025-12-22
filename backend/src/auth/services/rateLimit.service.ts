@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
+import { ERROR_CODES } from '../../constants/error/error-codes';
 import { PASSWORD_ERROR_MESSAGES } from '../../constants/message/password.messages';
+
 import type { ErrorCode } from '../../constants/error/error-codes';
 import type { RateLimitEntry, RateLimitKey, RateLimitRule } from '../interfaces/rateLimit.interface';
 
@@ -21,7 +23,7 @@ export class RateLimitService {
   consume(rules: RateLimitRule[], error?: { message?: string; code?: ErrorCode }) {
     const now = Date.now();
     const message = error?.message ?? PASSWORD_ERROR_MESSAGES.TOO_MANY_REQUESTS;
-    const defaultCode: ErrorCode = 'PASSWORD_TOO_MANY_REQUESTS';
+    const defaultCode: ErrorCode = ERROR_CODES.PASSWORD_TOO_MANY_REQUESTS;
     const code: ErrorCode = error?.code ?? defaultCode;
 
     for (const rule of rules) {
