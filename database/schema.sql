@@ -38,6 +38,103 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- 카테고리 테이블
+CREATE TABLE categories (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 게시글 테이블
+CREATE TABLE posts (
+    id BIGINT PRIMARY KEY,
+    author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    view_count INTEGER NOT NULL DEFAULT 0,
+    like_count INTEGER NOT NULL DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED')),
+    published_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_posts_author_id ON posts(author_id);
+CREATE INDEX idx_posts_category_id ON posts(category_id);
+CREATE INDEX idx_posts_status_created_at ON posts(status, created_at);
+CREATE INDEX idx_posts_created_at ON posts(created_at);
+
+-- 트리거
+CREATE TRIGGER update_posts_updated_at BEFORE UPDATE ON posts
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- 태그 테이블
+CREATE TABLE tags (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 게시글-태그 연결 테이블
+CREATE TABLE post_tags (
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (post_id, tag_id)
+);
+
+-- 인덱스
+CREATE INDEX idx_post_tags_tag_id ON post_tags(tag_id);
+
+-- 게시글 좋아요 테이블 (중복 방지)
+CREATE TABLE post_likes (
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (post_id, user_id)
+);
+
+-- 인덱스
+CREATE INDEX idx_post_likes_user_id ON post_likes(user_id);
+
+-- 댓글 테이블 (무제한 트리 구조)
+CREATE TABLE comments (
+    id BIGINT PRIMARY KEY,
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    parent_id BIGINT REFERENCES comments(id) ON DELETE CASCADE,
+    depth INTEGER NOT NULL DEFAULT 0,
+    like_count INTEGER NOT NULL DEFAULT 0,
+    dislike_count INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_comments_post_id ON comments(post_id);
+CREATE INDEX idx_comments_parent_id ON comments(parent_id);
+CREATE INDEX idx_comments_created_at ON comments(created_at);
+
+-- 트리거
+CREATE TRIGGER update_comments_updated_at BEFORE UPDATE ON comments
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- 댓글 리액션 테이블 (좋아요/싫어요)
+CREATE TABLE comment_reactions (
+    comment_id BIGINT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('LIKE', 'DISLIKE')),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (comment_id, user_id)
+);
+
+-- 인덱스
+CREATE INDEX idx_comment_reactions_user_id ON comment_reactions(user_id);
+
 -- 리프레시 토큰 테이블
 CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -85,6 +182,58 @@ COMMENT ON COLUMN users.privacy_consent IS '개인정보 수집 및 이용 동�
 COMMENT ON COLUMN users.approved IS '관리자 승인 여부';
 COMMENT ON COLUMN users.created_at IS '생성 일시';
 COMMENT ON COLUMN users.updated_at IS '수정 일시';
+
+COMMENT ON TABLE categories IS '카테고리 테이블';
+COMMENT ON COLUMN categories.id IS '카테고리 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN categories.name IS '카테고리 이름';
+COMMENT ON COLUMN categories.created_at IS '생성 일시';
+
+COMMENT ON TABLE posts IS '게시글 테이블';
+COMMENT ON COLUMN posts.id IS '게시글 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN posts.author_id IS '작성자 ID';
+COMMENT ON COLUMN posts.category_id IS '카테고리 ID';
+COMMENT ON COLUMN posts.title IS '제목';
+COMMENT ON COLUMN posts.content IS '본문';
+COMMENT ON COLUMN posts.view_count IS '조회수';
+COMMENT ON COLUMN posts.like_count IS '좋아요 수';
+COMMENT ON COLUMN posts.status IS '게시 상태: DRAFT(임시저장), PUBLISHED(게시)';
+COMMENT ON COLUMN posts.published_at IS '게시 일시';
+COMMENT ON COLUMN posts.created_at IS '생성 일시';
+COMMENT ON COLUMN posts.updated_at IS '수정 일시';
+
+COMMENT ON TABLE tags IS '태그 테이블';
+COMMENT ON COLUMN tags.id IS '태그 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN tags.name IS '태그 이름';
+COMMENT ON COLUMN tags.created_at IS '생성 일시';
+
+COMMENT ON TABLE post_tags IS '게시글-태그 연결 테이블';
+COMMENT ON COLUMN post_tags.post_id IS '게시글 ID';
+COMMENT ON COLUMN post_tags.tag_id IS '태그 ID';
+COMMENT ON COLUMN post_tags.created_at IS '생성 일시';
+
+COMMENT ON TABLE post_likes IS '게시글 좋아요 테이블';
+COMMENT ON COLUMN post_likes.post_id IS '게시글 ID';
+COMMENT ON COLUMN post_likes.user_id IS '사용자 ID';
+COMMENT ON COLUMN post_likes.created_at IS '생성 일시';
+
+COMMENT ON TABLE comments IS '댓글 테이블';
+COMMENT ON COLUMN comments.id IS '댓글 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN comments.post_id IS '게시글 ID';
+COMMENT ON COLUMN comments.author_id IS '작성자 ID';
+COMMENT ON COLUMN comments.content IS '댓글 내용';
+COMMENT ON COLUMN comments.parent_id IS '부모 댓글 ID';
+COMMENT ON COLUMN comments.depth IS '댓글 깊이';
+COMMENT ON COLUMN comments.like_count IS '좋아요 수';
+COMMENT ON COLUMN comments.dislike_count IS '싫어요 수';
+COMMENT ON COLUMN comments.created_at IS '생성 일시';
+COMMENT ON COLUMN comments.updated_at IS '수정 일시';
+COMMENT ON COLUMN comments.deleted_at IS '삭제 일시';
+
+COMMENT ON TABLE comment_reactions IS '댓글 좋아요/싫어요 테이블';
+COMMENT ON COLUMN comment_reactions.comment_id IS '댓글 ID';
+COMMENT ON COLUMN comment_reactions.user_id IS '사용자 ID';
+COMMENT ON COLUMN comment_reactions.type IS '리액션 타입';
+COMMENT ON COLUMN comment_reactions.created_at IS '생성 일시';
 
 COMMENT ON TABLE refresh_tokens IS '리프레시 토큰 테이블';
 COMMENT ON COLUMN refresh_tokens.id IS '토큰 고유 ID (UUID - 보안)';
