@@ -41,8 +41,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 -- 카테고리 테이블
 CREATE TABLE categories (
     id BIGINT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- 게시글 테이블
@@ -192,7 +191,6 @@ COMMENT ON COLUMN users.updated_at IS '수정 일시';
 COMMENT ON TABLE categories IS '카테고리 테이블';
 COMMENT ON COLUMN categories.id IS '카테고리 고유 ID (Snowflake ID)';
 COMMENT ON COLUMN categories.name IS '카테고리 이름';
-COMMENT ON COLUMN categories.created_at IS '생성 일시';
 
 COMMENT ON TABLE posts IS '게시글 테이블';
 COMMENT ON COLUMN posts.id IS '게시글 고유 ID (Snowflake ID)';
