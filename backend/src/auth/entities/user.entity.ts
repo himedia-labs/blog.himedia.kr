@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { RefreshToken } from './refreshToken.entity';
 
 // 권한
@@ -9,6 +9,8 @@ export enum UserRole {
   ADMIN = 'ADMIN',
 }
 
+@Check('users_role_check', "\"role\" IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')")
+@Check('users_requested_role_check', "\"requested_role\" IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR')")
 @Entity({ name: 'users' })
 @Index(['email'])
 @Index(['role'])

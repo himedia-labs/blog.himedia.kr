@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -22,6 +23,8 @@ export enum PostStatus {
   PUBLISHED = 'PUBLISHED',
 }
 
+@Check('posts_status_check', "\"status\" IN ('DRAFT', 'PUBLISHED')")
+@Check('chk_posts_published_at', "status <> 'PUBLISHED' OR published_at IS NOT NULL")
 @Entity({ name: 'posts' })
 @Index(['authorId'])
 @Index(['categoryId'])

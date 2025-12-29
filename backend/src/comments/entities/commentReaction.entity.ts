@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { User } from '../../auth/entities/user.entity';
 import { Comment } from './comment.entity';
@@ -9,6 +9,7 @@ export enum CommentReactionType {
   DISLIKE = 'DISLIKE',
 }
 
+@Check('comment_reactions_type_check', "\"type\" IN ('LIKE', 'DISLIKE')")
 @Entity({ name: 'comment_reactions' })
 @Index(['userId'])
 export class CommentReaction {
