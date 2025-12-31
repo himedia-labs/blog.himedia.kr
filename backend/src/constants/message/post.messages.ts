@@ -4,4 +4,15 @@ export const POST_VALIDATION_MESSAGES = {
   CONTENT_STRING: '내용은 문자열이어야 합니다.',
   CATEGORY_ID_STRING: '카테고리 ID는 문자열이어야 합니다.',
   POST_STATUS_ENUM: '유효한 게시 상태를 선택해주세요.',
+  PAGE_NUMBER: '페이지는 숫자여야 합니다.',
+  PAGE_MIN: '페이지는 1 이상이어야 합니다.',
+  LIMIT_NUMBER: 'limit은 숫자여야 합니다.',
+  LIMIT_MIN: 'limit은 1 이상이어야 합니다.',
+  LIMIT_MAX: 'limit은 50 이하여야 합니다.',
+  POST_SORT_ENUM: '유효한 정렬 기준을 선택해주세요.',
+  SORT_ORDER_ENUM: '유효한 정렬 방향을 선택해주세요.',
+} as const;
+
+export const POST_ERROR_MESSAGES = {
+  POST_NOT_FOUND: '게시글을 찾을 수 없습니다.',
 } as const;

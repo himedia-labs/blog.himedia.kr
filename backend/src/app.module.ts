@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { AuthModule } from './auth/auth.module';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
 import appConfig from './common/config/app.config';
 
 @Module({
@@ -16,6 +18,8 @@ import appConfig from './common/config/app.config';
     DatabaseModule,
     EmailModule,
     AuthModule,
+    PostsModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],
