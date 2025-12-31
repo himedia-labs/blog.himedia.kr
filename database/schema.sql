@@ -51,6 +51,7 @@ CREATE TABLE posts (
     category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
+    thumbnail_url VARCHAR(500),
     view_count INTEGER NOT NULL DEFAULT 0,
     like_count INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED')),
@@ -198,6 +199,7 @@ COMMENT ON COLUMN posts.author_id IS '작성자 ID';
 COMMENT ON COLUMN posts.category_id IS '카테고리 ID';
 COMMENT ON COLUMN posts.title IS '제목';
 COMMENT ON COLUMN posts.content IS '본문';
+COMMENT ON COLUMN posts.thumbnail_url IS '대표 썸네일 이미지 URL';
 COMMENT ON COLUMN posts.view_count IS '조회수';
 COMMENT ON COLUMN posts.like_count IS '좋아요 수';
 COMMENT ON COLUMN posts.status IS '게시 상태: DRAFT(임시저장), PUBLISHED(게시)';
