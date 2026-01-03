@@ -117,12 +117,18 @@
 
 .meta {
   display: flex;
-  gap: 12px;
+  gap: 3rem;
   margin-top: 0;
   font-size: 12px;
   color: #9b9b9b;
   align-items: center;
   align-self: end;
+}
+
+.metaGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .metaItem {
