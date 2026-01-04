@@ -6,19 +6,10 @@ import { PiList } from 'react-icons/pi';
 
 import usePostList from './postList.hooks';
 import styles from './postList.module.css';
-import type { TopPost } from '@/app/shared/types/post';
-
-// 사이드바 상위 인기글(임시)
-const TOP_POSTS: TopPost[] = [
-  { id: 'backend-dream', title: '[무물보] 응답하라, 백엔드 개발자를 꿈꾸는 이유' },
-  { id: 'fe-ground', title: "[FE Ground] 'AI x Front-End: 코딩 보조에서 동료로'" },
-  { id: 'maft', title: 'AI로 E2E 테스트를 찍어내다: MAFT' },
-  { id: 'student-backend', title: '백엔드를 꿈꾸는 학생개발자에게 해주고 싶은 말' },
-  { id: 'copilot', title: '나만의 Visual Studio Code Copilot 세팅 가이드' },
-];
 
 export default function PostListSection() {
-  const { viewMode, setViewMode, selectedCategory, setSelectedCategory, categoryNames, filteredPosts } = usePostList();
+  const { viewMode, setViewMode, selectedCategory, setSelectedCategory, categoryNames, filteredPosts, topPosts } =
+    usePostList();
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -121,7 +112,7 @@ export default function PostListSection() {
           </p>
         </div>
         <ol className={styles.topList}>
-          {TOP_POSTS.map((item, index) => (
+          {topPosts.map((item, index) => (
             <li key={item.id}>
               <span className={styles.rank}>{index + 1}</span>
               <span className={styles.topTitle}>{item.title}</span>

@@ -5,7 +5,7 @@ import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 
 import { toViewPost } from './postList.handlers';
 
-import type { ViewMode } from '@/app/shared/types/post';
+import type { TopPost, ViewMode } from '@/app/shared/types/post';
 
 // 메인 포스트 목록 상태/데이터 제공 훅
 export const usePostList = () => {
@@ -20,6 +20,10 @@ export const usePostList = () => {
   const categoryNames = ['ALL', ...(categories ?? []).map(category => category.name)];
   const posts = (data?.items ?? []).map(item => toViewPost(item));
   const filteredPosts = selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory);
+  const topPosts: TopPost[] = [...filteredPosts]
+    .sort((a, b) => b.likeCount - a.likeCount)
+    .slice(0, 5)
+    .map(post => ({ id: post.id, title: post.title }));
 
   return {
     viewMode,
@@ -28,6 +32,7 @@ export const usePostList = () => {
     setSelectedCategory,
     categoryNames,
     filteredPosts,
+    topPosts,
   };
 };
 
