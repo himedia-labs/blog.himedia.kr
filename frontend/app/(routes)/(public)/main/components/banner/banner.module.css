@@ -3,10 +3,29 @@
   justify-content: center;
 }
 
+.bannerInner {
+  position: relative;
+  width: 100%;
+  max-width: 1250px;
+}
+
 .bannerImage {
   display: block;
   width: 100%;
   max-width: 1250px;
   height: auto;
   border-radius: 12px;
+}
+
+.bannerIcon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7.5rem;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
 }
