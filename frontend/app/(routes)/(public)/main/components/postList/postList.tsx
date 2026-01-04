@@ -9,6 +9,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import usePostList from './postList.hooks';
 import styles from './postList.module.css';
 
+// 메인 페이지 포스트 리스트 섹션
 export default function PostListSection() {
   const {
     viewMode,
@@ -20,6 +21,7 @@ export default function PostListSection() {
     topPosts,
     isLoading,
     isCategoriesLoading,
+    isTopPostsLoading,
   } = usePostList();
   const listSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
@@ -162,7 +164,7 @@ export default function PostListSection() {
           </p>
         </div>
         <ol className={styles.topList}>
-          {isLoading
+          {isTopPostsLoading
             ? topSkeletons.map((_, index) => (
                 <li key={`top-skeleton-${index}`} aria-hidden="true">
                   <span className={styles.rank}>

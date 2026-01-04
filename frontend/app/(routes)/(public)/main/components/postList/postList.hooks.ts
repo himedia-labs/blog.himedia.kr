@@ -17,13 +17,16 @@ export const usePostList = () => {
     status: 'PUBLISHED',
     categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
   });
+  const { data: topPostsData, isLoading: isTopPostsLoading } = usePostsQuery({
+    status: 'PUBLISHED',
+    sort: 'likeCount',
+    order: 'DESC',
+    limit: 5,
+  });
   const categoryNames = ['ALL', ...(categories ?? []).map(category => category.name)];
   const posts = (data?.items ?? []).map(item => toViewPost(item));
   const filteredPosts = selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory);
-  const topPosts: TopPost[] = [...filteredPosts]
-    .sort((a, b) => b.likeCount - a.likeCount)
-    .slice(0, 5)
-    .map(post => ({ id: post.id, title: post.title }));
+  const topPosts: TopPost[] = (topPostsData?.items ?? []).map(post => ({ id: post.id, title: post.title }));
 
   return {
     viewMode,
@@ -35,6 +38,7 @@ export const usePostList = () => {
     topPosts,
     isLoading,
     isCategoriesLoading,
+    isTopPostsLoading,
   };
 };
 
