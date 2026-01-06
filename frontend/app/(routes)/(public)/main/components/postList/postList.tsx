@@ -1,17 +1,26 @@
 'use client';
 
-import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
+
 import { PiList } from 'react-icons/pi';
 import { FiPlus } from 'react-icons/fi';
+import { CiCalendar, CiGrid41 } from 'react-icons/ci';
+import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
+
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
+import { useAuthStore } from '@/app/shared/store/authStore';
+
 import usePostList from './postList.hooks';
+import { createHandleCreatePost } from './postList.handlers';
+
 import styles from './postList.module.css';
 
 // 메인 페이지 포스트 리스트 섹션
 export default function PostListSection() {
+  const router = useRouter();
+  const { accessToken } = useAuthStore();
   const {
     viewMode,
     setViewMode,
@@ -29,15 +38,13 @@ export default function PostListSection() {
   const topSkeletons = Array.from({ length: 5 });
   const categorySkeletons = Array.from({ length: 8 });
 
+  const handleCreatePost = createHandleCreatePost({ router, accessToken });
+
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button
-            type="button"
-            className={styles.createButton}
-            aria-label="게시물 작성"
-          >
+          <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
             <FiPlus />
           </button>
           <button

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
+import { toViewPost } from './postList.utils';
 import { usePostsQuery } from '@/app/api/posts/posts.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-
-import { toViewPost } from './postList.handlers';
 
 import type { TopPost, ViewMode } from '@/app/shared/types/post';
 
