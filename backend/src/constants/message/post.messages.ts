@@ -1,7 +1,10 @@
 export const POST_VALIDATION_MESSAGES = {
+  TITLE_REQUIRED: '제목을 입력해주세요.',
   TITLE_STRING: '제목은 문자열이어야 합니다.',
   TITLE_MAX_LENGTH: '제목은 200자 이하여야 합니다.',
+  CONTENT_REQUIRED: '내용을 입력해주세요.',
   CONTENT_STRING: '내용은 문자열이어야 합니다.',
+  CATEGORY_REQUIRED: '카테고리를 선택해주세요.',
   CATEGORY_ID_STRING: '카테고리 ID는 문자열이어야 합니다.',
   POST_STATUS_ENUM: '유효한 게시 상태를 선택해주세요.',
   THUMBNAIL_URL_STRING: '썸네일 URL은 문자열이어야 합니다.',

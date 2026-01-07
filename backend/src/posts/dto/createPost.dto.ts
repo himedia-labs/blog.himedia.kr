@@ -12,8 +12,9 @@ export class CreatePostDto {
   @IsString({ message: POST_VALIDATION_MESSAGES.CONTENT_STRING })
   content!: string;
 
+  @IsOptional()
   @IsString({ message: POST_VALIDATION_MESSAGES.CATEGORY_ID_STRING })
-  categoryId!: string;
+  categoryId?: string | null;
 
   @IsOptional()
   @IsString({ message: POST_VALIDATION_MESSAGES.THUMBNAIL_URL_STRING })

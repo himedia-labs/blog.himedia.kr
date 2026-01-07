@@ -27,6 +27,7 @@ export enum PostStatus {
 
 @Check('posts_status_check', "\"status\" IN ('DRAFT', 'PUBLISHED')")
 @Check('chk_posts_published_at', "status <> 'PUBLISHED' OR published_at IS NOT NULL")
+@Check('chk_posts_category_required', "status <> 'PUBLISHED' OR category_id IS NOT NULL")
 @Entity({ name: 'posts' })
 @Index(['authorId'])
 @Index(['categoryId'])
@@ -39,8 +40,8 @@ export class Post {
   @Column({ name: 'author_id', type: 'bigint' })
   authorId!: string;
 
-  @Column({ name: 'category_id', type: 'bigint' })
-  categoryId!: string;
+  @Column({ name: 'category_id', type: 'bigint', nullable: true })
+  categoryId!: string | null;
 
   @Column({ length: 200 })
   title!: string;
@@ -73,9 +74,9 @@ export class Post {
   @JoinColumn({ name: 'author_id' })
   author!: User;
 
-  @ManyToOne(() => Category, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Category, { onDelete: 'RESTRICT', nullable: true })
   @JoinColumn({ name: 'category_id' })
-  category!: Category;
+  category!: Category | null;
 
   @OneToMany(() => PostTag, postTag => postTag.post)
   postTags!: PostTag[];

@@ -48,7 +48,7 @@ CREATE TABLE categories (
 CREATE TABLE posts (
     id BIGINT PRIMARY KEY,
     author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+    category_id BIGINT REFERENCES categories(id) ON DELETE RESTRICT,
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
     thumbnail_url VARCHAR(500),
@@ -57,6 +57,7 @@ CREATE TABLE posts (
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED')),
     published_at TIMESTAMP,
     CONSTRAINT chk_posts_published_at CHECK (status <> 'PUBLISHED' OR published_at IS NOT NULL),
+    CONSTRAINT chk_posts_category_required CHECK (status <> 'PUBLISHED' OR category_id IS NOT NULL),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

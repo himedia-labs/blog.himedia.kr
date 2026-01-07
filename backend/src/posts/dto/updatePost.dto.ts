@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { POST_VALIDATION_MESSAGES } from '../../constants/message/post.messages';
 import { PostStatus } from '../entities/post.entity';
@@ -16,7 +16,19 @@ export class UpdatePostDto {
 
   @IsOptional()
   @IsString({ message: POST_VALIDATION_MESSAGES.CATEGORY_ID_STRING })
-  categoryId?: string;
+  categoryId?: string | null;
+
+  @IsOptional()
+  @IsString({ message: POST_VALIDATION_MESSAGES.THUMBNAIL_URL_STRING })
+  @MaxLength(500, { message: POST_VALIDATION_MESSAGES.THUMBNAIL_URL_MAX_LENGTH })
+  thumbnailUrl?: string;
+
+  @IsOptional()
+  @IsArray({ message: POST_VALIDATION_MESSAGES.TAGS_ARRAY })
+  @ArrayMaxSize(5, { message: POST_VALIDATION_MESSAGES.TAGS_MAX_COUNT })
+  @IsString({ each: true, message: POST_VALIDATION_MESSAGES.TAG_STRING })
+  @MaxLength(20, { each: true, message: POST_VALIDATION_MESSAGES.TAG_MAX_LENGTH })
+  tags?: string[];
 
   @IsOptional()
   @IsIn([PostStatus.DRAFT, PostStatus.PUBLISHED], { message: POST_VALIDATION_MESSAGES.POST_STATUS_ENUM })
