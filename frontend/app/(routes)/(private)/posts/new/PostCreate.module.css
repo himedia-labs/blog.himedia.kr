@@ -6,90 +6,27 @@
   flex-direction: column;
 }
 
-.toolbar {
-  position: fixed;
-  left: 50%;
-  bottom: 5rem;
-  transform: translateX(-50%);
-  width: 15rem;
+.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
-  z-index: 9999;
-  cursor: grab;
-  touch-action: none;
+  gap: 1.5rem;
+  padding: 1.5rem 3rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.toolbarHandle {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  display: grid;
-  place-items: center;
-  color: #8a8a8a;
-}
-
-.toolbarHandle :global(svg) {
-  width: 16px;
-  height: 16px;
-}
-
-.toolbar[data-dragging='true'] {
-  cursor: grabbing;
-}
-
-.toolbarGroup {
-  display: flex;
-  flex: 1;
-  justify-content: space-evenly;
-  gap: 0;
-}
-
-.iconButton {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  color: #1f1f1f;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.iconButton:hover {
-  background-color: #f2f2f2;
-  border-color: rgba(0, 0, 0, 0.18);
-}
-
-.iconButton[aria-pressed='true'] {
-  background-color: #eaeaea;
-  border-color: rgba(0, 0, 0, 0.2);
-}
-
-.iconButton svg {
-  width: 20px;
-  height: 20px;
-}
-
-.header {
+.headerCopy {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 28px 3rem 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex: 1;
+  min-width: 0;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .headerTitle {
@@ -105,6 +42,138 @@
   color: #6e6e6e;
 }
 
+.headerAction {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  color: #1f1f1f;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.headerAction:hover {
+  background-color: #f2f2f2;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.headerAction :global(svg) {
+  width: 20px;
+  height: 20px;
+}
+
+.draftSidebarBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 9990;
+}
+
+.draftSidebarBackdrop[data-open='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.draftSidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(360px, 92vw);
+  background: #fff;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: -12px 0 28px rgba(0, 0, 0, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+  z-index: 9991;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
+}
+
+.draftSidebar[data-open='true'] {
+  transform: translateX(0);
+}
+
+.draftSidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.draftSidebarTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.draftSidebarClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #1f1f1f;
+}
+
+.draftSidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.draftSidebarItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.draftSidebarItem:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.draftSidebarItemTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.draftSidebarItemMeta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #8c8c8c;
+}
+
+.draftSidebarEmpty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #9b9b9b;
+}
+
 .split {
   --split-left: 50%;
   --split-handle: 16px;
@@ -115,7 +184,6 @@
     var(--split-handle)
     minmax(0, calc(100% - var(--split-left) - var(--split-handle-half)));
   min-height: calc(100vh - 180px);
-  margin-top: 1rem;
 }
 
 .form {
@@ -123,7 +191,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 1rem 3rem;
+  padding: 1.5rem 3rem;
 }
 
 .srOnly {
@@ -420,7 +488,7 @@ select.metaControl {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 1rem 3rem;
+  padding: 1.5rem 3rem;
 }
 
 .splitHandle {
@@ -438,8 +506,8 @@ select.metaControl {
 .splitHandle::before {
   content: '';
   position: absolute;
-  top: 16px;
-  bottom: 16px;
+  top: 24px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   width: 2px;
@@ -481,12 +549,6 @@ select.metaControl {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.listPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .previewThumb {
@@ -734,15 +796,38 @@ select.metaControl {
   color: #666;
 }
 
+.actionFooter {
+  position: sticky;
+  bottom: 0;
+  padding: 16px 3rem calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 2;
+}
+
+.actionButton {
+  min-width: 120px;
+  height: 42px;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  color: #1f1f1f;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.actionButton:hover {
+  background: #f2f2f2;
+  border-color: rgba(0, 0, 0, 0.18);
+}
 @media (width <= 900px) {
   .container {
     width: 100%;
     margin-left: 0;
-  }
-
-  .toolbar {
-    width: min(520px, 92vw);
-    bottom: calc(16px + env(safe-area-inset-bottom));
   }
 
   .split {

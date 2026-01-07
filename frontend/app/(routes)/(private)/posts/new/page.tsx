@@ -1,14 +1,23 @@
 'use client';
 
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { useState } from 'react';
+import Link from 'next/link';
 
-import { CiCalendar } from 'react-icons/ci';
 import { RiTwitterXFill } from 'react-icons/ri';
 import { RxWidth } from 'react-icons/rx';
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FiCheck, FiEye, FiHeart, FiList, FiMail, FiMessageCircle, FiMove, FiSave, FiTag } from 'react-icons/fi';
+import {
+  FiCheck,
+  FiEye,
+  FiHeart,
+  FiMail,
+  FiMenu,
+  FiMessageCircle,
+  FiSave,
+  FiTag,
+  FiX,
+} from 'react-icons/fi';
 import {
   HiOutlineBold,
   HiOutlineChatBubbleLeftRight,
@@ -25,36 +34,22 @@ import {
   HiOutlineUnderline,
 } from 'react-icons/hi2';
 
-import { renderMarkdownPreview } from './postCreate.utils';
+import { formatDateLabel, renderMarkdownPreview } from './postCreate.utils';
 import usePostCreateForm, { usePostCreatePage } from './postCreate.hooks';
-import { PREVIEW_MODE_DETAIL, PREVIEW_MODE_LIST } from './postCreate.constants';
 
 import styles from './PostCreate.module.css';
-import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
 export default function PostCreatePage() {
   const { state, derived, data, handlers } = usePostCreateForm();
-  const { title, categoryId, thumbnailUrl, content, tagInput, tags, tagLengthError, titleLengthError, previewMode } =
-    state;
-  const {
-    categoryName,
-    summary,
-    dateLabel,
-    timeAgoLabel,
-    previewStats,
-    authorName,
-    draftButtonTitle,
-    hasTagSuggestions,
-  } = derived;
-  const { categories, isLoading, tagSuggestions } = data;
+  const { title, categoryId, thumbnailUrl, content, tagInput, tags, tagLengthError, titleLengthError } = state;
+  const { categoryName, dateLabel, previewStats, authorName, draftButtonTitle, hasTagSuggestions } = derived;
+  const { categories, isLoading, tagSuggestions, draftList } = data;
   const {
     handleTitleChange,
     handleCategoryChange,
     handleThumbnailChange,
     handleContentChange,
     setContentValue,
-    handlePreviewDetail,
-    handlePreviewList,
     handleRemoveTag,
     handleTagKeyDown,
     handleTagChange,
@@ -66,9 +61,8 @@ export default function PostCreatePage() {
     handleSave,
   } = handlers;
   const {
-    refs: { splitRef, toolbarRef, contentRef, imageInputRef },
+    refs: { splitRef, contentRef, imageInputRef },
     split: { value: splitLeft, min: splitMin, max: splitMax, handlers: splitHandlers },
-    toolbar: { isDragging: isToolbarDragging, handlers: toolbarHandlers },
     editor: {
       applyInlineWrap,
       applyCode,
@@ -81,64 +75,75 @@ export default function PostCreatePage() {
       handleImageSelect,
     },
   } = usePostCreatePage({ content, setContentValue });
+  const [isDraftSidebarOpen, setIsDraftSidebarOpen] = useState(false);
+  const draftItems = draftList?.items ?? [];
+  const handleOpenDrafts = () => setIsDraftSidebarOpen(true);
+  const handleCloseDrafts = () => setIsDraftSidebarOpen(false);
 
   return (
     <section className={styles.container} aria-label="게시물 작성">
       <header className={styles.header}>
-        <h1 className={styles.headerTitle}>새 게시물 작성</h1>
-        <p className={styles.headerDescription}>카테고리와 태그를 설정하고 내용을 작성하세요.</p>
+        <div className={styles.headerCopy}>
+          <h1 className={styles.headerTitle}>새 게시물 작성</h1>
+          <p className={styles.headerDescription}>카테고리와 태그를 설정하고 내용을 작성하세요.</p>
+        </div>
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.headerAction}
+            aria-label="임시저장 목록 열기"
+            title="임시저장 목록"
+            onClick={handleOpenDrafts}
+          >
+            <FiMenu aria-hidden />
+          </button>
+        </div>
       </header>
-      <nav
-        ref={toolbarRef}
-        className={styles.toolbar}
-        aria-label="편집 메뉴"
-        data-dragging={isToolbarDragging ? 'true' : 'false'}
-        onPointerDown={toolbarHandlers.handlePointerDown}
-        onPointerMove={toolbarHandlers.handlePointerMove}
-        onPointerUp={toolbarHandlers.handlePointerUp}
-        onPointerCancel={toolbarHandlers.handlePointerUp}
+      <div
+        className={styles.draftSidebarBackdrop}
+        data-open={isDraftSidebarOpen ? 'true' : 'false'}
+        onClick={handleCloseDrafts}
+        aria-hidden="true"
+      />
+      <aside
+        className={styles.draftSidebar}
+        data-open={isDraftSidebarOpen ? 'true' : 'false'}
+        aria-label="임시저장 목록"
+        aria-hidden={isDraftSidebarOpen ? 'false' : 'true'}
       >
-        <span className={styles.toolbarHandle} aria-hidden="true">
-          <FiMove />
-        </span>
-        <div className={styles.toolbarGroup}>
+        <div className={styles.draftSidebarHeader}>
+          <h2 className={styles.draftSidebarTitle}>임시저장 목록</h2>
           <button
             type="button"
-            className={styles.iconButton}
-            aria-label="작성 미리보기"
-            title="작성 미리보기"
-            aria-pressed={previewMode === PREVIEW_MODE_DETAIL}
-            onClick={handlePreviewDetail}
+            className={styles.draftSidebarClose}
+            aria-label="임시저장 목록 닫기"
+            onClick={handleCloseDrafts}
           >
-            <FiEye aria-hidden />
-          </button>
-          <button
-            type="button"
-            className={styles.iconButton}
-            aria-label="리스트 미리보기"
-            title="리스트 미리보기"
-            aria-pressed={previewMode === PREVIEW_MODE_LIST}
-            onClick={handlePreviewList}
-          >
-            <FiList aria-hidden />
+            <FiX aria-hidden />
           </button>
         </div>
-        <div className={styles.toolbarGroup}>
-          <button
-            type="button"
-            className={styles.iconButton}
-            aria-label={draftButtonTitle}
-            title={draftButtonTitle}
-            onClick={saveDraft}
-          >
-            <FiSave aria-hidden />
-          </button>
-          <button type="button" className={styles.iconButton} aria-label="저장" title="저장" onClick={handleSave}>
-            <FiCheck aria-hidden />
-          </button>
+        <div className={styles.draftSidebarList}>
+          {draftItems.length > 0 ? (
+            draftItems.map(draft => (
+              <Link
+                key={draft.id}
+                href={`/posts/new?draftId=${draft.id}`}
+                className={styles.draftSidebarItem}
+                onClick={handleCloseDrafts}
+              >
+                <span className={styles.draftSidebarItemTitle}>{draft.title?.trim() || '제목 없음'}</span>
+                <span className={styles.draftSidebarItemMeta}>
+                  <span>{draft.category?.name ?? '미지정'}</span>
+                  <span>•</span>
+                  <span>{formatDateLabel(new Date(draft.createdAt))}</span>
+                </span>
+              </Link>
+            ))
+          ) : (
+            <p className={styles.draftSidebarEmpty}>임시저장된 게시물이 없습니다.</p>
+          )}
         </div>
-      </nav>
-
+      </aside>
       <div className={styles.split} ref={splitRef}>
         <form className={styles.form}>
           <label className={styles.srOnly} htmlFor="post-title">
@@ -401,159 +406,98 @@ export default function PostCreatePage() {
         </div>
 
         <aside className={styles.preview} aria-label="게시물 미리보기">
-          {previewMode === PREVIEW_MODE_DETAIL ? (
-            <article className={styles.previewCard}>
-              <div className={styles.previewHeadingBlock}>
-                <div className={styles.previewTitleRow}>
-                  <h2 className={styles.previewTitle}>
-                    {title || '제목이 여기에 표시됩니다'}
-                    {categoryName ? <span className={styles.previewCategoryInline}>({categoryName})</span> : null}
-                  </h2>
-                </div>
-                <div className={styles.previewMeta}>
-                  <span className={styles.previewMetaGroup}>
-                    <span className={styles.previewMetaItem}>{authorName}</span>
-                    <span className={styles.previewMetaSeparator} aria-hidden="true">
-                      |
-                    </span>
-                    <span className={styles.previewMetaItem}>{dateLabel}</span>
-                  </span>
-                  <span className={styles.previewMetaGroup}>
-                    <span className={styles.previewMetaItem}>
-                      <FiEye aria-hidden="true" /> {previewStats.views.toLocaleString()}
-                    </span>
-                    <span className={styles.previewMetaSeparator} aria-hidden="true">
-                      |
-                    </span>
-                    <span className={styles.previewMetaItem}>
-                      <FiHeart aria-hidden="true" /> {previewStats.likeCount.toLocaleString()}
-                    </span>
-                    <span className={styles.previewMetaSeparator} aria-hidden="true">
-                      |
-                    </span>
-                    <span className={styles.previewMetaItem}>
-                      <FiMessageCircle aria-hidden="true" /> {previewStats.commentCount.toLocaleString()}
-                    </span>
-                  </span>
-                </div>
+          <article className={styles.previewCard}>
+            <div className={styles.previewHeadingBlock}>
+              <div className={styles.previewTitleRow}>
+                <h2 className={styles.previewTitle}>
+                  {title || '제목이 여기에 표시됩니다'}
+                  {categoryName ? <span className={styles.previewCategoryInline}>({categoryName})</span> : null}
+                </h2>
               </div>
-              <div className={styles.previewDivider} aria-hidden="true" />
-              <div
-                className={styles.previewThumb}
-                style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : undefined}
-                data-empty={!thumbnailUrl}
-              >
-                {!thumbnailUrl && '썸네일 미리보기'}
-              </div>
-              <div className={styles.previewContent}>
-                {content ? (
-                  renderMarkdownPreview(content)
-                ) : (
-                  <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
-                )}
-              </div>
-              {tags.length > 0 ? (
-                <div className={styles.previewTags}>
-                  <span className={styles.previewTagIcon} aria-hidden="true">
-                    <FiTag />
+              <div className={styles.previewMeta}>
+                <span className={styles.previewMetaGroup}>
+                  <span className={styles.previewMetaItem}>{authorName}</span>
+                  <span className={styles.previewMetaSeparator} aria-hidden="true">
+                    |
                   </span>
-                  {tags.map(tag => (
-                    <span key={tag} className={styles.previewTag}>
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-              <div className={styles.previewActionsRow}>
-                <span className={styles.previewMetaActions}>
-                  <span className={styles.previewMetaAction} role="img" aria-label="이메일">
-                    <FiMail aria-hidden="true" />
+                  <span className={styles.previewMetaItem}>{dateLabel}</span>
+                </span>
+                <span className={styles.previewMetaGroup}>
+                  <span className={styles.previewMetaItem}>
+                    <FiEye aria-hidden="true" /> {previewStats.views.toLocaleString()}
                   </span>
-                  <span className={styles.previewMetaAction} role="img" aria-label="깃허브">
-                    <FaGithub aria-hidden="true" />
+                  <span className={styles.previewMetaSeparator} aria-hidden="true">
+                    |
                   </span>
-                  <span className={styles.previewMetaAction} role="img" aria-label="트위터">
-                    <RiTwitterXFill aria-hidden="true" />
+                  <span className={styles.previewMetaItem}>
+                    <FiHeart aria-hidden="true" /> {previewStats.likeCount.toLocaleString()}
                   </span>
-                  <span className={styles.previewMetaAction} role="img" aria-label="페이스북">
-                    <FaFacebookSquare aria-hidden="true" />
+                  <span className={styles.previewMetaSeparator} aria-hidden="true">
+                    |
                   </span>
-                  <span className={styles.previewMetaAction} role="img" aria-label="링크드인">
-                    <FaLinkedin aria-hidden="true" />
+                  <span className={styles.previewMetaItem}>
+                    <FiMessageCircle aria-hidden="true" /> {previewStats.commentCount.toLocaleString()}
                   </span>
                 </span>
               </div>
-            </article>
-          ) : (
-            <article className={styles.listPreview}>
-              <ul className={postListStyles.listView}>
-                <li>
-                  <article className={postListStyles.listItem}>
-                    <div className={postListStyles.listBody}>
-                      <h3>{title || '제목이 여기에 표시됩니다'}</h3>
-                      <p className={postListStyles.summary}>{summary || '본문을 입력하면 요약이 여기에 표시됩니다.'}</p>
-                      <div className={postListStyles.meta}>
-                        <span className={postListStyles.metaGroup}>
-                          <span className={postListStyles.metaItem}>
-                            <CiCalendar aria-hidden="true" /> {dateLabel}
-                          </span>
-                          <span className={postListStyles.separator} aria-hidden="true">
-                            |
-                          </span>
-                          <span className={postListStyles.metaItem}>{timeAgoLabel}</span>
-                        </span>
-                        <span className={postListStyles.metaGroup}>
-                          <span className={postListStyles.metaItem}>
-                            <FiEye aria-hidden="true" /> {previewStats.views.toLocaleString()}
-                          </span>
-                          <span className={postListStyles.separator} aria-hidden="true">
-                            |
-                          </span>
-                          <span className={postListStyles.metaItem}>
-                            <FiHeart aria-hidden="true" /> {previewStats.likeCount.toLocaleString()}
-                          </span>
-                          <span className={postListStyles.separator} aria-hidden="true">
-                            |
-                          </span>
-                          <span className={postListStyles.metaItem}>
-                            <FiMessageCircle aria-hidden="true" /> {previewStats.commentCount.toLocaleString()}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                    {thumbnailUrl ? (
-                      <div
-                        className={postListStyles.listThumb}
-                        style={{ backgroundImage: `url(${thumbnailUrl})` }}
-                        aria-hidden="true"
-                      />
-                    ) : null}
-                  </article>
-                </li>
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <li key={`list-preview-skeleton-${index}`} aria-hidden="true">
-                    <article className={postListStyles.listItem}>
-                      <div className={postListStyles.listBody}>
-                        <Skeleton height={22} width="68%" />
-                        <Skeleton count={2} height={14} style={{ marginBottom: '6px' }} />
-                        <div className={postListStyles.meta}>
-                          <span className={postListStyles.metaGroup}>
-                            <Skeleton width={120} height={12} />
-                          </span>
-                          <span className={postListStyles.metaGroup}>
-                            <Skeleton width={160} height={12} />
-                          </span>
-                        </div>
-                      </div>
-                      <Skeleton height={150} width="100%" borderRadius={12} />
-                    </article>
-                  </li>
+            </div>
+            <div className={styles.previewDivider} aria-hidden="true" />
+            <div
+              className={styles.previewThumb}
+              style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : undefined}
+              data-empty={!thumbnailUrl}
+            >
+              {!thumbnailUrl && '썸네일 미리보기'}
+            </div>
+            <div className={styles.previewContent}>
+              {content ? (
+                renderMarkdownPreview(content)
+              ) : (
+                <p className={styles.previewSummary}>본문을 입력하면 요약이 여기에 표시됩니다.</p>
+              )}
+            </div>
+            {tags.length > 0 ? (
+              <div className={styles.previewTags}>
+                <span className={styles.previewTagIcon} aria-hidden="true">
+                  <FiTag />
+                </span>
+                {tags.map(tag => (
+                  <span key={tag} className={styles.previewTag}>
+                    #{tag}
+                  </span>
                 ))}
-              </ul>
-            </article>
-          )}
+              </div>
+            ) : null}
+            <div className={styles.previewActionsRow}>
+              <span className={styles.previewMetaActions}>
+                <span className={styles.previewMetaAction} role="img" aria-label="이메일">
+                  <FiMail aria-hidden="true" />
+                </span>
+                <span className={styles.previewMetaAction} role="img" aria-label="깃허브">
+                  <FaGithub aria-hidden="true" />
+                </span>
+                <span className={styles.previewMetaAction} role="img" aria-label="트위터">
+                  <RiTwitterXFill aria-hidden="true" />
+                </span>
+                <span className={styles.previewMetaAction} role="img" aria-label="페이스북">
+                  <FaFacebookSquare aria-hidden="true" />
+                </span>
+                <span className={styles.previewMetaAction} role="img" aria-label="링크드인">
+                  <FaLinkedin aria-hidden="true" />
+                </span>
+              </span>
+            </div>
+          </article>
         </aside>
       </div>
+      <footer className={styles.actionFooter} aria-label="작성 actions">
+        <button type="button" className={styles.actionButton} onClick={saveDraft}>
+          임시저장
+        </button>
+        <button type="button" className={styles.actionButton} onClick={handleSave}>
+          저장
+        </button>
+      </footer>
     </section>
   );
 }
