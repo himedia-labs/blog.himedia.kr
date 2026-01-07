@@ -98,7 +98,7 @@ export type InlinePattern = {
 export interface CreatePostRequest {
   title: string;
   content: string;
-  categoryId: string;
+  categoryId?: string | null;
   status?: PostStatus;
   thumbnailUrl?: string;
   tags?: string[];
@@ -106,4 +106,39 @@ export interface CreatePostRequest {
 
 export interface CreatePostResponse {
   id: string;
+}
+
+export interface UpdatePostRequest {
+  id: string;
+  title?: string;
+  content?: string;
+  categoryId?: string | null;
+  status?: PostStatus;
+  thumbnailUrl?: string;
+  tags?: string[];
+}
+
+export interface UpdatePostResponse {
+  id: string;
+}
+
+export interface PostTagRef {
+  id: string;
+  name: string;
+}
+
+export interface PostDetailResponse {
+  id: string;
+  title: string;
+  content: string;
+  thumbnailUrl: string | null;
+  status: PostStatus;
+  viewCount: number;
+  likeCount: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  category: PostCategoryRef | null;
+  author: PostAuthorRef | null;
+  tags: PostTagRef[];
 }
