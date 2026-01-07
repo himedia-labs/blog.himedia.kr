@@ -9,7 +9,7 @@
   flex-direction: column;
   align-items: center;
   gap: 30px;
-  z-index: 1200;
+  z-index: 9999;
   pointer-events: none;
 }
 
