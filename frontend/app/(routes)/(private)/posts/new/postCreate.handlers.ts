@@ -64,16 +64,6 @@ export const createHandleContentChange = (params: { setContent: (value: string) 
   };
 };
 
-// 미리보기 전환 핸들러 생성
-export const createHandlePreviewModeChange = (params: {
-  setPreviewMode: (mode: 'detail' | 'list') => void;
-  mode: 'detail' | 'list';
-}) => {
-  return () => {
-    params.setPreviewMode(params.mode);
-  };
-};
-
 // 태그 추가 헬퍼 생성
 export const createAddTagsFromInput = (params: {
   tags: string[];

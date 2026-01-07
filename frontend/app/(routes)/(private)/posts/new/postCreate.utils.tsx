@@ -1,6 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
 
-import { SUMMARY_MAX_LENGTH } from './postCreate.constants';
 import type { InlinePattern } from '@/app/shared/types/post';
 
 const MARKDOWN_INLINE_PATTERNS: InlinePattern[] = [
@@ -33,13 +32,6 @@ export const getTagQueryFromInput = (input: string) => {
       .filter(Boolean)
       .pop() ?? ''
   );
-};
-
-// 본문 요약 생성
-export const buildSummary = (content: string, limit = SUMMARY_MAX_LENGTH) => {
-  const trimmed = content.trim();
-  if (!trimmed) return '';
-  return trimmed.length > limit ? `${trimmed.slice(0, limit)}...` : trimmed;
 };
 
 // 미리보기 날짜 생성

@@ -4,17 +4,19 @@ import type { AxiosError } from 'axios';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
-import { useCreatePostMutation } from '@/app/api/posts/posts.mutations';
+import { useCreatePostMutation, useUpdatePostMutation } from '@/app/api/posts/posts.mutations';
+import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { postsKeys } from '@/app/api/posts/posts.keys';
+import { useAuthStore } from '@/app/shared/store/authStore';
 
 import {
   createAddTagsFromInput,
   createCommitTagInput,
   createHandleCategoryChange,
   createHandleContentChange,
-  createHandlePreviewModeChange,
   createHandleRemoveTag,
   createHandleTagBlur,
   createHandleTagChange,
@@ -27,22 +29,16 @@ import {
 } from './postCreate.handlers';
 import {
   AUTO_SAVE_DELAY_MS,
-  DEFAULT_PREVIEW_MODE,
   DEFAULT_SPLIT_LEFT,
-  DRAFT_STORAGE_KEY,
   DRAFT_TOAST_DURATION_MS,
-  PREVIEW_MODE_DETAIL,
-  PREVIEW_MODE_LIST,
   SPLIT_MAX,
   SPLIT_MIN,
   TAG_MAX_COUNT,
   TAG_MAX_LENGTH,
   TITLE_MAX_LENGTH,
-  TOOLBAR_PADDING,
 } from './postCreate.constants';
-import { buildSummary, formatDateLabel, getTagQueryFromInput } from './postCreate.utils';
+import { formatDateLabel, getTagQueryFromInput } from './postCreate.utils';
 
-const DEFAULT_TIME_AGO_LABEL = '방금 전';
 const DEFAULT_CATEGORY_LABEL = '카테고리';
 const DEFAULT_AUTHOR_NAME = '홍길동';
 const DEFAULT_PREVIEW_STATS = {
@@ -64,9 +60,14 @@ const TOAST_SAVE_FAILURE_MESSAGE = '게시물 저장에 실패했습니다.';
 // 게시물 작성 폼 상태/핸들러 제공
 export const usePostCreateForm = () => {
   const { showToast } = useToast();
+  const { accessToken } = useAuthStore();
   const { data: categories, isLoading } = useCategoriesQuery();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const createPostMutation = useCreatePostMutation();
+  const updatePostMutation = useUpdatePostMutation();
+  const searchParams = useSearchParams();
+  const searchDraftId = searchParams.get('draftId');
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
@@ -76,30 +77,79 @@ export const usePostCreateForm = () => {
   const [tagLengthError, setTagLengthError] = useState(false);
   const [titleLengthError, setTitleLengthError] = useState(false);
   const [tagQuery, setTagQuery] = useState('');
-  const [previewMode, setPreviewMode] = useState<'detail' | 'list'>(DEFAULT_PREVIEW_MODE);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
-  const didLoadDraft = useRef(false);
+  const [draftId, setDraftId] = useState<string | null>(searchDraftId);
   const shouldCommitAfterComposition = useRef(false);
   const isComposingRef = useRef(false);
   const pendingBlurCommitRef = useRef(false);
   const titleLimitNotifiedRef = useRef(false);
   const tagLimitNotifiedRef = useRef(false);
+  const draftNoticeShownRef = useRef(false);
+  const previousDraftIdRef = useRef<string | null>(searchDraftId);
 
   const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
-  const summary = buildSummary(content);
   const dateLabel = formatDateLabel(new Date());
-  const timeAgoLabel = DEFAULT_TIME_AGO_LABEL;
   const previewStats = DEFAULT_PREVIEW_STATS;
-  // 로그인 사용자 정보 조회
-  const { data: currentUser } = useCurrentUserQuery();
   // 미리보기 작성자 이름
-  const authorName = currentUser?.name ?? DEFAULT_AUTHOR_NAME;
+  const authorName = DEFAULT_AUTHOR_NAME;
   const savedAtLabel = lastSavedAt
     ? new Date(lastSavedAt).toLocaleTimeString(PREVIEW_TIME_FORMAT_LOCALE, PREVIEW_TIME_FORMAT_OPTIONS)
     : null;
   const draftButtonTitle = savedAtLabel ? `${DRAFT_BUTTON_LABEL_PREFIX} ${savedAtLabel}` : DRAFT_BUTTON_LABEL;
   const { data: tagSuggestions = [] } = useTagSuggestionsQuery(tagQuery);
   const hasTagSuggestions = tagQuery.length > 0 && tagSuggestions.length > 0;
+  const isAuthenticated = !!accessToken;
+  const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isAuthenticated });
+  const { data: draftList } = useDraftsQuery({ limit: 20 }, { enabled: isAuthenticated });
+  const hasDrafts = (draftList?.items?.length ?? 0) > 0;
+
+  useEffect(() => {
+    if (previousDraftIdRef.current === searchDraftId) return;
+    const previousDraftId = previousDraftIdRef.current;
+    previousDraftIdRef.current = searchDraftId;
+    setDraftId(searchDraftId);
+
+    if (!searchDraftId) {
+      setTitle('');
+      setCategoryId('');
+      setThumbnailUrl('');
+      setContent('');
+      setTags([]);
+      setTagInput('');
+      setTagQuery('');
+      setLastSavedAt(null);
+      return;
+    }
+
+    if (previousDraftId) {
+      setTitle('');
+      setCategoryId('');
+      setThumbnailUrl('');
+      setContent('');
+      setTags([]);
+      setTagInput('');
+      setTagQuery('');
+      setLastSavedAt(null);
+    }
+  }, [searchDraftId]);
+
+  useEffect(() => {
+    if (draftNoticeShownRef.current) return;
+    if (draftId) return;
+    if (!hasDrafts) return;
+    draftNoticeShownRef.current = true;
+    showToast({ message: '임시저장된 게시물이 있습니다. 목록에서 이어서 작성하세요.', type: 'info' });
+  }, [draftId, hasDrafts, showToast]);
+
+  useEffect(() => {
+    if (!draftDetail) return;
+    setTitle(draftDetail.title ?? '');
+    setCategoryId(draftDetail.category?.id ?? '');
+    setThumbnailUrl(draftDetail.thumbnailUrl ?? '');
+    setContent(draftDetail.content ?? '');
+    setTags(draftDetail.tags?.map(tag => tag.name) ?? []);
+    setLastSavedAt(draftDetail.updatedAt ?? null);
+  }, [draftDetail]);
 
   const addTagsFromInput = createAddTagsFromInput({
     tags,
@@ -121,8 +171,6 @@ export const usePostCreateForm = () => {
   const handleThumbnailChange = createHandleThumbnailChange({ setThumbnailUrl });
   const handleContentChange = createHandleContentChange({ setContent });
   const setContentValue = setContent;
-  const handlePreviewDetail = createHandlePreviewModeChange({ setPreviewMode, mode: PREVIEW_MODE_DETAIL });
-  const handlePreviewList = createHandlePreviewModeChange({ setPreviewMode, mode: PREVIEW_MODE_LIST });
   const handleRemoveTag = createHandleRemoveTag({ setTags });
   const handleTagKeyDown = createHandleTagKeyDown({
     tagInput,
@@ -155,19 +203,63 @@ export const usePostCreateForm = () => {
   const handleTagSuggestionMouseDown = createHandleTagSuggestionMouseDown({ commitTagInput });
 
   // 임시저장 처리
-  const saveDraft = () => {
-    const now = new Date().toISOString();
-    const draftPayload = {
-      title,
-      categoryId,
-      thumbnailUrl,
-      content,
-      tags,
-      savedAt: now,
-    };
-    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
-    setLastSavedAt(now);
-    showToast({ message: TOAST_DRAFT_SAVED_MESSAGE, type: 'success', duration: DRAFT_TOAST_DURATION_MS });
+  const saveDraft = async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+    const trimmedThumbnail = thumbnailUrl.trim();
+    const normalizedCategoryId = categoryId || null;
+    const hasDraftInput = Boolean(
+      trimmedTitle || trimmedContent || normalizedCategoryId || trimmedThumbnail || tags.length > 0,
+    );
+
+    if (!hasDraftInput) {
+      if (!silent) {
+        showToast({ message: '입력한 내용이 없습니다.', type: 'warning' });
+      }
+      return;
+    }
+
+    if (!isAuthenticated) {
+      if (!silent) {
+        showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      }
+      return;
+    }
+
+    if (createPostMutation.isPending || updatePostMutation.isPending) return;
+
+    try {
+      const payload = {
+        title: trimmedTitle,
+        content,
+        categoryId: normalizedCategoryId,
+        status: 'DRAFT' as const,
+        thumbnailUrl: draftId ? trimmedThumbnail : trimmedThumbnail || undefined,
+        tags,
+      };
+
+      let savedDraftId = draftId;
+      if (draftId) {
+        await updatePostMutation.mutateAsync({ id: draftId, ...payload });
+      } else {
+        const response = await createPostMutation.mutateAsync(payload);
+        savedDraftId = response.id;
+        setDraftId(response.id);
+        router.replace(`/posts/new?draftId=${response.id}`);
+      }
+
+      setLastSavedAt(new Date().toISOString());
+      queryClient.invalidateQueries({ queryKey: postsKeys.drafts(), exact: false });
+      if (savedDraftId) {
+        queryClient.invalidateQueries({ queryKey: postsKeys.draft(savedDraftId) });
+      }
+      showToast({ message: TOAST_DRAFT_SAVED_MESSAGE, type: 'success', duration: DRAFT_TOAST_DURATION_MS });
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? TOAST_SAVE_FAILURE_MESSAGE;
+      showToast({ message, type: 'error' });
+    }
   };
 
   // 게시물 저장 처리
@@ -175,6 +267,11 @@ export const usePostCreateForm = () => {
     const trimmedTitle = title.trim();
     const trimmedContent = content.trim();
     const trimmedThumbnail = thumbnailUrl.trim();
+
+    if (!isAuthenticated) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
 
     if (!trimmedTitle) {
       showToast({ message: TOAST_TITLE_REQUIRED_MESSAGE, type: 'warning' });
@@ -191,18 +288,24 @@ export const usePostCreateForm = () => {
       return;
     }
 
-    if (createPostMutation.isPending) return;
+    if (createPostMutation.isPending || updatePostMutation.isPending) return;
 
     try {
-      await createPostMutation.mutateAsync({
+      const payload = {
         title: trimmedTitle,
         content,
         categoryId,
-        status: 'PUBLISHED',
-        thumbnailUrl: trimmedThumbnail || undefined,
-        tags: tags.length ? tags : undefined,
-      });
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
+        status: 'PUBLISHED' as const,
+        thumbnailUrl: draftId ? trimmedThumbnail : trimmedThumbnail || undefined,
+        tags,
+      };
+
+      if (draftId) {
+        await updatePostMutation.mutateAsync({ id: draftId, ...payload });
+      } else {
+        await createPostMutation.mutateAsync(payload);
+      }
+
       setLastSavedAt(null);
       showToast({ message: TOAST_SAVE_SUCCESS_MESSAGE, type: 'success' });
       router.replace('/');
@@ -224,46 +327,16 @@ export const usePostCreateForm = () => {
   }, [tagInput]);
 
   useEffect(() => {
-    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
-    if (!savedDraft) {
-      didLoadDraft.current = true;
-      return;
-    }
-
-    try {
-      const draft = JSON.parse(savedDraft) as {
-        title?: string;
-        categoryId?: string;
-        thumbnailUrl?: string;
-        content?: string;
-        tags?: string[];
-        savedAt?: string;
-      };
-      if (draft.title) setTitle(draft.title.slice(0, TITLE_MAX_LENGTH));
-      if (draft.categoryId) setCategoryId(draft.categoryId);
-      if (draft.thumbnailUrl) setThumbnailUrl(draft.thumbnailUrl);
-      if (draft.content) setContent(draft.content);
-      if (Array.isArray(draft.tags)) setTags(draft.tags);
-      if (draft.savedAt) setLastSavedAt(draft.savedAt);
-    } catch {
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-    } finally {
-      didLoadDraft.current = true;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!didLoadDraft.current) return;
-
     const hasDraft = title.trim() || content.trim() || categoryId || thumbnailUrl || tags.length > 0;
     if (!hasDraft) return;
+    if (!isAuthenticated) return;
 
     const timer = window.setTimeout(() => {
-      saveDraft();
+      saveDraft({ silent: true });
     }, AUTO_SAVE_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [title, categoryId, thumbnailUrl, content, tags]);
+  }, [title, categoryId, thumbnailUrl, content, tags, isAuthenticated]);
 
   return {
     state: {
@@ -275,13 +348,10 @@ export const usePostCreateForm = () => {
       tags,
       tagLengthError,
       titleLengthError,
-      previewMode,
     },
     derived: {
       categoryName,
-      summary,
       dateLabel,
-      timeAgoLabel,
       previewStats,
       authorName,
       draftButtonTitle,
@@ -291,6 +361,7 @@ export const usePostCreateForm = () => {
       categories,
       isLoading,
       tagSuggestions,
+      draftList,
     },
     handlers: {
       handleTitleChange,
@@ -298,8 +369,6 @@ export const usePostCreateForm = () => {
       handleThumbnailChange,
       handleContentChange,
       setContentValue,
-      handlePreviewDetail,
-      handlePreviewList,
       handleRemoveTag,
       handleTagKeyDown,
       handleTagChange,
@@ -318,16 +387,12 @@ export const usePostCreatePage = (params: { content: string; setContentValue: (v
   const { content, setContentValue } = params;
   const splitRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef(false);
-  const toolbarRef = useRef<HTMLElement | null>(null);
-  const isToolbarDraggingRef = useRef(false);
-  const toolbarOffsetRef = useRef({ x: 0, y: 0 });
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const imageUrlsRef = useRef<string[]>([]);
   const selectionRef = useRef<{ start: number; end: number } | null>(null);
 
   const [splitLeft, setSplitLeft] = useState(DEFAULT_SPLIT_LEFT);
-  const [isToolbarDragging, setIsToolbarDragging] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -380,63 +445,6 @@ export const usePostCreatePage = (params: { content: string; setContentValue: (v
     handlePointerDown: handleSplitPointerDown,
     handlePointerMove: handleSplitPointerMove,
     handlePointerUp: handleSplitPointerUp,
-  };
-
-  // 툴바 위치 업데이트
-  const updateToolbarPosition = (clientX: number, clientY: number) => {
-    const toolbar = toolbarRef.current;
-    if (!toolbar) return;
-    const { x: offsetX, y: offsetY } = toolbarOffsetRef.current;
-    const nextLeft = clientX - offsetX;
-    const nextTop = clientY - offsetY;
-    const maxLeft = window.innerWidth - toolbar.offsetWidth - TOOLBAR_PADDING;
-    const maxTop = window.innerHeight - toolbar.offsetHeight - TOOLBAR_PADDING;
-    const clampedLeft = Math.min(maxLeft, Math.max(TOOLBAR_PADDING, nextLeft));
-    const clampedTop = Math.min(maxTop, Math.max(TOOLBAR_PADDING, nextTop));
-    toolbar.style.left = `${clampedLeft}px`;
-    toolbar.style.top = `${clampedTop}px`;
-    toolbar.style.bottom = 'auto';
-    toolbar.style.transform = 'none';
-  };
-
-  // 툴바 드래그 시작
-  const handleToolbarPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
-    const target = event.target as HTMLElement;
-    if (target.closest('button')) return;
-    const toolbar = toolbarRef.current;
-    if (!toolbar) return;
-    event.preventDefault();
-    isToolbarDraggingRef.current = true;
-    setIsToolbarDragging(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-    const rect = toolbar.getBoundingClientRect();
-    toolbarOffsetRef.current = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-    updateToolbarPosition(event.clientX, event.clientY);
-  };
-
-  // 툴바 드래그 이동
-  const handleToolbarPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (!isToolbarDraggingRef.current) return;
-    event.preventDefault();
-    updateToolbarPosition(event.clientX, event.clientY);
-  };
-
-  // 툴바 드래그 종료
-  const handleToolbarPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
-    if (!isToolbarDraggingRef.current) return;
-    isToolbarDraggingRef.current = false;
-    setIsToolbarDragging(false);
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  };
-
-  // 툴바 드래그 핸들러 묶음
-  const toolbarHandlers = {
-    handlePointerDown: handleToolbarPointerDown,
-    handlePointerMove: handleToolbarPointerMove,
-    handlePointerUp: handleToolbarPointerUp,
   };
 
   // 커서 선택 범위 저장
@@ -604,7 +612,6 @@ export const usePostCreatePage = (params: { content: string; setContentValue: (v
   return {
     refs: {
       splitRef,
-      toolbarRef,
       contentRef,
       imageInputRef,
     },
@@ -613,10 +620,6 @@ export const usePostCreatePage = (params: { content: string; setContentValue: (v
       min: SPLIT_MIN,
       max: SPLIT_MAX,
       handlers: splitHandlers,
-    },
-    toolbar: {
-      isDragging: isToolbarDragging,
-      handlers: toolbarHandlers,
     },
     editor: editorHandlers,
   };
