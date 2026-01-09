@@ -18,6 +18,7 @@ import { Comment } from '../../comments/entities/comment.entity';
 import { Category } from './category.entity';
 import { PostLike } from './postLike.entity';
 import { PostTag } from './postTag.entity';
+import { PostImage } from './postImage.entity';
 
 // 게시글 상태
 export enum PostStatus {
@@ -86,6 +87,9 @@ export class Post {
 
   @OneToMany(() => Comment, comment => comment.post)
   comments!: Comment[];
+
+  @OneToMany(() => PostImage, image => image.post)
+  images!: PostImage[];
 
   commentCount?: number;
 

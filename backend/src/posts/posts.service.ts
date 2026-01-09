@@ -5,6 +5,7 @@ import { In, Repository } from 'typeorm';
 import { Post, PostStatus } from './entities/post.entity';
 import { Tag } from './entities/tag.entity';
 import { PostTag } from './entities/postTag.entity';
+import { PostImage, PostImageType } from './entities/postImage.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import type { ErrorCode } from '../constants/error/error-codes';
 import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
@@ -27,6 +28,31 @@ const ensurePublishFields = (fields: { title?: string | null; content?: string |
   }
 };
 
+const IMAGE_URL_MAX_LENGTH = 500;
+
+const extractImageUrls = (content: string) => {
+  const urls = new Set<string>();
+  const addUrl = (value?: string) => {
+    const url = value?.trim();
+    if (url && url.length <= IMAGE_URL_MAX_LENGTH) {
+      urls.add(url);
+    }
+  };
+
+  const markdownImageRegex = /!\[[^\]]*]\(([^)]+)\)/g;
+  let match: RegExpExecArray | null;
+  while ((match = markdownImageRegex.exec(content)) !== null) {
+    addUrl(match[1]);
+  }
+
+  const htmlImageRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+  while ((match = htmlImageRegex.exec(content)) !== null) {
+    addUrl(match[1]);
+  }
+
+  return Array.from(urls);
+};
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -34,6 +60,40 @@ export class PostsService {
     private readonly postsRepository: Repository<Post>,
     private readonly snowflakeService: SnowflakeService,
   ) {}
+
+  private buildPostImages(post: Post, postImageRepository: Repository<PostImage>) {
+    const images: PostImage[] = [];
+    const contentUrls = extractImageUrls(post.content ?? '');
+    const thumbnailUrl = post.thumbnailUrl?.trim();
+    const usedUrls = new Set<string>();
+
+    if (thumbnailUrl) {
+      usedUrls.add(thumbnailUrl);
+      images.push(
+        postImageRepository.create({
+          id: this.snowflakeService.generate(),
+          postId: post.id,
+          url: thumbnailUrl,
+          type: PostImageType.THUMBNAIL,
+        }),
+      );
+    }
+
+    contentUrls.forEach(url => {
+      if (usedUrls.has(url)) return;
+      usedUrls.add(url);
+      images.push(
+        postImageRepository.create({
+          id: this.snowflakeService.generate(),
+          postId: post.id,
+          url,
+          type: PostImageType.CONTENT,
+        }),
+      );
+    });
+
+    return images;
+  }
 
   async getPosts(query: ListPostsQueryDto) {
     const page = query.page ?? 1;
@@ -185,6 +245,7 @@ export class PostsService {
       const postRepository = manager.getRepository(Post);
       const tagRepository = manager.getRepository(Tag);
       const postTagRepository = manager.getRepository(PostTag);
+      const postImageRepository = manager.getRepository(PostImage);
 
       const post = postRepository.create({
         id: this.snowflakeService.generate(),
@@ -199,46 +260,50 @@ export class PostsService {
 
       const savedPost = await postRepository.save(post);
 
-      if (!normalizedTags.length) {
-        return { id: savedPost.id };
-      }
-
-      const existingTags = await tagRepository.find({
-        where: { name: In(normalizedTags) },
-      });
-      const tagMap = new Map(existingTags.map(tag => [tag.name, tag]));
-
-      for (const name of normalizedTags) {
-        if (tagMap.has(name)) continue;
-        const newTag = tagRepository.create({
-          id: this.snowflakeService.generate(),
-          name,
+      if (normalizedTags.length) {
+        const existingTags = await tagRepository.find({
+          where: { name: In(normalizedTags) },
         });
+        const tagMap = new Map(existingTags.map(tag => [tag.name, tag]));
 
-        try {
-          const savedTag = await tagRepository.save(newTag);
-          tagMap.set(name, savedTag);
-        } catch (error) {
-          if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
-            const fallbackTag = await tagRepository.findOne({ where: { name } });
-            if (fallbackTag) {
-              tagMap.set(name, fallbackTag);
-              continue;
+        for (const name of normalizedTags) {
+          if (tagMap.has(name)) continue;
+          const newTag = tagRepository.create({
+            id: this.snowflakeService.generate(),
+            name,
+          });
+
+          try {
+            const savedTag = await tagRepository.save(newTag);
+            tagMap.set(name, savedTag);
+          } catch (error) {
+            if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
+              const fallbackTag = await tagRepository.findOne({ where: { name } });
+              if (fallbackTag) {
+                tagMap.set(name, fallbackTag);
+                continue;
+              }
             }
+            throw error;
           }
-          throw error;
+        }
+
+        const postTags = Array.from(tagMap.values()).map(tag =>
+          postTagRepository.create({
+            postId: savedPost.id,
+            tagId: tag.id,
+          }),
+        );
+
+        if (postTags.length) {
+          await postTagRepository.save(postTags);
         }
       }
 
-      const postTags = Array.from(tagMap.values()).map(tag =>
-        postTagRepository.create({
-          postId: savedPost.id,
-          tagId: tag.id,
-        }),
-      );
-
-      if (postTags.length) {
-        await postTagRepository.save(postTags);
+      await postImageRepository.delete({ postId: savedPost.id });
+      const postImages = this.buildPostImages(savedPost, postImageRepository);
+      if (postImages.length) {
+        await postImageRepository.save(postImages);
       }
 
       return { id: savedPost.id };
@@ -251,6 +316,7 @@ export class PostsService {
       const postRepository = manager.getRepository(Post);
       const tagRepository = manager.getRepository(Tag);
       const postTagRepository = manager.getRepository(PostTag);
+      const postImageRepository = manager.getRepository(PostImage);
 
       const post = await postRepository.findOne({
         where: { id: postId, authorId },
@@ -342,6 +408,12 @@ export class PostsService {
             await postTagRepository.save(postTags);
           }
         }
+      }
+
+      await postImageRepository.delete({ postId: savedPost.id });
+      const postImages = this.buildPostImages(savedPost, postImageRepository);
+      if (postImages.length) {
+        await postImageRepository.save(postImages);
       }
 
       return { id: savedPost.id };

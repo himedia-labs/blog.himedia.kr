@@ -72,6 +72,19 @@ CREATE INDEX idx_posts_created_at ON posts(created_at);
 CREATE TRIGGER update_posts_updated_at BEFORE UPDATE ON posts
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- 게시글 이미지 테이블
+CREATE TABLE post_images (
+    id BIGINT PRIMARY KEY,
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    url VARCHAR(500) NOT NULL,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('THUMBNAIL', 'CONTENT')),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_post_images_post_id ON post_images(post_id);
+CREATE INDEX idx_post_images_type ON post_images(type);
+
 -- 태그 테이블
 CREATE TABLE tags (
     id BIGINT PRIMARY KEY,
