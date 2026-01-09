@@ -4,6 +4,8 @@ export const TITLE_MAX_LENGTH = 50;
 export const TAG_MAX_COUNT = 5;
 // 태그 한 개당 최대 글자 수
 export const TAG_MAX_LENGTH = 20;
+// 이미지 업로드 최대 용량(byte)
+export const THUMBNAIL_MAX_SIZE = 10 * 1024 * 1024;
 // 임시저장 토스트 노출 시간(ms)
 export const DRAFT_TOAST_DURATION_MS = 5000;
 // 자동 임시저장 대기 시간(ms)

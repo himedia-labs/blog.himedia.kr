@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService, ConfigType } from '@nestjs/config';
+import { json, urlencoded } from 'express';
 
 import cookieParser from 'cookie-parser';
 
@@ -16,6 +17,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const config: ConfigType<typeof appConfig> = configService.get('app')!;
 
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.use(cookieParser());
   setupCors(app);
   setupFilters(app);

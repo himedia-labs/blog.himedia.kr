@@ -1,10 +1,19 @@
-import { type ChangeEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type PointerEvent as ReactPointerEvent,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { AxiosError } from 'axios';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useCreatePostMutation, useUpdatePostMutation } from '@/app/api/posts/posts.mutations';
+import { useUploadImageMutation, useUploadThumbnailMutation } from '@/app/api/uploads/uploads.mutations';
 import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,6 +44,7 @@ import {
   SPLIT_MIN,
   TAG_MAX_COUNT,
   TAG_MAX_LENGTH,
+  THUMBNAIL_MAX_SIZE,
   TITLE_MAX_LENGTH,
 } from './postCreate.constants';
 import { formatDateLabel, getTagQueryFromInput } from './postCreate.utils';
@@ -56,6 +66,14 @@ const TOAST_CATEGORY_REQUIRED_MESSAGE = '카테고리를 선택해주세요.';
 const TOAST_CONTENT_REQUIRED_MESSAGE = '본문을 입력해주세요.';
 const TOAST_SAVE_SUCCESS_MESSAGE = '게시물이 저장되었습니다.';
 const TOAST_SAVE_FAILURE_MESSAGE = '게시물 저장에 실패했습니다.';
+const TOAST_THUMBNAIL_UPLOAD_SUCCESS_MESSAGE = '썸네일 업로드 완료';
+const TOAST_THUMBNAIL_UPLOAD_FAILURE_MESSAGE = '썸네일 업로드에 실패했습니다.';
+const TOAST_THUMBNAIL_UPLOAD_TYPE_MESSAGE = '이미지 파일만 업로드할 수 있습니다.';
+const TOAST_THUMBNAIL_UPLOAD_SIZE_MESSAGE = '이미지는 10MB 이하로 업로드해주세요.';
+const TOAST_IMAGE_UPLOAD_SUCCESS_MESSAGE = '이미지 업로드 완료';
+const TOAST_IMAGE_UPLOAD_FAILURE_MESSAGE = '이미지 업로드에 실패했습니다.';
+const TOAST_IMAGE_UPLOAD_TYPE_MESSAGE = '이미지 파일만 업로드할 수 있습니다.';
+const TOAST_IMAGE_UPLOAD_SIZE_MESSAGE = '이미지는 10MB 이하로 업로드해주세요.';
 
 // 게시물 작성 폼 상태/핸들러 제공
 export const usePostCreateForm = () => {
@@ -66,6 +84,7 @@ export const usePostCreateForm = () => {
   const queryClient = useQueryClient();
   const createPostMutation = useCreatePostMutation();
   const updatePostMutation = useUpdatePostMutation();
+  const uploadThumbnailMutation = useUploadThumbnailMutation();
   const searchParams = useSearchParams();
   const searchDraftId = searchParams.get('draftId');
   const [title, setTitle] = useState('');
@@ -86,6 +105,7 @@ export const usePostCreateForm = () => {
   const tagLimitNotifiedRef = useRef(false);
   const draftNoticeShownRef = useRef(false);
   const previousDraftIdRef = useRef<string | null>(searchDraftId);
+  const thumbnailInputRef = useRef<HTMLInputElement | null>(null);
 
   const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
   const dateLabel = formatDateLabel(new Date());
@@ -102,6 +122,7 @@ export const usePostCreateForm = () => {
   const { data: draftDetail } = useDraftDetailQuery(draftId ?? undefined, { enabled: isAuthenticated });
   const { data: draftList } = useDraftsQuery({ limit: 20 }, { enabled: isAuthenticated });
   const hasDrafts = (draftList?.items?.length ?? 0) > 0;
+  const isThumbnailUploading = uploadThumbnailMutation.isPending;
 
   useEffect(() => {
     if (previousDraftIdRef.current === searchDraftId) return;
@@ -138,7 +159,7 @@ export const usePostCreateForm = () => {
     if (draftId) return;
     if (!hasDrafts) return;
     draftNoticeShownRef.current = true;
-    showToast({ message: '임시저장된 게시물이 있습니다. 목록에서 이어서 작성하세요.', type: 'info' });
+    showToast({ message: '임시저장된 게시물이 있습니다.', type: 'info' });
   }, [draftId, hasDrafts, showToast]);
 
   useEffect(() => {
@@ -172,6 +193,46 @@ export const usePostCreateForm = () => {
   const handleContentChange = createHandleContentChange({ setContent });
   const setContentValue = setContent;
   const handleRemoveTag = createHandleRemoveTag({ setTags });
+  const handleThumbnailFileClick = () => {
+    if (!isAuthenticated) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
+
+    thumbnailInputRef.current?.click();
+  };
+  const handleThumbnailFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!isAuthenticated) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      showToast({ message: TOAST_THUMBNAIL_UPLOAD_TYPE_MESSAGE, type: 'warning' });
+      return;
+    }
+
+    if (file.size > THUMBNAIL_MAX_SIZE) {
+      showToast({ message: TOAST_THUMBNAIL_UPLOAD_SIZE_MESSAGE, type: 'warning' });
+      return;
+    }
+
+    if (uploadThumbnailMutation.isPending) return;
+
+    try {
+      const response = await uploadThumbnailMutation.mutateAsync(file);
+      setThumbnailUrl(response.url);
+      showToast({ message: TOAST_THUMBNAIL_UPLOAD_SUCCESS_MESSAGE, type: 'success' });
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? TOAST_THUMBNAIL_UPLOAD_FAILURE_MESSAGE;
+      showToast({ message, type: 'error' });
+    }
+  };
   const handleTagKeyDown = createHandleTagKeyDown({
     tagInput,
     tags,
@@ -349,6 +410,9 @@ export const usePostCreateForm = () => {
       tagLengthError,
       titleLengthError,
     },
+    refs: {
+      thumbnailInputRef,
+    },
     derived: {
       categoryName,
       dateLabel,
@@ -362,11 +426,14 @@ export const usePostCreateForm = () => {
       isLoading,
       tagSuggestions,
       draftList,
+      isThumbnailUploading,
     },
     handlers: {
       handleTitleChange,
       handleCategoryChange,
       handleThumbnailChange,
+      handleThumbnailFileClick,
+      handleThumbnailFileSelect,
       handleContentChange,
       setContentValue,
       handleRemoveTag,
@@ -383,22 +450,18 @@ export const usePostCreateForm = () => {
 };
 
 // 작성 페이지 UI 상태/핸들러 제공
-export const usePostCreatePage = (params: { content: string; setContentValue: (value: string) => void }) => {
+export const usePostCreatePage = (params: { content: string; setContentValue: Dispatch<SetStateAction<string>> }) => {
   const { content, setContentValue } = params;
+  const { showToast } = useToast();
+  const { accessToken } = useAuthStore();
+  const uploadImageMutation = useUploadImageMutation();
   const splitRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef(false);
   const contentRef = useRef<HTMLTextAreaElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const imageUrlsRef = useRef<string[]>([]);
   const selectionRef = useRef<{ start: number; end: number } | null>(null);
 
   const [splitLeft, setSplitLeft] = useState(DEFAULT_SPLIT_LEFT);
-
-  useEffect(() => {
-    return () => {
-      imageUrlsRef.current.forEach(url => URL.revokeObjectURL(url));
-    };
-  }, []);
 
   // 분할 비율 CSS 변수 동기화
   useEffect(() => {
@@ -570,21 +633,48 @@ export const usePostCreatePage = (params: { content: string; setContentValue: (v
   };
 
   // 이미지 선택 후 마크다운 삽입
-  const handleImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
 
-    const objectUrl = URL.createObjectURL(file);
-    imageUrlsRef.current.push(objectUrl);
+    if (!accessToken) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      showToast({ message: TOAST_IMAGE_UPLOAD_TYPE_MESSAGE, type: 'warning' });
+      return;
+    }
+
+    if (file.size > THUMBNAIL_MAX_SIZE) {
+      showToast({ message: TOAST_IMAGE_UPLOAD_SIZE_MESSAGE, type: 'warning' });
+      return;
+    }
+
+    if (uploadImageMutation.isPending) return;
+
     const { start, end } = getSelectionRange();
     const selected = content.slice(start, end).trim();
     const fileLabel = file.name.replace(/\.[^/.]+$/, '');
     const altText = selected || fileLabel || '이미지';
-    const markdown = `![${altText}](${objectUrl})`;
+    const placeholderId = `uploading:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const markdown = `![${altText}](${placeholderId})`;
     const nextValue = content.slice(0, start) + markdown + content.slice(end);
     const cursor = start + markdown.length;
     setContentAndSelection(nextValue, cursor, cursor);
+
+    try {
+      const response = await uploadImageMutation.mutateAsync(file);
+      setContentValue(prev => prev.replace(placeholderId, response.url));
+      showToast({ message: TOAST_IMAGE_UPLOAD_SUCCESS_MESSAGE, type: 'success' });
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const message = axiosError.response?.data?.message ?? TOAST_IMAGE_UPLOAD_FAILURE_MESSAGE;
+      setContentValue(prev => prev.replace(markdown, '').replace(placeholderId, ''));
+      showToast({ message, type: 'error' });
+    }
   };
 
   // 제목 마크다운 적용

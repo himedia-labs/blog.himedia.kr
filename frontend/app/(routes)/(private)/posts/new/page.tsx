@@ -1,23 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-
 import { RiTwitterXFill } from 'react-icons/ri';
 import { RxWidth } from 'react-icons/rx';
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
-import {
-  FiCheck,
-  FiEye,
-  FiHeart,
-  FiMail,
-  FiMenu,
-  FiMessageCircle,
-  FiSave,
-  FiTag,
-  FiX,
-} from 'react-icons/fi';
+import { FiEye, FiHeart, FiMail, FiMessageCircle, FiSend, FiTag } from 'react-icons/fi';
 import {
   HiOutlineBold,
   HiOutlineChatBubbleLeftRight,
@@ -34,20 +21,23 @@ import {
   HiOutlineUnderline,
 } from 'react-icons/hi2';
 
-import { formatDateLabel, renderMarkdownPreview } from './postCreate.utils';
+import { renderMarkdownPreview } from './postCreate.utils';
 import usePostCreateForm, { usePostCreatePage } from './postCreate.hooks';
 
 import styles from './PostCreate.module.css';
 
 export default function PostCreatePage() {
-  const { state, derived, data, handlers } = usePostCreateForm();
+  const { state, refs, derived, data, handlers } = usePostCreateForm();
   const { title, categoryId, thumbnailUrl, content, tagInput, tags, tagLengthError, titleLengthError } = state;
-  const { categoryName, dateLabel, previewStats, authorName, draftButtonTitle, hasTagSuggestions } = derived;
-  const { categories, isLoading, tagSuggestions, draftList } = data;
+  const { thumbnailInputRef } = refs;
+  const { categoryName, dateLabel, previewStats, authorName, hasTagSuggestions } = derived;
+  const { categories, isLoading, tagSuggestions, isThumbnailUploading, draftList } = data;
   const {
     handleTitleChange,
     handleCategoryChange,
     handleThumbnailChange,
+    handleThumbnailFileClick,
+    handleThumbnailFileSelect,
     handleContentChange,
     setContentValue,
     handleRemoveTag,
@@ -75,11 +65,7 @@ export default function PostCreatePage() {
       handleImageSelect,
     },
   } = usePostCreatePage({ content, setContentValue });
-  const [isDraftSidebarOpen, setIsDraftSidebarOpen] = useState(false);
-  const draftItems = draftList?.items ?? [];
-  const handleOpenDrafts = () => setIsDraftSidebarOpen(true);
-  const handleCloseDrafts = () => setIsDraftSidebarOpen(false);
-
+  const draftCount = draftList?.items?.length ?? 0;
   return (
     <section className={styles.container} aria-label="게시물 작성">
       <header className={styles.header}>
@@ -90,60 +76,29 @@ export default function PostCreatePage() {
         <div className={styles.headerActions}>
           <button
             type="button"
-            className={styles.headerAction}
-            aria-label="임시저장 목록 열기"
-            title="임시저장 목록"
-            onClick={handleOpenDrafts}
+            className={`${styles.headerAction} ${styles.headerActionText}`}
+            aria-label={`임시저장 ${draftCount}개`}
+            title="임시저장"
+            onClick={saveDraft}
           >
-            <FiMenu aria-hidden />
+            <span>임시저장</span>
+            <span className={styles.headerActionDivider} aria-hidden="true">
+              |
+            </span>
+            <span className={styles.headerActionCount}>{draftCount}</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.headerAction} ${styles.headerActionText}`}
+            aria-label="게시하기"
+            title="게시하기"
+            onClick={handleSave}
+          >
+            <span>게시하기</span>
+            <FiSend aria-hidden />
           </button>
         </div>
       </header>
-      <div
-        className={styles.draftSidebarBackdrop}
-        data-open={isDraftSidebarOpen ? 'true' : 'false'}
-        onClick={handleCloseDrafts}
-        aria-hidden="true"
-      />
-      <aside
-        className={styles.draftSidebar}
-        data-open={isDraftSidebarOpen ? 'true' : 'false'}
-        aria-label="임시저장 목록"
-        aria-hidden={isDraftSidebarOpen ? 'false' : 'true'}
-      >
-        <div className={styles.draftSidebarHeader}>
-          <h2 className={styles.draftSidebarTitle}>임시저장 목록</h2>
-          <button
-            type="button"
-            className={styles.draftSidebarClose}
-            aria-label="임시저장 목록 닫기"
-            onClick={handleCloseDrafts}
-          >
-            <FiX aria-hidden />
-          </button>
-        </div>
-        <div className={styles.draftSidebarList}>
-          {draftItems.length > 0 ? (
-            draftItems.map(draft => (
-              <Link
-                key={draft.id}
-                href={`/posts/new?draftId=${draft.id}`}
-                className={styles.draftSidebarItem}
-                onClick={handleCloseDrafts}
-              >
-                <span className={styles.draftSidebarItemTitle}>{draft.title?.trim() || '제목 없음'}</span>
-                <span className={styles.draftSidebarItemMeta}>
-                  <span>{draft.category?.name ?? '미지정'}</span>
-                  <span>•</span>
-                  <span>{formatDateLabel(new Date(draft.createdAt))}</span>
-                </span>
-              </Link>
-            ))
-          ) : (
-            <p className={styles.draftSidebarEmpty}>임시저장된 게시물이 없습니다.</p>
-          )}
-        </div>
-      </aside>
       <div className={styles.split} ref={splitRef}>
         <form className={styles.form}>
           <label className={styles.srOnly} htmlFor="post-title">
@@ -184,16 +139,33 @@ export default function PostCreatePage() {
 
             <div className={styles.metaField}>
               <label className={styles.metaLabel} htmlFor="post-thumbnail">
-                썸네일 URL
+                썸네일
               </label>
-              <input
-                id="post-thumbnail"
-                className={styles.metaControl}
-                type="url"
-                placeholder="https://"
-                value={thumbnailUrl}
-                onChange={handleThumbnailChange}
-              />
+              <div className={styles.thumbnailControls}>
+                <input
+                  id="post-thumbnail"
+                  className={styles.metaControl}
+                  type="url"
+                  placeholder="https://"
+                  value={thumbnailUrl}
+                  onChange={handleThumbnailChange}
+                />
+                <button
+                  type="button"
+                  className={styles.thumbnailButton}
+                  onClick={handleThumbnailFileClick}
+                  disabled={isThumbnailUploading}
+                >
+                  {isThumbnailUploading ? '업로드 중...' : '파일 업로드'}
+                </button>
+                <input
+                  ref={thumbnailInputRef}
+                  className={styles.srOnly}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailFileSelect}
+                />
+              </div>
             </div>
           </div>
 
@@ -246,146 +218,138 @@ export default function PostCreatePage() {
             ) : null}
           </div>
 
-          <div className={styles.headingToolbar} role="group" aria-label="서식 도구">
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="제목 1"
-              title="제목 1"
-              onClick={handleHeadingClick(1)}
-            >
-              <HiOutlineH1 aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="제목 2"
-              title="제목 2"
-              onClick={handleHeadingClick(2)}
-            >
-              <HiOutlineH2 aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="제목 3"
-              title="제목 3"
-              onClick={handleHeadingClick(3)}
-            >
-              <HiOutlineH3 aria-hidden="true" />
-            </button>
-            <span className={styles.headingSeparator} aria-hidden="true">
-              |
-            </span>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="굵게"
-              title="굵게"
-              onClick={() => applyInlineWrap('**')}
-            >
-              <HiOutlineBold aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="기울임"
-              title="기울임"
-              onClick={() => applyInlineWrap('_')}
-            >
-              <HiOutlineItalic aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="밑줄"
-              title="밑줄"
-              onClick={() => applyInlineWrap('<u>', '</u>')}
-            >
-              <HiOutlineUnderline aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="취소선"
-              title="취소선"
-              onClick={() => applyInlineWrap('~~')}
-            >
-              <HiOutlineStrikethrough aria-hidden="true" />
-            </button>
-            <span className={styles.headingSeparator} aria-hidden="true">
-              |
-            </span>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="인용"
-              title="인용"
-              onClick={handleQuoteClick}
-            >
-              <HiOutlineChatBubbleLeftRight aria-hidden="true" />
-            </button>
-            <button type="button" className={styles.headingButton} aria-label="코드" title="코드" onClick={applyCode}>
-              <HiOutlineCodeBracket aria-hidden="true" />
-            </button>
-            <span className={styles.headingSeparator} aria-hidden="true">
-              |
-            </span>
-            <button type="button" className={styles.headingButton} aria-label="링크" title="링크" onClick={applyLink}>
-              <HiOutlineLink aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="이미지"
-              title="이미지"
-              onClick={handleImageClick}
-            >
-              <HiOutlinePhoto aria-hidden="true" />
-            </button>
-            <span className={styles.headingSeparator} aria-hidden="true">
-              |
-            </span>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="불릿 리스트"
-              title="불릿 리스트"
-              onClick={handleBulletClick}
-            >
-              <HiOutlineListBullet aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={styles.headingButton}
-              aria-label="번호 리스트"
-              title="번호 리스트"
-              onClick={handleNumberedClick}
-            >
-              <HiOutlineNumberedList aria-hidden="true" />
-            </button>
+          <div className={styles.editorBox}>
+            <div className={styles.headingToolbar} role="group" aria-label="서식 도구">
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="제목 1"
+                title="제목 1"
+                onClick={handleHeadingClick(1)}
+              >
+                <HiOutlineH1 aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="제목 2"
+                title="제목 2"
+                onClick={handleHeadingClick(2)}
+              >
+                <HiOutlineH2 aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="제목 3"
+                title="제목 3"
+                onClick={handleHeadingClick(3)}
+              >
+                <HiOutlineH3 aria-hidden="true" />
+              </button>
+              <span className={styles.headingSeparator} aria-hidden="true" />
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="굵게"
+                title="굵게"
+                onClick={() => applyInlineWrap('**')}
+              >
+                <HiOutlineBold aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="기울임"
+                title="기울임"
+                onClick={() => applyInlineWrap('_')}
+              >
+                <HiOutlineItalic aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="밑줄"
+                title="밑줄"
+                onClick={() => applyInlineWrap('<u>', '</u>')}
+              >
+                <HiOutlineUnderline aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="취소선"
+                title="취소선"
+                onClick={() => applyInlineWrap('~~')}
+              >
+                <HiOutlineStrikethrough aria-hidden="true" />
+              </button>
+              <span className={styles.headingSeparator} aria-hidden="true" />
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="인용"
+                title="인용"
+                onClick={handleQuoteClick}
+              >
+                <HiOutlineChatBubbleLeftRight aria-hidden="true" />
+              </button>
+              <button type="button" className={styles.headingButton} aria-label="코드" title="코드" onClick={applyCode}>
+                <HiOutlineCodeBracket aria-hidden="true" />
+              </button>
+              <span className={styles.headingSeparator} aria-hidden="true" />
+              <button type="button" className={styles.headingButton} aria-label="링크" title="링크" onClick={applyLink}>
+                <HiOutlineLink aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="이미지"
+                title="이미지"
+                onClick={handleImageClick}
+              >
+                <HiOutlinePhoto aria-hidden="true" />
+              </button>
+              <span className={styles.headingSeparator} aria-hidden="true" />
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="불릿 리스트"
+                title="불릿 리스트"
+                onClick={handleBulletClick}
+              >
+                <HiOutlineListBullet aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={styles.headingButton}
+                aria-label="번호 리스트"
+                title="번호 리스트"
+                onClick={handleNumberedClick}
+              >
+                <HiOutlineNumberedList aria-hidden="true" />
+              </button>
+            </div>
+            <input
+              ref={imageInputRef}
+              className={styles.srOnly}
+              type="file"
+              accept="image/*"
+              aria-label="이미지 파일 선택"
+              onChange={handleImageSelect}
+            />
+            <label className={styles.srOnly} htmlFor="post-content">
+              본문
+            </label>
+            <textarea
+              id="post-content"
+              className={styles.editor}
+              placeholder="본문 내용을 입력하세요"
+              value={content}
+              ref={contentRef}
+              onChange={handleContentChange}
+            />
           </div>
-          <input
-            ref={imageInputRef}
-            className={styles.srOnly}
-            type="file"
-            accept="image/*"
-            aria-label="이미지 파일 선택"
-            onChange={handleImageSelect}
-          />
-          <div className={styles.contentHeader} aria-hidden="true" />
-
-          <label className={styles.srOnly} htmlFor="post-content">
-            본문
-          </label>
-          <textarea
-            id="post-content"
-            className={styles.editor}
-            placeholder="본문 내용을 입력하세요"
-            value={content}
-            ref={contentRef}
-            onChange={handleContentChange}
-          />
         </form>
 
         <div
@@ -441,14 +405,12 @@ export default function PostCreatePage() {
                 </span>
               </div>
             </div>
-            <div className={styles.previewDivider} aria-hidden="true" />
-            <div
-              className={styles.previewThumb}
-              style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : undefined}
-              data-empty={!thumbnailUrl}
-            >
-              {!thumbnailUrl && '썸네일 미리보기'}
-            </div>
+            {thumbnailUrl ? (
+              <>
+                <div className={styles.previewDivider} aria-hidden="true" />
+                <div className={styles.previewThumb} style={{ backgroundImage: `url(${thumbnailUrl})` }} />
+              </>
+            ) : null}
             <div className={styles.previewContent}>
               {content ? (
                 renderMarkdownPreview(content)
@@ -490,14 +452,7 @@ export default function PostCreatePage() {
           </article>
         </aside>
       </div>
-      <footer className={styles.actionFooter} aria-label="작성 actions">
-        <button type="button" className={styles.actionButton} onClick={saveDraft}>
-          임시저장
-        </button>
-        <button type="button" className={styles.actionButton} onClick={handleSave}>
-          저장
-        </button>
-      </footer>
+      <footer className={styles.actionFooter} aria-hidden="true" />
     </section>
   );
 }
