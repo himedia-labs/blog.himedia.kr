@@ -33,7 +33,7 @@ export default registerAs('app', () => ({
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
     bucket: process.env.R2_BUCKET!,
     publicUrl: process.env.R2_PUBLIC_URL!,
-    region: process.env.R2_REGION ?? 'auto',
-    endpoint: process.env.R2_ENDPOINT ?? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    region: process.env.R2_REGION!,
+    endpoint: process.env.R2_ENDPOINT!,
   },
 }));
