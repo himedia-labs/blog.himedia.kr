@@ -26,14 +26,6 @@ export const DEFAULT_PREVIEW_STATS = {
   commentCount: 3,
 };
 
-// 날짜/시간 포맷
-export const PREVIEW_TIME_FORMAT_LOCALE = 'ko-KR';
-export const PREVIEW_TIME_FORMAT_OPTIONS = { hour: '2-digit', minute: '2-digit' } as const;
-
-// 버튼 라벨
-export const DRAFT_BUTTON_LABEL = '임시저장';
-export const DRAFT_BUTTON_LABEL_PREFIX = '임시저장됨';
-
 // 토스트 메시지
 export const TOAST_DRAFT_SAVED_MESSAGE = '임시저장 완료';
 export const TOAST_TITLE_REQUIRED_MESSAGE = '제목을 입력해주세요.';
