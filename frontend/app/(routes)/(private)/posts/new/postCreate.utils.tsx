@@ -1,5 +1,7 @@
 import { Fragment, type ReactNode } from 'react';
 
+import Image from 'next/image';
+
 import type { DraftData, InlinePattern, PostDetailResponse } from '@/app/shared/types/post';
 
 const MARKDOWN_INLINE_PATTERNS: InlinePattern[] = [
@@ -94,7 +96,18 @@ const parseInline = (text: string) => {
         nodes.push(<code key={nodeKey}>{groups[0]}</code>);
         break;
       case 'image':
-        nodes.push(<img key={nodeKey} src={groups[1]} alt={groups[0]} />);
+        nodes.push(
+          <Image
+            key={nodeKey}
+            src={groups[1]}
+            alt={groups[0]}
+            width={0}
+            height={0}
+            sizes="100vw"
+            unoptimized
+            style={{ width: '100%', height: 'auto' }}
+          />,
+        );
         break;
       case 'link':
         nodes.push(
