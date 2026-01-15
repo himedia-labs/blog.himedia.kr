@@ -1,4 +1,14 @@
-import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEvent, ReactNode, RefObject } from 'react';
+import type {
+  ChangeEvent,
+  CompositionEvent,
+  Dispatch,
+  FocusEvent,
+  KeyboardEvent,
+  MouseEvent,
+  ReactNode,
+  RefObject,
+  SetStateAction,
+} from 'react';
 import type { IconType } from 'react-icons';
 
 export type ViewMode = 'list' | 'card';
@@ -98,6 +108,24 @@ export type InlinePattern = {
   regex: RegExp;
 };
 
+export type MarkdownImageUploadParams = {
+  content: string;
+  contentRef: RefObject<HTMLTextAreaElement | null>;
+  setContentValue: Dispatch<SetStateAction<string>>;
+  setContentAndSelection: (nextValue: string, selectionStart: number, selectionEnd?: number) => void;
+};
+
+export type MarkdownEditorParams = {
+  content: string;
+  setContentValue: Dispatch<SetStateAction<string>>;
+};
+
+export type SplitViewOptions = {
+  defaultValue?: number;
+  min?: number;
+  max?: number;
+};
+
 export type PostPayloadInput = {
   title: string;
   content: string;
@@ -107,6 +135,11 @@ export type PostPayloadInput = {
 };
 
 export type PostPayloadStatus = 'DRAFT' | 'PUBLISHED';
+
+export type DraftNoticeParams = {
+  draftId: string | null;
+  hasDrafts: boolean;
+};
 
 export interface CreatePostRequest {
   title: string;
@@ -163,6 +196,16 @@ export type DraftData = {
   thumbnailUrl: string;
   content: string;
   tags: string[];
+};
+
+export type DraftSaveOptions = {
+  silent?: boolean;
+};
+
+export type DraftSaverParams = {
+  draftId: string | null;
+  formData: DraftData;
+  isAuthenticated: boolean;
 };
 
 // 컴포넌트 Props

@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 
-import type { InlinePattern } from '@/app/shared/types/post';
+import type { DraftData, InlinePattern, PostDetailResponse } from '@/app/shared/types/post';
 
 const MARKDOWN_INLINE_PATTERNS: InlinePattern[] = [
   { type: 'code', regex: /`([^`]+?)`/ },
@@ -263,3 +263,12 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
 
   return blocks;
 };
+
+// draft 상세 데이터 -> 폼 데이터 변환
+export const mapDraftToForm = (draft: PostDetailResponse): DraftData => ({
+  title: draft.title ?? '',
+  categoryId: draft.category?.id ?? '',
+  thumbnailUrl: draft.thumbnailUrl ?? '',
+  content: draft.content ?? '',
+  tags: draft.tags?.map(tag => tag.name) ?? [],
+});
