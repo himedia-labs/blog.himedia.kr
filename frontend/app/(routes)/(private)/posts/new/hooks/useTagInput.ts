@@ -14,9 +14,9 @@ import {
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
+import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '@/app/shared/constants/limits/postCreate.limit';
 
 import { createAddTagsFromInput, createCommitTagInput } from '../postCreate.handlers';
-import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '../postCreate.constants';
 import { getTagQueryFromInput } from '../postCreate.utils';
 
 // 태그 입력 관리 hook

@@ -1,18 +1,18 @@
 import { type ChangeEvent, useRef } from 'react';
-import type { AxiosError } from 'axios';
 
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useUploadThumbnailMutation } from '@/app/api/uploads/uploads.mutations';
 import { useAuthStore } from '@/app/shared/store/authStore';
-import type { ApiErrorResponse } from '@/app/shared/types/error';
-
 import {
   THUMBNAIL_MAX_SIZE,
   TOAST_THUMBNAIL_UPLOAD_FAILURE_MESSAGE,
   TOAST_THUMBNAIL_UPLOAD_SIZE_MESSAGE,
   TOAST_THUMBNAIL_UPLOAD_SUCCESS_MESSAGE,
   TOAST_THUMBNAIL_UPLOAD_TYPE_MESSAGE,
-} from '../postCreate.constants';
+} from '@/app/shared/constants/limits/postCreate.limit';
+
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 // 썸네일 업로드 관리 hook
 export const useThumbnailUpload = (onUploadSuccess: (url: string) => void) => {

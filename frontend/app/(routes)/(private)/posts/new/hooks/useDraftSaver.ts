@@ -5,7 +5,6 @@ import { postsKeys } from '@/app/api/posts/posts.keys';
 import { buildPostPayload } from '@/app/api/posts/posts.payload';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useCreatePostMutation, useUpdatePostMutation } from '@/app/api/posts/posts.mutations';
-
 import {
   DRAFT_TOAST_DURATION_MS,
   TOAST_CATEGORY_REQUIRED_MESSAGE,
@@ -14,7 +13,7 @@ import {
   TOAST_SAVE_FAILURE_MESSAGE,
   TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
-} from '../postCreate.constants';
+} from '@/app/shared/constants/messages/postCreate.message';
 
 import type { AxiosError } from 'axios';
 import type { DraftSaveOptions, DraftSaverParams } from '@/app/shared/types/post';

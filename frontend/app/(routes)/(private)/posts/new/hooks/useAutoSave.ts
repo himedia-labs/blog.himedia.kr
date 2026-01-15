@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { AUTO_SAVE_DELAY_MS } from '../postCreate.constants';
+import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/limits/postCreate.limit';
 
 import type { DraftData } from '@/app/shared/types/post';
 
@@ -26,5 +26,13 @@ export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: UseAutoSav
     }, AUTO_SAVE_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [formData.title, formData.categoryId, formData.thumbnailUrl, formData.content, formData.tags, isAuthenticated, saveDraft]);
+  }, [
+    formData.title,
+    formData.categoryId,
+    formData.thumbnailUrl,
+    formData.content,
+    formData.tags,
+    isAuthenticated,
+    saveDraft,
+  ]);
 };

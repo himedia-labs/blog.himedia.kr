@@ -1,6 +1,6 @@
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_SPLIT_LEFT, SPLIT_MAX, SPLIT_MIN } from '../postCreate.constants';
+import { DEFAULT_SPLIT_LEFT, SPLIT_MAX, SPLIT_MIN } from '@/app/shared/constants/limits/postCreate.limit';
 
 import type { SplitViewOptions } from '@/app/shared/types/post';
 
