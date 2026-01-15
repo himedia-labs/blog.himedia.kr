@@ -20,8 +20,9 @@ export default function PostCreatePage() {
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
   const { title, categoryId, thumbnailUrl, content, titleLengthError } = formState;
-  const { setTitle, setCategoryId, setThumbnailUrl, setContent } = formSetters;
-  const { handleTitleChange, handleCategoryChange, handleThumbnailChange, handleContentChange } = formHandlers;
+  const { setContent, setThumbnailUrl } = formSetters;
+  const { applyPartial, handleTitleChange, handleCategoryChange, handleThumbnailChange, handleContentChange } =
+    formHandlers;
 
   // 태그 입력
   const { state: tagState, data: tagData, setters: tagSetters, handlers: tagHandlers } = useTagInput();
@@ -47,13 +48,10 @@ export default function PostCreatePage() {
 
   const applyDraftData = useCallback(
     (data: Partial<DraftData>) => {
-      if (data.title !== undefined) setTitle(data.title);
-      if (data.categoryId !== undefined) setCategoryId(data.categoryId);
-      if (data.thumbnailUrl !== undefined) setThumbnailUrl(data.thumbnailUrl);
-      if (data.content !== undefined) setContent(data.content);
+      applyPartial(data);
       if (data.tags !== undefined) setTags(data.tags);
     },
-    [setTitle, setCategoryId, setThumbnailUrl, setContent, setTags],
+    [applyPartial, setTags],
   );
 
   // Draft 관리

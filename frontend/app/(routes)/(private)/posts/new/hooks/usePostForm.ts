@@ -4,6 +4,8 @@ import { useToast } from '@/app/shared/components/toast/toast';
 
 import { TITLE_MAX_LENGTH } from '../postCreate.constants';
 
+import type { DraftData } from '@/app/shared/types/post';
+
 // 기본 폼 상태 관리 hook
 export const usePostForm = () => {
   const { showToast } = useToast();
@@ -50,6 +52,16 @@ export const usePostForm = () => {
     setContent(event.target.value);
   };
 
+  const applyPartial = useCallback(
+    (data: Partial<DraftData>) => {
+      if (data.title !== undefined) setTitle(data.title);
+      if (data.categoryId !== undefined) setCategoryId(data.categoryId);
+      if (data.thumbnailUrl !== undefined) setThumbnailUrl(data.thumbnailUrl);
+      if (data.content !== undefined) setContent(data.content);
+    },
+    [setTitle, setCategoryId, setThumbnailUrl, setContent],
+  );
+
   return {
     state: {
       title,
@@ -69,6 +81,7 @@ export const usePostForm = () => {
       handleCategoryChange,
       handleThumbnailChange,
       handleContentChange,
+      applyPartial,
     },
   };
 };
