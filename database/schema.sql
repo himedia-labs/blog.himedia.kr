@@ -86,6 +86,20 @@ CREATE TABLE post_images (
 CREATE INDEX idx_post_images_post_id ON post_images(post_id);
 CREATE INDEX idx_post_images_type ON post_images(type);
 
+-- 게시글 공유 로그 테이블
+CREATE TABLE post_share_logs (
+    id BIGINT PRIMARY KEY,
+    post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id BIGINT,
+    ip VARCHAR(64) NOT NULL,
+    user_agent VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 인덱스
+CREATE INDEX idx_post_share_logs_user ON post_share_logs(post_id, user_id, created_at);
+CREATE INDEX idx_post_share_logs_lookup ON post_share_logs(post_id, ip, user_agent, created_at);
+
 -- 태그 테이블
 CREATE TABLE tags (
     id BIGINT PRIMARY KEY,
@@ -222,6 +236,14 @@ COMMENT ON COLUMN posts.status IS '게시 상태: DRAFT(임시저장), PUBLISHED
 COMMENT ON COLUMN posts.published_at IS '게시 일시';
 COMMENT ON COLUMN posts.created_at IS '생성 일시';
 COMMENT ON COLUMN posts.updated_at IS '수정 일시';
+
+COMMENT ON TABLE post_share_logs IS '게시글 공유 로그 테이블';
+COMMENT ON COLUMN post_share_logs.id IS '공유 로그 고유 ID (Snowflake ID)';
+COMMENT ON COLUMN post_share_logs.post_id IS '게시글 ID';
+COMMENT ON COLUMN post_share_logs.user_id IS '공유 요청 사용자 ID';
+COMMENT ON COLUMN post_share_logs.ip IS '공유 요청 IP';
+COMMENT ON COLUMN post_share_logs.user_agent IS '공유 요청 User-Agent';
+COMMENT ON COLUMN post_share_logs.created_at IS '공유 로그 생성 일시';
 
 COMMENT ON TABLE tags IS '태그 테이블';
 COMMENT ON COLUMN tags.id IS '태그 고유 ID (Snowflake ID)';

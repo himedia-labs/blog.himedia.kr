@@ -13,10 +13,11 @@ import { Post } from './entities/post.entity';
 import { PostImage } from './entities/postImage.entity';
 import { PostLike } from './entities/postLike.entity';
 import { PostTag } from './entities/postTag.entity';
+import { PostShareLog } from './entities/postShareLog.entity';
 import { Tag } from './entities/tag.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage])],
+  imports: [TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage, PostShareLog])],
   controllers: [PostsController, CategoriesController, TagsController],
   providers: [PostsService, CategoriesService, TagsService, SnowflakeService],
 })

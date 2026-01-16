@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 
 import { Post, PostStatus } from './entities/post.entity';
 import { Tag } from './entities/tag.entity';
 import { PostTag } from './entities/postTag.entity';
 import { PostImage, PostImageType } from './entities/postImage.entity';
+import { PostShareLog } from './entities/postShareLog.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
 import type { ErrorCode } from '../constants/error/error-codes';
 import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
@@ -28,6 +29,7 @@ const ensurePublishFields = (fields: { title?: string | null; content?: string |
   }
 };
 
+const SHARE_WINDOW_MINUTES = 10;
 const IMAGE_URL_MAX_LENGTH = 500;
 
 const extractImageUrls = (content: string) => {
@@ -58,6 +60,8 @@ export class PostsService {
   constructor(
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
+    @InjectRepository(PostShareLog)
+    private readonly postShareLogRepository: Repository<PostShareLog>,
     private readonly snowflakeService: SnowflakeService,
   ) {}
 
@@ -462,15 +466,57 @@ export class PostsService {
   }
 
   // 공유 카운트 증가
-  async incrementShareCount(postId: string) {
-    const result = await this.postsRepository.increment({ id: postId, status: PostStatus.PUBLISHED }, 'shareCount', 1);
+  async incrementShareCount(postId: string, ip: string, userAgent: string, userId?: string | null) {
+    const now = Date.now();
+    const windowStart = new Date(now - SHARE_WINDOW_MINUTES * 60 * 1000);
+    const safeIp = ip?.trim() || 'unknown';
+    const safeUserAgent = userAgent?.trim() || 'unknown';
+    const safeUserId = userId?.trim() || null;
 
-    if (!result.affected) {
-      const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
-      throw new NotFoundException({
-        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
-        code,
+    const existingLog = safeUserId
+      ? await this.postShareLogRepository.findOne({
+          where: { postId, userId: safeUserId, createdAt: MoreThan(windowStart) },
+        })
+      : await this.postShareLogRepository.findOne({
+          where: { postId, ip: safeIp, userAgent: safeUserAgent, createdAt: MoreThan(windowStart) },
+        });
+
+    if (!existingLog) {
+      const result = await this.postsRepository.increment(
+        { id: postId, status: PostStatus.PUBLISHED },
+        'shareCount',
+        1,
+      );
+
+      if (!result.affected) {
+        const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+        throw new NotFoundException({
+          message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+          code,
+        });
+      }
+
+      const log = this.postShareLogRepository.create({
+        id: this.snowflakeService.generate(),
+        postId,
+        userId: safeUserId,
+        ip: safeIp.slice(0, 64),
+        userAgent: safeUserAgent.slice(0, 255),
       });
+      await this.postShareLogRepository.save(log);
+    } else {
+      const postExists = await this.postsRepository.findOne({
+        where: { id: postId, status: PostStatus.PUBLISHED },
+        select: { id: true },
+      });
+
+      if (!postExists) {
+        const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+        throw new NotFoundException({
+          message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+          code,
+        });
+      }
     }
 
     const post = await this.postsRepository.findOne({
