@@ -738,7 +738,7 @@ select.metaControl {
 .previewContent {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
   font-size: 0.95rem;
   line-height: 1.8;
 }
@@ -801,27 +801,29 @@ select.metaControl {
 
 .previewContent h1 {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #1f1f1f;
 }
 
 .previewContent h2 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #1f1f1f;
 }
 
 .previewContent h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1f1f1f;
 }
 
 .previewContent p {
   margin: 0;
+  font-size: 1rem;
+  color: #212529;
 }
 
 .previewContent ul,
