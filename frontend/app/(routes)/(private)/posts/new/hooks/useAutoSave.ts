@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { AUTO_SAVE_DELAY_MS } from '@/app/shared/constants/limits/postCreate.limit';
 
@@ -11,6 +11,12 @@ interface UseAutoSaveParams {
 }
 
 export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: UseAutoSaveParams) => {
+  const saveDraftRef = useRef(saveDraft);
+
+  useEffect(() => {
+    saveDraftRef.current = saveDraft;
+  }, [saveDraft]);
+
   useEffect(() => {
     const hasDraft =
       formData.title.trim() ||
@@ -22,17 +28,9 @@ export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: UseAutoSav
     if (!isAuthenticated) return;
 
     const timer = window.setTimeout(() => {
-      saveDraft({ silent: true });
+      saveDraftRef.current({ silent: true });
     }, AUTO_SAVE_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [
-    formData.title,
-    formData.categoryId,
-    formData.thumbnailUrl,
-    formData.content,
-    formData.tags,
-    isAuthenticated,
-    saveDraft,
-  ]);
+  }, [formData.title, formData.categoryId, formData.thumbnailUrl, formData.content, formData.tags, isAuthenticated]);
 };
