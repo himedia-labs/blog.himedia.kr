@@ -130,6 +130,7 @@ export class PostsService {
         status: post.status,
         viewCount: post.viewCount,
         likeCount: post.likeCount,
+        shareCount: post.shareCount,
         commentCount: post.commentCount ?? 0,
         createdAt: post.createdAt,
         publishedAt: post.publishedAt,
@@ -175,6 +176,7 @@ export class PostsService {
         status: post.status,
         viewCount: post.viewCount,
         likeCount: post.likeCount,
+        shareCount: post.shareCount,
         commentCount: 0,
         createdAt: post.createdAt,
         publishedAt: post.publishedAt,
@@ -217,6 +219,7 @@ export class PostsService {
       status: post.status,
       viewCount: post.viewCount,
       likeCount: post.likeCount,
+      shareCount: post.shareCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       publishedAt: post.publishedAt,
@@ -448,12 +451,35 @@ export class PostsService {
       status: post.status,
       viewCount: post.viewCount,
       likeCount: post.likeCount,
+      shareCount: post.shareCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
       publishedAt: post.publishedAt,
       category: post.category ? { id: post.category.id, name: post.category.name } : null,
       author: post.author ? { id: post.author.id, name: post.author.name } : null,
       tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
+    };
+  }
+
+  // 공유 카운트 증가
+  async incrementShareCount(postId: string) {
+    const result = await this.postsRepository.increment({ id: postId, status: PostStatus.PUBLISHED }, 'shareCount', 1);
+
+    if (!result.affected) {
+      const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+      throw new NotFoundException({
+        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+        code,
+      });
+    }
+
+    const post = await this.postsRepository.findOne({
+      where: { id: postId },
+      select: { id: true, shareCount: true },
+    });
+
+    return {
+      shareCount: post?.shareCount ?? 0,
     };
   }
 }

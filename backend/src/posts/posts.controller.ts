@@ -49,4 +49,9 @@ export class PostsController {
   getPostDetail(@Param('postId') postId: string) {
     return this.postsService.getPostDetail(postId);
   }
+
+  @Post(':postId/share')
+  incrementShareCount(@Param('postId') postId: string) {
+    return this.postsService.incrementShareCount(postId);
+  }
 }

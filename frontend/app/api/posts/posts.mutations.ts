@@ -4,6 +4,7 @@ import { postsApi } from './posts.api';
 import type {
   CreatePostRequest,
   CreatePostResponse,
+  PostShareResponse,
   UpdatePostRequest,
   UpdatePostResponse,
 } from '@/app/shared/types/post';
@@ -19,5 +20,12 @@ export const useCreatePostMutation = () => {
 export const useUpdatePostMutation = () => {
   return useMutation<UpdatePostResponse, Error, UpdatePostRequest>({
     mutationFn: postsApi.updatePost,
+  });
+};
+
+// 게시물 공유 카운트 증가
+export const useSharePostMutation = () => {
+  return useMutation<PostShareResponse, Error, string>({
+    mutationFn: postsApi.sharePost,
   });
 };

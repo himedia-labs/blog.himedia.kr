@@ -5,6 +5,7 @@ import type {
   PostDetailResponse,
   PostListQuery,
   PostListResponse,
+  PostShareResponse,
   UpdatePostRequest,
   UpdatePostResponse,
 } from '@/app/shared/types/post';
@@ -38,6 +39,12 @@ const getPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   return res.data;
 };
 
+// 게시물 공유 카운트 증가
+const sharePost = async (postId: string): Promise<PostShareResponse> => {
+  const res = await axiosInstance.post<PostShareResponse>(`/posts/${postId}/share`);
+  return res.data;
+};
+
 // 게시물 수정
 const updatePost = async (payload: UpdatePostRequest): Promise<UpdatePostResponse> => {
   const { id, ...body } = payload;
@@ -51,5 +58,6 @@ export const postsApi = {
   getDrafts,
   getDraftDetail,
   getPostDetail,
+  sharePost,
   updatePost,
 };

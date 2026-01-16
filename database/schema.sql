@@ -54,6 +54,7 @@ CREATE TABLE posts (
     thumbnail_url VARCHAR(500),
     view_count INTEGER NOT NULL DEFAULT 0,
     like_count INTEGER NOT NULL DEFAULT 0,
+    share_count INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED')),
     published_at TIMESTAMP,
     CONSTRAINT chk_posts_published_at CHECK (status <> 'PUBLISHED' OR published_at IS NOT NULL),
@@ -216,6 +217,7 @@ COMMENT ON COLUMN posts.content IS '본문';
 COMMENT ON COLUMN posts.thumbnail_url IS '대표 썸네일 이미지 URL';
 COMMENT ON COLUMN posts.view_count IS '조회수';
 COMMENT ON COLUMN posts.like_count IS '좋아요 수';
+COMMENT ON COLUMN posts.share_count IS '공유 수';
 COMMENT ON COLUMN posts.status IS '게시 상태: DRAFT(임시저장), PUBLISHED(게시)';
 COMMENT ON COLUMN posts.published_at IS '게시 일시';
 COMMENT ON COLUMN posts.created_at IS '생성 일시';

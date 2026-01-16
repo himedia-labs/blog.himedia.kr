@@ -59,6 +59,9 @@ export class Post {
   @Column({ name: 'like_count', type: 'int', default: 0 })
   likeCount!: number;
 
+  @Column({ name: 'share_count', type: 'int', default: 0 })
+  shareCount!: number;
+
   @Column({ type: 'varchar', length: 20, default: PostStatus.DRAFT })
   status!: PostStatus;
 

@@ -77,6 +77,7 @@ export interface PostListItem {
   status: PostStatus;
   viewCount: number;
   likeCount: number;
+  shareCount: number;
   commentCount: number;
   createdAt: string;
   publishedAt: string | null;
@@ -181,12 +182,17 @@ export interface PostDetailResponse {
   status: PostStatus;
   viewCount: number;
   likeCount: number;
+  shareCount: number;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
   category: PostCategoryRef | null;
   author: PostAuthorRef | null;
   tags: PostTagRef[];
+}
+
+export interface PostShareResponse {
+  shareCount: number;
 }
 
 // Draft 관련
