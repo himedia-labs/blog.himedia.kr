@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { FiEye, FiHeart } from 'react-icons/fi';
+import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
 
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
@@ -23,9 +23,13 @@ const formatDate = (value?: string | null) => {
 };
 
 export default function PostDetailPage() {
+  // route data
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
   const { data, isLoading, isError } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
+
+  // derived data
+  const hasThumbnail = Boolean(data?.thumbnailUrl);
   const previewContent = useMemo(() => renderMarkdownPreview(data?.content ?? ''), [data?.content]);
 
   if (isLoading) {
@@ -49,6 +53,23 @@ export default function PostDetailPage() {
 
   return (
     <section className={styles.container} aria-label="게시물 상세">
+      <aside className={styles.actions} aria-label="게시물 반응">
+        <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
+          <button type="button" className={styles.actionButton} aria-label="조회수">
+            <FiEye aria-hidden="true" />
+            <span className={styles.actionValue}>{data.viewCount.toLocaleString()}</span>
+          </button>
+          <button type="button" className={styles.actionButton} aria-label="좋아요">
+            <FiHeart aria-hidden="true" />
+            <span className={styles.actionValue}>{data.likeCount.toLocaleString()}</span>
+          </button>
+          <button type="button" className={styles.actionButton} aria-label="공유">
+            <FiShare2 aria-hidden="true" />
+            <span className={styles.actionValue}>공유</span>
+          </button>
+        </div>
+      </aside>
+
       <div className={styles.header}>
         <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
         <h1 className={styles.title}>{data.title}</h1>
@@ -59,32 +80,28 @@ export default function PostDetailPage() {
           </span>
           <span className={styles.metaItem}>{data.author?.name ?? '익명'}</span>
         </div>
-        <div className={styles.statsRow}>
-          <span className={styles.statItem}>
-            <FiEye aria-hidden="true" /> {data.viewCount.toLocaleString()}
-          </span>
-          <span className={styles.statItem}>
-            <FiHeart aria-hidden="true" /> {data.likeCount.toLocaleString()}
-          </span>
-        </div>
       </div>
 
-      {data.thumbnailUrl ? (
-        <div className={styles.thumbnail}>
-          <Image
-            src={data.thumbnailUrl}
-            alt={data.title}
-            width={0}
-            height={0}
-            sizes="100vw"
-            unoptimized
-            priority
-            style={{ width: '100%', height: 'auto' }}
-          />
-        </div>
-      ) : null}
+      <div className={styles.body}>
+        <div className={styles.mainContent}>
+          {hasThumbnail ? (
+            <div className={styles.thumbnail}>
+              <Image
+                src={data.thumbnailUrl}
+                alt={data.title}
+                width={0}
+                height={0}
+                sizes="100vw"
+                unoptimized
+                priority
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
+          ) : null}
 
-      <article className={styles.content}>{previewContent}</article>
+          <article className={styles.content}>{previewContent}</article>
+        </div>
+      </div>
     </section>
   );
 }

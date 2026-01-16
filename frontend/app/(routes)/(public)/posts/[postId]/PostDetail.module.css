@@ -1,13 +1,14 @@
 .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 3rem 1.5rem 5rem;
+  padding: 3rem 0 5rem;
+  position: relative;
 }
 
 .header {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  max-width: 960px;
+  margin: 0 auto;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding-bottom: 1.5rem;
   margin-bottom: 2rem;
@@ -41,17 +42,67 @@
   color: #c2c2c2;
 }
 
-.statsRow {
-  display: flex;
-  gap: 1rem;
-  color: #7a7a7a;
-  font-size: 0.9rem;
+.body {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
-.statItem {
-  display: inline-flex;
+.actions {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+
+.actionsInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   align-items: center;
-  gap: 0.4rem;
+  position: sticky;
+  top: 17.8rem;
+  left: calc(50% - 622px);
+  height: max-content;
+  width: 60px;
+  pointer-events: auto;
+}
+
+.actionsNoThumb {
+  margin-top: 0;
+}
+
+.actionButton {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: #1f1f1f;
+  cursor: pointer;
+  padding: 0;
+}
+
+.actionButton :global(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.actionValue {
+  font-size: 0.75rem;
+  color: #6f6f6f;
+}
+
+.mainContent {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .thumbnail {
@@ -147,7 +198,34 @@
     padding: 2rem 1rem 4rem;
   }
 
+  .header {
+    order: 1;
+  }
+
   .title {
     font-size: 2rem;
+  }
+
+  .body {
+    position: static;
+  }
+
+  .actions {
+    position: static;
+    height: auto;
+    width: auto;
+    inset: auto;
+    pointer-events: auto;
+  }
+
+  .actionsInner {
+    position: static;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: 0;
+  }
+
+  .actionButton {
+    width: 72px;
   }
 }
