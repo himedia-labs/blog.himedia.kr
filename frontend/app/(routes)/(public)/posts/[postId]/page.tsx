@@ -14,6 +14,7 @@ import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/postDetail.message';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
+import type { PostDetailResponse } from '@/app/shared/types/post';
 
 import styles from './PostDetail.module.css';
 
@@ -62,7 +63,8 @@ export default function PostDetailPage() {
 
   // derived data
   const shareCount = data?.shareCount ?? 0;
-  const hasThumbnail = Boolean(data?.thumbnailUrl);
+  const thumbnailUrl = data?.thumbnailUrl ?? null;
+  const hasThumbnail = Boolean(thumbnailUrl);
   const previewContent = useMemo(() => renderMarkdownPreview(data?.content ?? ''), [data?.content]);
 
   const handleShareCopy = useCallback(async () => {
@@ -79,7 +81,7 @@ export default function PostDetailPage() {
 
     try {
       const response = await sharePost(postId);
-      queryClient.setQueryData(postsKeys.detail(postId), previous => {
+      queryClient.setQueryData<PostDetailResponse>(postsKeys.detail(postId), previous => {
         if (!previous) return previous;
         return { ...previous, shareCount: response.shareCount };
       });
@@ -140,10 +142,10 @@ export default function PostDetailPage() {
 
       <div className={styles.body}>
         <div className={styles.mainContent}>
-          {hasThumbnail ? (
+          {thumbnailUrl ? (
             <div className={styles.thumbnail}>
               <Image
-                src={data.thumbnailUrl}
+                src={thumbnailUrl}
                 alt={data.title}
                 width={0}
                 height={0}
