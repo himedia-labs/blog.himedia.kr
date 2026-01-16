@@ -21,12 +21,25 @@ const extractImageUrl = (content?: string) => {
   return undefined;
 };
 
-// 본문에서 요약 문구 생성
+// 마크다운/HTML 제거 후 요약 문구 생성
 const buildSummary = (content?: string) => {
   if (!content) return '';
   const trimmed = content.trim();
   if (!trimmed) return '';
-  return trimmed.length > 140 ? `${trimmed.slice(0, 140)}...` : trimmed;
+  const withoutCodeBlocks = trimmed.replace(/```[\s\S]*?```/g, ' ');
+  const withoutInlineCode = withoutCodeBlocks.replace(/`([^`]+)`/g, '$1');
+  const withoutImages = withoutInlineCode.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '$1');
+  const withoutLinks = withoutImages.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
+  const withoutHtml = withoutLinks.replace(/<[^>]+>/g, ' ');
+  const withoutDecorators = withoutHtml
+    .replace(/^>\s+/gm, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/(\*\*|__|~~|_)/g, '');
+  const plainText = withoutDecorators.replace(/\s+/g, ' ').trim();
+  if (!plainText) return '';
+  return plainText.length > 140 ? `${plainText.slice(0, 140)}...` : plainText;
 };
 
 // 게시글 업로드 시점 기준 경과 시간 계산
