@@ -7,7 +7,6 @@ import { useParams } from 'next/navigation';
 import Skeleton from 'react-loading-skeleton';
 import { FiEye, FiHeart, FiShare2 } from 'react-icons/fi';
 
-import { POST_DETAIL_LABELS } from '@/app/shared/constants/ui/postDetail.ui';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { formatDate } from './postDetail.utils';
 import { usePostDetailActions } from './postDetail.hooks';
@@ -29,8 +28,8 @@ export default function PostDetailPage() {
 
   if (isLoading) {
     return (
-      <section className={styles.container} aria-label={POST_DETAIL_LABELS.ARIA_DETAIL}>
-        <aside className={styles.actions} aria-label={POST_DETAIL_LABELS.ARIA_REACTIONS}>
+      <section className={styles.container} aria-label="게시물 상세">
+        <aside className={styles.actions} aria-label="게시물 반응">
           <div className={styles.actionsInner}>
             <div className={styles.actionButton} aria-hidden="true">
               <Skeleton circle height={18} width={18} />
@@ -70,24 +69,24 @@ export default function PostDetailPage() {
 
   if (isError || !data) {
     return (
-      <section className={styles.container} aria-label={POST_DETAIL_LABELS.ARIA_DETAIL}>
-        <div className={styles.error}>{POST_DETAIL_LABELS.LOAD_ERROR}</div>
+      <section className={styles.container} aria-label="게시물 상세">
+        <div className={styles.error}>게시물을 불러올 수 없습니다.</div>
         <Link className={styles.backLink} href="/">
-          {POST_DETAIL_LABELS.BACK_TO_MAIN}
+          메인으로 돌아가기
         </Link>
       </section>
     );
   }
 
   return (
-    <section className={styles.container} aria-label={POST_DETAIL_LABELS.ARIA_DETAIL}>
-      <aside className={styles.actions} aria-label={POST_DETAIL_LABELS.ARIA_REACTIONS}>
+    <section className={styles.container} aria-label="게시물 상세">
+      <aside className={styles.actions} aria-label="게시물 반응">
         <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
-          <button type="button" className={styles.actionButton} aria-label={POST_DETAIL_LABELS.ACTION_VIEW}>
+          <button type="button" className={styles.actionButton} aria-label="조회수">
             <FiEye aria-hidden="true" />
             <span className={styles.actionValue}>{data.viewCount.toLocaleString()}</span>
           </button>
-          <button type="button" className={styles.actionButton} aria-label={POST_DETAIL_LABELS.ACTION_LIKE}>
+          <button type="button" className={styles.actionButton} aria-label="좋아요">
             <FiHeart aria-hidden="true" />
             <span className={styles.actionValue}>{data.likeCount.toLocaleString()}</span>
           </button>
@@ -95,7 +94,7 @@ export default function PostDetailPage() {
             type="button"
             className={styles.actionButton}
             onClick={handleShareCopy}
-            aria-label={POST_DETAIL_LABELS.ACTION_SHARE}
+            aria-label="공유"
           >
             <FiShare2 aria-hidden="true" />
             <span className={styles.actionValue}>{shareCount.toLocaleString()}</span>
@@ -104,14 +103,14 @@ export default function PostDetailPage() {
       </aside>
 
       <div className={styles.header}>
-        <div className={styles.category}>{data.category?.name ?? POST_DETAIL_LABELS.CATEGORY_ALL}</div>
+        <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
         <h1 className={styles.title}>{data.title}</h1>
         <div className={styles.metaRow}>
           <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
           <span className={styles.metaDivider} aria-hidden="true">
             ·
           </span>
-          <span className={styles.metaItem}>{data.author?.name ?? POST_DETAIL_LABELS.AUTHOR_ANON}</span>
+          <span className={styles.metaItem}>{data.author?.name ?? '익명'}</span>
         </div>
       </div>
 
