@@ -228,17 +228,23 @@ export type DraftNoticeModalProps = {
   onClose: () => void;
 };
 
-export type PostDetailsFormProps = {
+export type PostDetailsFormCategory = {
   categoryId: string;
   categories: Array<{ id: string; name: string }> | undefined;
   isLoading: boolean;
   onCategoryChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+};
+
+export type PostDetailsFormThumbnail = {
   thumbnailUrl: string;
   thumbnailInputRef: RefObject<HTMLInputElement | null>;
   isThumbnailUploading: boolean;
   onThumbnailChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onThumbnailFileClick: () => void;
   onThumbnailFileSelect: (event: ChangeEvent<HTMLInputElement>) => void;
+};
+
+export type PostDetailsFormTag = {
   tagInput: string;
   tags: string[];
   tagLengthError: boolean;
@@ -253,15 +259,21 @@ export type PostDetailsFormProps = {
   onTagSuggestionMouseDown: (tagName: string) => (event: MouseEvent<HTMLButtonElement>) => void;
 };
 
-export type ToolbarButton = {
-  id: string;
-  icon: IconType;
-  label: string;
-  title: string;
-  onClick: () => void;
+export type PostDetailsFormProps = {
+  category: PostDetailsFormCategory;
+  thumbnail: PostDetailsFormThumbnail;
+  tag: PostDetailsFormTag;
 };
 
-export type ToolbarItem = ToolbarButton | 'separator';
+export type ToolbarItem =
+  | { type: 'separator' }
+  | { type: 'heading'; level: 1 | 2 | 3; icon: IconType; label: string }
+  | {
+      type: 'action';
+      action: 'bold' | 'italic' | 'underline' | 'strike' | 'quote' | 'code' | 'link' | 'image' | 'bullet' | 'numbered';
+      icon: IconType;
+      label: string;
+    };
 
 export type EditorToolbarProps = {
   onHeading: (level: 1 | 2 | 3) => void;

@@ -1,33 +1,39 @@
 import { IoIosArrowDown, IoMdCheckmark } from 'react-icons/io';
 
-import type { PostDetailsFormProps } from '@/app/shared/types/post';
-
 import styles from '../PostCreate.module.css';
 
-export default function PostDetailsForm({
-  categoryId,
-  categories,
-  isLoading,
-  onCategoryChange,
-  thumbnailUrl,
-  thumbnailInputRef,
-  isThumbnailUploading,
-  onThumbnailChange,
-  onThumbnailFileClick,
-  onThumbnailFileSelect,
-  tagInput,
-  tags,
-  tagLengthError,
-  hasTagSuggestions,
-  tagSuggestions,
-  onTagChange,
-  onTagKeyDown,
-  onTagBlur,
-  onTagCompositionStart,
-  onTagCompositionEnd,
-  onRemoveTag,
-  onTagSuggestionMouseDown,
-}: PostDetailsFormProps) {
+import type { PostDetailsFormProps } from '@/app/shared/types/post';
+
+export default function PostDetailsForm({ category, thumbnail, tag }: PostDetailsFormProps) {
+  // 카테고리
+  const { categoryId, categories, isLoading, onCategoryChange } = category;
+
+  // 썸네일
+  const {
+    thumbnailUrl,
+    thumbnailInputRef,
+    isThumbnailUploading,
+    onThumbnailChange,
+    onThumbnailFileClick,
+    onThumbnailFileSelect,
+  } = thumbnail;
+
+  // 태그
+  const {
+    tagInput,
+    tags,
+    tagLengthError,
+    hasTagSuggestions,
+    tagSuggestions,
+    onTagChange,
+    onTagKeyDown,
+    onTagBlur,
+    onTagCompositionStart,
+    onTagCompositionEnd,
+    onRemoveTag,
+    onTagSuggestionMouseDown,
+  } = tag;
+
   return (
     <>
       <div className={styles.metaRow}>

@@ -132,28 +132,34 @@ export default function PostCreatePage() {
           />
 
           <PostDetailsForm
-            categoryId={categoryId}
-            categories={categories}
-            isLoading={isLoading}
-            onCategoryChange={handleCategoryChange}
-            thumbnailUrl={thumbnailUrl}
-            thumbnailInputRef={thumbnailInputRef}
-            isThumbnailUploading={isThumbnailUploading}
-            onThumbnailChange={handleThumbnailChange}
-            onThumbnailFileClick={handleThumbnailFileClick}
-            onThumbnailFileSelect={handleThumbnailFileSelect}
-            tagInput={tagInput}
-            tags={tags}
-            tagLengthError={tagLengthError}
-            hasTagSuggestions={hasTagSuggestions}
-            tagSuggestions={tagSuggestions}
-            onTagChange={handleTagChange}
-            onTagKeyDown={handleTagKeyDown}
-            onTagBlur={handleTagBlur}
-            onTagCompositionStart={handleTagCompositionStart}
-            onTagCompositionEnd={handleTagCompositionEnd}
-            onRemoveTag={handleRemoveTag}
-            onTagSuggestionMouseDown={handleTagSuggestionMouseDown}
+            category={{
+              categoryId,
+              categories,
+              isLoading,
+              onCategoryChange: handleCategoryChange,
+            }}
+            thumbnail={{
+              thumbnailUrl,
+              thumbnailInputRef,
+              isThumbnailUploading,
+              onThumbnailChange: handleThumbnailChange,
+              onThumbnailFileClick: handleThumbnailFileClick,
+              onThumbnailFileSelect: handleThumbnailFileSelect,
+            }}
+            tag={{
+              tagInput,
+              tags,
+              tagLengthError,
+              hasTagSuggestions,
+              tagSuggestions,
+              onTagChange: handleTagChange,
+              onTagKeyDown: handleTagKeyDown,
+              onTagBlur: handleTagBlur,
+              onTagCompositionStart: handleTagCompositionStart,
+              onTagCompositionEnd: handleTagCompositionEnd,
+              onRemoveTag: handleRemoveTag,
+              onTagSuggestionMouseDown: handleTagSuggestionMouseDown,
+            }}
           />
 
           <div className={styles.editorBox}>

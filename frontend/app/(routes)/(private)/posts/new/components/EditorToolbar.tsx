@@ -14,59 +14,63 @@ import {
   HiOutlineUnderline,
 } from 'react-icons/hi2';
 
-import type { EditorToolbarProps, ToolbarItem } from '@/app/shared/types/post';
-
 import styles from '../PostCreate.module.css';
 
-export default function EditorToolbar({
-  onHeading,
-  onBold,
-  onItalic,
-  onUnderline,
-  onStrike,
-  onQuote,
-  onCode,
-  onLink,
-  onImage,
-  onBullet,
-  onNumbered,
-}: EditorToolbarProps) {
-  const toolbarItems: ToolbarItem[] = [
-    { id: 'h1', icon: HiOutlineH1, label: '제목 1', title: '제목 1', onClick: () => onHeading(1) },
-    { id: 'h2', icon: HiOutlineH2, label: '제목 2', title: '제목 2', onClick: () => onHeading(2) },
-    { id: 'h3', icon: HiOutlineH3, label: '제목 3', title: '제목 3', onClick: () => onHeading(3) },
-    'separator',
-    { id: 'bold', icon: HiOutlineBold, label: '굵게', title: '굵게', onClick: onBold },
-    { id: 'italic', icon: HiOutlineItalic, label: '기울임', title: '기울임', onClick: onItalic },
-    { id: 'underline', icon: HiOutlineUnderline, label: '밑줄', title: '밑줄', onClick: onUnderline },
-    { id: 'strike', icon: HiOutlineStrikethrough, label: '취소선', title: '취소선', onClick: onStrike },
-    'separator',
-    { id: 'quote', icon: HiOutlineChatBubbleLeftRight, label: '인용', title: '인용', onClick: onQuote },
-    { id: 'code', icon: HiOutlineCodeBracket, label: '코드', title: '코드', onClick: onCode },
-    'separator',
-    { id: 'link', icon: HiOutlineLink, label: '링크', title: '링크', onClick: onLink },
-    { id: 'image', icon: HiOutlinePhoto, label: '이미지', title: '이미지', onClick: onImage },
-    'separator',
-    { id: 'bullet', icon: HiOutlineListBullet, label: '불릿 리스트', title: '불릿 리스트', onClick: onBullet },
-    { id: 'numbered', icon: HiOutlineNumberedList, label: '번호 리스트', title: '번호 리스트', onClick: onNumbered },
-  ];
+import type { EditorToolbarProps, ToolbarItem } from '@/app/shared/types/post';
+
+// 툴바 버튼 설정
+const TOOLBAR_ITEMS: ToolbarItem[] = [
+  { type: 'heading', level: 1, icon: HiOutlineH1, label: '제목 1' },
+  { type: 'heading', level: 2, icon: HiOutlineH2, label: '제목 2' },
+  { type: 'heading', level: 3, icon: HiOutlineH3, label: '제목 3' },
+  { type: 'separator' },
+  { type: 'action', action: 'bold', icon: HiOutlineBold, label: '굵게' },
+  { type: 'action', action: 'italic', icon: HiOutlineItalic, label: '기울임' },
+  { type: 'action', action: 'underline', icon: HiOutlineUnderline, label: '밑줄' },
+  { type: 'action', action: 'strike', icon: HiOutlineStrikethrough, label: '취소선' },
+  { type: 'separator' },
+  { type: 'action', action: 'quote', icon: HiOutlineChatBubbleLeftRight, label: '인용' },
+  { type: 'action', action: 'code', icon: HiOutlineCodeBracket, label: '코드' },
+  { type: 'separator' },
+  { type: 'action', action: 'link', icon: HiOutlineLink, label: '링크' },
+  { type: 'action', action: 'image', icon: HiOutlinePhoto, label: '이미지' },
+  { type: 'separator' },
+  { type: 'action', action: 'bullet', icon: HiOutlineListBullet, label: '불릿 리스트' },
+  { type: 'action', action: 'numbered', icon: HiOutlineNumberedList, label: '번호 리스트' },
+];
+
+export default function EditorToolbar(handlers: EditorToolbarProps) {
+  // 핸들러 매핑
+  const actionsMap = {
+    code: handlers.onCode,
+    link: handlers.onLink,
+    bold: handlers.onBold,
+    quote: handlers.onQuote,
+    image: handlers.onImage,
+    strike: handlers.onStrike,
+    bullet: handlers.onBullet,
+    italic: handlers.onItalic,
+    numbered: handlers.onNumbered,
+    underline: handlers.onUnderline,
+  };
 
   return (
     <div className={styles.headingToolbar} role="group" aria-label="서식 도구">
-      {toolbarItems.map((item, index) => {
-        if (item === 'separator') {
+      {TOOLBAR_ITEMS.map((item, index) => {
+        if (item.type === 'separator') {
           return <span key={`separator-${index}`} className={styles.headingSeparator} aria-hidden="true" />;
         }
 
         const Icon = item.icon;
+        const onClick = item.type === 'heading' ? () => handlers.onHeading(item.level) : actionsMap[item.action];
+
         return (
           <button
-            key={item.id}
+            key={`${item.type}-${item.label}`}
             type="button"
             className={styles.headingButton}
             aria-label={item.label}
-            title={item.title}
-            onClick={item.onClick}
+            onClick={onClick}
           >
             <Icon aria-hidden="true" />
           </button>

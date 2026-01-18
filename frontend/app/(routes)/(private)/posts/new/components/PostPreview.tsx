@@ -2,9 +2,9 @@ import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FiEye, FiHeart, FiMail, FiMessageCircle, FiTag } from 'react-icons/fi';
 import { RiTwitterXFill } from 'react-icons/ri';
 
-import type { PostPreviewProps } from '@/app/shared/types/post';
-
 import styles from '../PostCreate.module.css';
+
+import type { PostPreviewProps } from '@/app/shared/types/post';
 
 export default function PostPreview({
   title,
