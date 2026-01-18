@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 
-import { useDraftsQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { useDraftsQuery } from '@/app/api/posts/posts.queries';
 
 import styles from './DraftList.module.css';
 
