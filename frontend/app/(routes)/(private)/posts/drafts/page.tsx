@@ -2,13 +2,19 @@
 
 import Link from 'next/link';
 
-import { useAuthStore } from '@/app/shared/store/authStore';
-import { useDraftsQuery } from '@/app/api/posts/posts.queries';
+import Skeleton from 'react-loading-skeleton';
 
+import { useDraftsQuery } from '@/app/api/posts/posts.queries';
+import { useAuthStore } from '@/app/shared/store/authStore';
+
+import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './DraftList.module.css';
 
 export default function DraftListPage() {
+  // 인증 상태
   const { accessToken } = useAuthStore();
+
+  // 데이터 조회
   const { data, isLoading } = useDraftsQuery(undefined, { enabled: !!accessToken });
   const drafts = data?.items ?? [];
 
@@ -19,7 +25,17 @@ export default function DraftListPage() {
         <p className={styles.description}>작성 중인 게시물을 이어서 편집할 수 있습니다.</p>
       </header>
       {isLoading ? (
-        <p className={styles.notice}>불러오는 중...</p>
+        <ul className={styles.list} aria-label="임시저장 로딩">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <li key={`draft-skeleton-${index}`} className={styles.item} aria-hidden="true">
+              <div className={styles.info}>
+                <Skeleton height={18} width="60%" />
+                <Skeleton height={12} width="30%" />
+              </div>
+              <Skeleton height={28} width={64} />
+            </li>
+          ))}
+        </ul>
       ) : drafts.length ? (
         <ul className={styles.list}>
           {drafts.map(draft => (
