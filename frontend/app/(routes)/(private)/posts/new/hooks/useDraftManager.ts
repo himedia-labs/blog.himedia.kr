@@ -47,7 +47,6 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
   // draftId 변경 시 폼 초기화
   useEffect(() => {
     if (prevSearchDraftIdRef.current === searchDraftId) return;
-    const previousDraftId = prevSearchDraftIdRef.current;
     prevSearchDraftIdRef.current = searchDraftId;
 
     if (!searchDraftId) {
