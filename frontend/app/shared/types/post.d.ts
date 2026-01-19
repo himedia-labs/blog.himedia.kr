@@ -204,6 +204,12 @@ export type PostDetailActionsParams = {
   postId: string;
 };
 
+export type PostTocItem = {
+  id: string;
+  level: 1 | 2 | 3;
+  text: string;
+};
+
 // Draft 관련
 export type DraftData = {
   title: string;

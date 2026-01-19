@@ -2,7 +2,39 @@ import { Fragment, type ReactNode } from 'react';
 
 import Image from 'next/image';
 
-import type { InlinePattern } from '@/app/shared/types/post';
+import type { InlinePattern, PostTocItem } from '@/app/shared/types/post';
+
+// 인라인 마크다운 제거
+const stripInlineMarkdown = (value: string) =>
+  value
+    .replace(/!\[([^\]]*)]\([^)]+\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/<u>(.*?)<\/u>/g, '$1')
+    .replace(/_([^_]+)_/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .trim();
+
+// 목차 ID 생성기
+const createHeadingIdFactory = () => {
+  const used = new Map<string, number>();
+  let sequence = 0;
+
+  return (value: string) => {
+    sequence += 1;
+    const baseValue = value
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\u3131-\u318E\uAC00-\uD7A3-]/g, '');
+    const base = baseValue || `section-${sequence}`;
+    const count = used.get(base) ?? 0;
+    used.set(base, count + 1);
+    if (count === 0) return base;
+    return `${base}-${count + 1}`;
+  };
+};
 
 const MARKDOWN_INLINE_PATTERNS: InlinePattern[] = [
   { type: 'code', regex: /`([^`]+?)`/ },
@@ -143,6 +175,7 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
   const lines = value.split('\n');
   const blocks: ReactNode[] = [];
   let index = 0;
+  const getHeadingId = createHeadingIdFactory();
 
   const isBlank = (line: string) => line.trim() === '';
   const isFence = (line: string) => line.trim().startsWith('```');
@@ -186,12 +219,26 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
       const match = line.match(/^(#{1,3})\s+(.*)$/);
       const level = match?.[1].length ?? 1;
       const text = match?.[2] ?? '';
+      const headingText = stripInlineMarkdown(text);
+      const headingId = getHeadingId(headingText);
       if (level === 1) {
-        blocks.push(<h1 key={`h1-${index}`}>{parseInline(text)}</h1>);
+        blocks.push(
+          <h1 key={`h1-${index}`} id={headingId}>
+            {parseInline(text)}
+          </h1>,
+        );
       } else if (level === 2) {
-        blocks.push(<h2 key={`h2-${index}`}>{parseInline(text)}</h2>);
+        blocks.push(
+          <h2 key={`h2-${index}`} id={headingId}>
+            {parseInline(text)}
+          </h2>,
+        );
       } else {
-        blocks.push(<h3 key={`h3-${index}`}>{parseInline(text)}</h3>);
+        blocks.push(
+          <h3 key={`h3-${index}`} id={headingId}>
+            {parseInline(text)}
+          </h3>,
+        );
       }
       index += 1;
       continue;
@@ -256,4 +303,32 @@ export const renderMarkdownPreview = (value: string): ReactNode[] => {
   }
 
   return blocks;
+};
+
+/**
+ * 마크다운 목차 추출
+ * @description H1~H3 제목 목록을 생성
+ */
+export const extractMarkdownHeadings = (value: string): PostTocItem[] => {
+  const lines = value.split('\n');
+  const headings: PostTocItem[] = [];
+  const getHeadingId = createHeadingIdFactory();
+
+  for (const line of lines) {
+    const match = line.match(/^(#{1,3})\s+(.*)$/);
+    if (!match) continue;
+
+    const level = match[1].length as 1 | 2 | 3;
+    const rawText = match[2] ?? '';
+    const cleanText = stripInlineMarkdown(rawText);
+    const displayText = cleanText || `섹션 ${headings.length + 1}`;
+
+    headings.push({
+      id: getHeadingId(cleanText),
+      level,
+      text: displayText,
+    });
+  }
+
+  return headings;
 };
