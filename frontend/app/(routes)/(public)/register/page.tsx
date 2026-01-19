@@ -14,27 +14,16 @@ import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { PHONE_CONFIG } from '@/app/shared/constants/config/phone.config';
+import { EMAIL_REGEX } from '@/app/shared/constants/limits/auth.limit';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { COURSE_OPTIONS } from '@/app/shared/constants/ui/register.ui';
 
 import styles from './register.module.css';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// 교육과정 리스트 (임시 데이터)
-const COURSE_OPTIONS = [
-  '프론트엔드 개발자 양성과정 1기',
-  '프론트엔드 개발자 양성과정 2기',
-  '백엔드 개발자 양성과정 1기',
-  '백엔드 개발자 양성과정 2기',
-  '풀스택 개발자 양성과정 1기',
-  '풀스택 개발자 양성과정 2기',
-  'AI 개발자 양성과정 1기',
-  'AI 개발자 양성과정 2기',
-  '데이터 분석 양성과정 1기',
-  '데이터 분석 양성과정 2기',
-  '기타',
-];
-
+/**
+ * 회원가입 페이지
+ * @description 회원가입 입력과 제출을 처리
+ */
 export default function RegisterPage() {
   const router = useRouter();
   const registerMutation = useRegisterMutation();

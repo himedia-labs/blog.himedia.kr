@@ -13,8 +13,8 @@ import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEve
 const COMMIT_KEYS = ['Enter', ' ', ','];
 
 /**
- * 태그 입력 관리
- * @description 태그 입력, 추천, 자동완성 및 한글 조합 처리를 관리합니다.
+ * 태그 입력 훅
+ * @description 태그 입력과 추천, 조합 처리를 관리
  */
 export const useTagInput = () => {
   const { showToast } = useToast();

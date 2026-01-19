@@ -21,7 +21,7 @@ import type { DraftSaveOptions, DraftSaverParams } from '@/app/shared/types/post
 
 /**
  * 임시저장 및 발행
- * @description 게시물 임시저장과 발행 처리, 유효성 검증을 담당합니다.
+ * @description 게시물 임시저장/발행 처리와 유효성 검증을 담당
  */
 export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaverParams) => {
   const router = useRouter();

@@ -11,7 +11,7 @@ import type { RegisterRequest } from '@/app/shared/types/auth';
 
 /**
  * 전화번호 포맷팅
- * @description 사용자가 숫자를 입력하면 자동으로 XXX XXXX XXXX 형식으로 변환해줍니다.
+ * @description 입력 숫자를 XXX XXXX XXXX 형식으로 변환
  */
 export const formatPhone = (params: {
   setPhone: (value: string) => void;

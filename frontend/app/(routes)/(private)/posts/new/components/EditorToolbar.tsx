@@ -41,7 +41,7 @@ const TOOLBAR_ITEMS: ToolbarItem[] = [
 
 /**
  * 에디터 툴바
- * @description 마크다운 서식 버튼을 렌더링하고 클릭 이벤트를 연결합니다.
+ * @description 마크다운 서식 버튼을 렌더링하고 클릭 이벤트를 연결
  */
 export default function EditorToolbar(handlers: EditorToolbarProps) {
   // 핸들러 매핑

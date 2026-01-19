@@ -1,5 +1,8 @@
-// 날짜 포맷
-const formatDate = (value?: string | null) => {
+/**
+ * 날짜 포맷
+ * @description 게시물 날짜 문자열을 포맷
+ */
+export const formatDate = (value?: string | null) => {
   if (!value) return '--';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '--';
@@ -9,8 +12,11 @@ const formatDate = (value?: string | null) => {
   return `${year}.${month}.${day}`;
 };
 
-// 클립보드 복사
-const copyToClipboard = async (value: string) => {
+/**
+ * 클립보드 복사
+ * @description 문자열을 클립보드에 복사
+ */
+export const copyToClipboard = async (value: string) => {
   if (navigator?.clipboard?.writeText) {
     await navigator.clipboard.writeText(value);
     return;
@@ -31,5 +37,3 @@ const copyToClipboard = async (value: string) => {
     throw new Error('COPY_FAILED');
   }
 };
-
-export { copyToClipboard, formatDate };

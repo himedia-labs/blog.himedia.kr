@@ -18,7 +18,7 @@ import type { MarkdownImageUploadParams, SelectionRange } from '@/app/shared/typ
 
 /**
  * 마크다운 이미지 업로드
- * @description 에디터 내 이미지 선택/붙여넣기, 업로드 및 마크다운 삽입을 처리합니다.
+ * @description 에디터 이미지 선택/붙여넣기, 업로드, 마크다운 삽입을 처리
  */
 export const useMarkdownImageUpload = (params: MarkdownImageUploadParams) => {
   const { content, contentRef, setContentValue, setContentAndSelection } = params;

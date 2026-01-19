@@ -11,6 +11,10 @@ const parseJwt = (token: string): { exp?: number } | null => {
 };
 
 // 토큰의 만료 시간을 밀리초 단위로 반환
+/**
+ * 토큰 만료 시간
+ * @description JWT 만료 시각을 밀리초로 반환
+ */
 export const getTokenExpiry = (token: string): number | null => {
   const payload = parseJwt(token);
   return payload?.exp ? payload.exp * 1000 : null;

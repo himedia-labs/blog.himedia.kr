@@ -14,6 +14,10 @@ import { usePostDetailActions } from './postDetail.hooks';
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './PostDetail.module.css';
 
+/**
+ * 게시물 상세 페이지
+ * @description 게시물 상세 내용과 반응 정보를 표시
+ */
 export default function PostDetailPage() {
   // 라우트 데이터
   const params = useParams();

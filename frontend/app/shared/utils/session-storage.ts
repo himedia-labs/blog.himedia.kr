@@ -1,11 +1,12 @@
-/**
- * 세션 스토리지 유틸리티
- * - isomorphic: SSR에서는 no-op으로 동작해 에러를 방지합니다.
- * - 모든 값은 JSON 직렬화/역직렬화하여 타입 안정성을 보조합니다.
- */
-
+// 세션 스토리지 유틸리티
+// - isomorphic: SSR에서는 no-op으로 동작해 에러를 방지
+// - 모든 값은 JSON 직렬화/역직렬화로 타입 안정성을 보조
 const isClient = () => typeof window !== 'undefined';
 
+/**
+ * 세션 스토리지 유틸
+ * @description 세션 저장소 접근을 래핑
+ */
 export const sessionStorage = {
   getItem: <T>(key: string, defaultValue: T): T => {
     if (!isClient()) return defaultValue;

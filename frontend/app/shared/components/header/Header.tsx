@@ -27,6 +27,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: '로그인/프로필', isAuthDependent: true },
 ];
 
+/**
+ * 공통 헤더
+ * @description 로그인 상태에 따라 메뉴를 표시
+ */
 export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,12 +43,9 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const clearAuth = useAuthStore(state => state.clearAuth);
   const { showToast } = useToast();
 
-  /**
-   * 로그인 상태
-   * @description 서버 쿠키 기반(initialLoginFlag) 또는 클라이언트 accessToken 중 하나라도 있으면 로그인으로 표시
-   * - initialLoginFlag: 로그인 후 리다이렉트 시 아이콘 변화가 없기에 필수
-   * - accessToken: 새로고침 시 초기화된 상태 복구 용도
-   */
+  // 로그인 상태
+  // - initialLoginFlag: 로그인 후 리다이렉트 시 아이콘 변화가 없기에 필수
+  // - accessToken: 새로고침 시 초기화된 상태 복구 용도
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialLoginFlag;
 
   useEffect(() => {

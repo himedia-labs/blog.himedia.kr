@@ -6,7 +6,10 @@ import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 
 import type { TopPost, ViewMode } from '@/app/shared/types/post';
 
-// 메인 포스트 목록 상태/데이터 제공 훅
+/**
+ * 메인 포스트 목록 훅
+ * @description 메인 포스트 목록의 상태와 데이터를 제공
+ */
 export const usePostList = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');

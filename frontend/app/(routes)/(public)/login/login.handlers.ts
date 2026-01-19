@@ -8,7 +8,10 @@ import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-// 로그인 로직
+/**
+ * 로그인 핸들러
+ * @description 로그인 요청과 에러 처리를 수행
+ */
 export const authenticateUser = (params: {
   email: string;
   password: string;

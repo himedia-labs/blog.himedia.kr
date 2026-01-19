@@ -4,7 +4,7 @@ import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
 /**
  * 로그인 리다이렉트 토스트
- * @description 리다이렉트 사유가 auth일 때 안내 토스트를 표시합니다.
+ * @description 리다이렉트 사유가 auth일 때 안내 토스트를 표시
  */
 export const useLoginRedirectToast = (params: {
   reason: string | null;

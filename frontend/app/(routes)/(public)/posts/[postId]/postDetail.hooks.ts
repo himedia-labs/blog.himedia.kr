@@ -13,6 +13,10 @@ import { copyToClipboard } from './postDetail.utils';
 
 import type { PostDetailActionsParams, PostDetailResponse } from '@/app/shared/types/post';
 
+/**
+ * 게시물 상세 액션 훅
+ * @description 공유/조회수 처리와 미리보기 컨텐츠를 관리
+ */
 export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) => {
   // 공통 훅
   const { showToast } = useToast();

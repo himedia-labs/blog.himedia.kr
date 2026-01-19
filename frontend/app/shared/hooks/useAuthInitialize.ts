@@ -4,9 +4,8 @@ import { refreshAccessToken } from '../network/axios.instance';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 /**
- * 앱 초기화 시 한 번만 실행되는 인증 초기화 훅
- * - 성공 시: accessToken 저장
- * - 실패 시: 비로그인 상태 확정
+ * 인증 초기화 훅
+ * @description 앱 시작 시 토큰 갱신 후 인증 상태를 확정
  */
 export const useAuthInitialize = () => {
   const { setAccessToken, setInitialized } = useAuthStore();

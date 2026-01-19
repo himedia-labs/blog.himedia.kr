@@ -21,6 +21,10 @@ import { usePostForm, useTagInput, useThumbnailUpload, useDraftManager, useMarkd
 import styles from './PostCreate.module.css';
 import type { DraftData } from '@/app/shared/types/post';
 
+/**
+ * 게시물 작성 페이지
+ * @description 작성 폼과 미리보기를 제공
+ */
 export default function PostCreatePage() {
   // 라우트 훅
   const router = useRouter();

@@ -20,7 +20,7 @@ import styles from './login.module.css';
 
 /**
  * 로그인 페이지
- * @description 이메일/비밀번호 로그인을 처리합니다.
+ * @description 이메일/비밀번호 로그인을 처리
  */
 export default function LoginPage() {
   // 라우트/쿼리

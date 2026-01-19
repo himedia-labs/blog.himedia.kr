@@ -76,6 +76,10 @@ function ToastCard({ toast }: { toast: ToastItem }) {
 }
 
 // 토스트 컨텍스트 제공 및 큐 관리
+/**
+ * 토스트 프로바이더
+ * @description 토스트 상태를 관리하고 UI를 렌더링
+ */
 export default function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timersRef = useRef<Record<string, number>>({});
@@ -171,6 +175,10 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * 토스트 훅
+ * @description 토스트 컨텍스트를 사용
+ */
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {

@@ -2,6 +2,10 @@
 
 import styles from './privacy.module.css';
 
+/**
+ * 개인정보 동의 페이지
+ * @description 개인정보 수집·이용 안내를 표시
+ */
 export default function PrivacyConsentPage() {
   return (
     <div className={styles.container}>

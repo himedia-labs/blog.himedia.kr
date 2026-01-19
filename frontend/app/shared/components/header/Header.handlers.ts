@@ -3,6 +3,10 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 // 로그아웃 처리
+/**
+ * 로그아웃 핸들러
+ * @description 로그아웃 요청 후 홈으로 이동
+ */
 export const handleLogout = (params: {
   logoutMutation: UseMutationResult<void, Error, void>;
   clearAuth: () => void;

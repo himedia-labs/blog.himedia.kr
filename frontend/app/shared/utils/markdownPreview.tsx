@@ -135,6 +135,10 @@ const renderInlineLines = (lines: string[]) => {
 };
 
 // 마크다운 본문을 프리뷰 노드로 변환
+/**
+ * 마크다운 프리뷰 변환
+ * @description 문자열을 미리보기용 요소로 변환
+ */
 export const renderMarkdownPreview = (value: string): ReactNode[] => {
   const lines = value.split('\n');
   const blocks: ReactNode[] = [];

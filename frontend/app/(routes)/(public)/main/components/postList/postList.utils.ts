@@ -61,7 +61,10 @@ const buildRelativeTime = (value?: string | null) => {
   return `${years}년 전`;
 };
 
-// API 응답을 화면용 Post로 변환
+/**
+ * 화면용 포스트 변환
+ * @description API 응답을 화면용 Post로 변환
+ */
 export const toViewPost = (item: PostListItem): Post => {
   const imageUrl = item.thumbnailUrl ?? extractImageUrl(item.content);
   return {

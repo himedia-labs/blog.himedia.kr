@@ -6,7 +6,7 @@ import type { AutoSaveParams } from '@/app/shared/types/post';
 
 /**
  * 자동 저장
- * @description 폼 데이터 변경 후 일정 시간이 지나면 자동으로 임시저장합니다.
+ * @description 폼 데이터 변경 후 일정 시간이 지나면 임시저장
  */
 export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: AutoSaveParams) => {
   // Ref

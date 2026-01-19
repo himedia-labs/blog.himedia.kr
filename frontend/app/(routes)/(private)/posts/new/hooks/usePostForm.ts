@@ -7,8 +7,8 @@ import type { ChangeEvent } from 'react';
 import type { DraftData } from '@/app/shared/types/post';
 
 /**
- * 게시물 폼 상태 관리
- * @description 제목, 카테고리, 썸네일, 본문의 기본 폼 상태를 관리합니다.
+ * 게시물 폼 훅
+ * @description 제목/카테고리/썸네일/본문 상태를 관리
  */
 export const usePostForm = () => {
   // 공통 훅

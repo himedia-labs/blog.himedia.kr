@@ -24,7 +24,7 @@ import type { AuthStep } from '@/app/shared/types/auth';
 
 /**
  * 비밀번호 찾기 페이지
- * @description 인증번호 발송과 비밀번호 재설정을 진행합니다.
+ * @description 인증번호 발송과 비밀번호 재설정을 진행
  */
 export default function ForgotPasswordPage() {
   // 라우트 훅

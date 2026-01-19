@@ -33,11 +33,9 @@ const refreshAccessToken = async (): Promise<string | null> => {
   return refreshPromise;
 };
 
-/**
- * Request 인터셉터
- * - 일반 요청에 accessToken을 Authorization 헤더로 추가
- * - /auth/refresh 요청에는 토큰을 붙이지 않아 만료 토큰 401 반복 방지
- */
+// Request 인터셉터
+// - 일반 요청에 accessToken을 Authorization 헤더로 추가
+// - /auth/refresh 요청에는 토큰을 붙이지 않아 만료 토큰 401 반복 방지
 axiosInstance.interceptors.request.use(
   (config: RetriableConfig) => {
     const isRefreshRequest = config.url?.includes('/auth/refresh');
@@ -54,12 +52,10 @@ axiosInstance.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-/**
- * Response 인터셉터
- * - 401 응답 시 /auth/refresh 요청을 보내 토큰 갱신 시도
- * - 갱신 성공 시 원래 요청을 새로운 토큰으로 재시도
- * - 갱신 실패 시 에러 반환
- */
+// Response 인터셉터
+// - 401 응답 시 /auth/refresh 요청을 보내 토큰 갱신 시도
+// - 갱신 성공 시 원래 요청을 새로운 토큰으로 재시도
+// - 갱신 실패 시 에러 반환
 axiosInstance.interceptors.response.use(
   response => response,
   async (error: AxiosError) => {

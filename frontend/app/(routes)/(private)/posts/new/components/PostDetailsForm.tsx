@@ -6,7 +6,7 @@ import type { PostDetailsFormProps } from '@/app/shared/types/post';
 
 /**
  * 게시물 상세 폼
- * @description 카테고리, 썸네일, 태그 입력 영역을 렌더링합니다.
+ * @description 카테고리, 썸네일, 태그 입력 영역을 렌더링
  */
 export default function PostDetailsForm({ category, thumbnail, tag }: PostDetailsFormProps) {
   // 카테고리

@@ -4,6 +4,10 @@ import { usePathname } from 'next/navigation';
 import { FooterConfig } from './Footer.config';
 import styles from './Footer.module.css';
 
+/**
+ * 공통 푸터
+ * @description 서비스 하단 정보를 표시
+ */
 export default function Footer() {
   const pathname = usePathname();
 

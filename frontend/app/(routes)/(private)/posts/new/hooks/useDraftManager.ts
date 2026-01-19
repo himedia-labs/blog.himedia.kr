@@ -14,7 +14,7 @@ import type { DraftData } from '@/app/shared/types/post';
 
 /**
  * 임시저장 관리
- * @description 임시저장 불러오기, 저장, 발행 및 자동저장을 통합 관리합니다.
+ * @description 임시저장 불러오기, 저장, 발행, 자동저장을 통합 관리
  */
 export const useDraftManager = (formData: DraftData, setFormData: (data: Partial<DraftData>) => void) => {
   // 라우터 및 유틸리티

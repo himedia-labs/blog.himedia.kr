@@ -17,7 +17,7 @@ import type { ApiErrorResponse } from '@/app/shared/types/error';
 
 /**
  * 썸네일 업로드
- * @description 썸네일 이미지 파일 선택, 업로드 및 유효성 검증을 처리합니다.
+ * @description 썸네일 이미지 파일 선택, 업로드, 유효성 검증을 처리
  */
 export const useThumbnailUpload = (onUploadSuccess: (url: string) => void) => {
   const { showToast } = useToast();

@@ -7,6 +7,10 @@ import { ScrollTopButtonConfig } from './ScrollTopButton.config';
 import { useScroll } from '../../hooks/useScroll';
 import styles from './ScrollTopButton.module.css';
 
+/**
+ * 스크롤 탑 버튼
+ * @description 상단 이동 버튼을 표시
+ */
 export default function ScrollTopButton() {
   const isVisible = useScroll();
   const pathname = usePathname();

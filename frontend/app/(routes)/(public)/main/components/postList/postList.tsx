@@ -3,25 +3,26 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { PiList } from 'react-icons/pi';
-import { FiPlus } from 'react-icons/fi';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle } from 'react-icons/fi';
-
+import { FiEye, FiHeart, FiMessageCircle, FiPlus } from 'react-icons/fi';
+import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
-import { useAuthStore } from '@/app/shared/store/authStore';
-
-import usePostList from './postList.hooks';
 import { createHandleCreatePost } from './postList.handlers';
+import usePostList from './postList.hooks';
 
+import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './postList.module.css';
 
-// 메인 페이지 포스트 리스트 섹션
+/**
+ * 메인 포스트 리스트
+ * @description 게시물 목록과 카테고리, 인기글 영역을 표시
+ */
 export default function PostListSection() {
+  // 라우트 훅
   const router = useRouter();
-  const { accessToken } = useAuthStore();
+
+  // 목록 상태
   const {
     viewMode,
     setViewMode,
@@ -34,12 +35,15 @@ export default function PostListSection() {
     isCategoriesLoading,
     isTopPostsLoading,
   } = usePostList();
+
+  // 스켈레톤
   const listSkeletons = Array.from({ length: 5 });
-  const cardSkeletons = Array.from({ length: 6 });
   const topSkeletons = Array.from({ length: 5 });
+  const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
 
-  const handleCreatePost = createHandleCreatePost({ router, accessToken });
+  // 핸들러
+  const handleCreatePost = createHandleCreatePost({ router });
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -87,44 +91,44 @@ export default function PostListSection() {
                         <div className={styles.listBody}>
                           <h3>{post.title}</h3>
                           <p className={styles.summary}>{post.summary}</p>
-                        <div className={styles.meta}>
-                          <span className={styles.metaGroup}>
-                            <span className={styles.metaItem}>
-                              <CiCalendar aria-hidden="true" /> {post.date}
+                          <div className={styles.meta}>
+                            <span className={styles.metaGroup}>
+                              <span className={styles.metaItem}>
+                                <CiCalendar aria-hidden="true" /> {post.date}
+                              </span>
+                              <span className={styles.separator} aria-hidden="true">
+                                |
+                              </span>
+                              <span className={styles.metaItem}>{post.timeAgo}</span>
                             </span>
-                            <span className={styles.separator} aria-hidden="true">
-                              |
+                            <span className={styles.metaGroup}>
+                              <span className={styles.metaItem}>
+                                <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
+                              </span>
+                              <span className={styles.separator} aria-hidden="true">
+                                |
+                              </span>
+                              <span className={styles.metaItem}>
+                                <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                              </span>
+                              <span className={styles.separator} aria-hidden="true">
+                                |
+                              </span>
+                              <span className={styles.metaItem}>
+                                <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                              </span>
                             </span>
-                            <span className={styles.metaItem}>{post.timeAgo}</span>
-                          </span>
-                          <span className={styles.metaGroup}>
-                            <span className={styles.metaItem}>
-                              <FiEye aria-hidden="true" /> {post.views.toLocaleString()}
-                            </span>
-                            <span className={styles.separator} aria-hidden="true">
-                              |
-                            </span>
-                            <span className={styles.metaItem}>
-                              <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                            </span>
-                            <span className={styles.separator} aria-hidden="true">
-                              |
-                            </span>
-                            <span className={styles.metaItem}>
-                              <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                            </span>
-                          </span>
+                          </div>
                         </div>
-                      </div>
-                      {post.imageUrl ? (
-                        <div
-                          className={styles.listThumb}
-                          style={{
-                            backgroundImage: `url(${post.imageUrl})`,
-                          }}
-                          aria-hidden="true"
-                        />
-                      ) : null}
+                        {post.imageUrl ? (
+                          <div
+                            className={styles.listThumb}
+                            style={{
+                              backgroundImage: `url(${post.imageUrl})`,
+                            }}
+                            aria-hidden="true"
+                          />
+                        ) : null}
                       </article>
                     </Link>
                   </li>
@@ -151,24 +155,24 @@ export default function PostListSection() {
                   <li key={post.id}>
                     <Link className={styles.postLink} href={`/posts/${post.id}`}>
                       <article className={styles.cardItem}>
-                      {post.imageUrl ? (
-                        <div
-                          className={styles.cardThumb}
-                          style={{
-                            backgroundImage: `url(${post.imageUrl})`,
-                          }}
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      <div className={styles.cardBody}>
-                        <h3>{post.title}</h3>
-                        <p className={styles.summary}>{post.summary}</p>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <span>{post.date}</span>
-                        <span>·</span>
-                        <span>{post.timeAgo}</span>
-                      </div>
+                        {post.imageUrl ? (
+                          <div
+                            className={styles.cardThumb}
+                            style={{
+                              backgroundImage: `url(${post.imageUrl})`,
+                            }}
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                        <div className={styles.cardBody}>
+                          <h3>{post.title}</h3>
+                          <p className={styles.summary}>{post.summary}</p>
+                        </div>
+                        <div className={styles.cardFooter}>
+                          <span>{post.date}</span>
+                          <span>·</span>
+                          <span>{post.timeAgo}</span>
+                        </div>
                       </article>
                     </Link>
                   </li>

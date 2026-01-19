@@ -23,10 +23,9 @@ const DEFAULT_FORM_CACHE: RegisterFormCache = {
 };
 
 /**
- * 회원가입 폼 상태/캐시/핸들러 훅
- * @description 입력 필드/에러 상태, 전화번호 포맷터, 이메일 입력 필터 제공, 세션스토리지에 폼 값을 저장/복원 (약관 페이지 이동 시만 보존)
+ * 회원가입 폼 훅
+ * @description 폼 상태와 캐시 동기화를 관리
  */
-
 export const useRegisterForm = () => {
   const [form, setForm] = useState<RegisterFormCache>(() => sessionStorage.getItem(FORM_CACHE_KEY, DEFAULT_FORM_CACHE));
   const [hasCache, setHasCache] = useState(() => sessionStorage.hasItem(FORM_CACHE_KEY));
@@ -61,10 +60,7 @@ export const useRegisterForm = () => {
     sessionStorage.setItem(FORM_CACHE_KEY, form);
   }, [form]);
 
-  /**
-   * - 플래그 생성: 약관 페이지 이동 시 세션 스토리지에 플래그 저장
-   * - 플래그 삭제: 약관에서 돌아올 때 이 플래그 키를 삭제하고, 다른 페이지로 이동 시 플래그가 없으면 폼 캐시 삭제
-   */
+  // 약관 페이지 이동 시 플래그 저장, 이탈 시 캐시 정리
   useEffect(() => {
     if (restoredFromKeep) {
       sessionStorage.removeItem(FORM_CACHE_KEEP_KEY);

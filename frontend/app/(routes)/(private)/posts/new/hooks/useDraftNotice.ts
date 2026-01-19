@@ -6,7 +6,7 @@ import type { DraftNoticeParams } from '@/app/shared/types/post';
 
 /**
  * 임시저장 알림
- * @description 저장된 임시저장이 있을 때 사용자에게 알림을 표시합니다.
+ * @description 저장된 임시저장이 있을 때 알림을 표시
  */
 export const useDraftNotice = ({ draftId, hasDrafts }: DraftNoticeParams) => {
   const { showToast } = useToast();

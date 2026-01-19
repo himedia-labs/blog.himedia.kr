@@ -8,7 +8,7 @@ import type { PostPreviewProps } from '@/app/shared/types/post';
 
 /**
  * 게시물 미리보기
- * @description 입력한 내용을 기반으로 미리보기 화면을 표시합니다.
+ * @description 입력한 내용을 기반으로 미리보기 화면을 표시
  */
 export default function PostPreview({
   title,

@@ -5,7 +5,7 @@ import styles from './banner.module.css';
 
 /**
  * 메인 배너
- * @description 배너 이미지와 데코 아이콘을 렌더링합니다.
+ * @description 배너 이미지와 데코 아이콘을 렌더링
  */
 export default function Banner() {
   return (
