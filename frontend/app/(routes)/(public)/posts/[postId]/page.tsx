@@ -28,7 +28,7 @@ export default function PostDetailPage() {
   const shareCount = data?.shareCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const hasThumbnail = Boolean(thumbnailUrl);
-  const { handleShareCopy, previewContent } = usePostDetailActions({ data, postId });
+  const { handleShareCopy, handleLikeClick, previewContent } = usePostDetailActions({ data, postId });
 
   if (isLoading) {
     return (
@@ -86,14 +86,14 @@ export default function PostDetailPage() {
     <section className={styles.container} aria-label="게시물 상세">
       <aside className={styles.actions} aria-label="게시물 반응">
         <div className={`${styles.actionsInner} ${hasThumbnail ? '' : styles.actionsNoThumb}`}>
-          <button type="button" className={styles.actionButton} aria-label="조회수">
-            <FiEye aria-hidden="true" />
-            <span className={styles.actionValue}>{data.viewCount.toLocaleString()}</span>
-          </button>
-          <button type="button" className={styles.actionButton} aria-label="좋아요">
+          <button type="button" className={styles.actionButton} aria-label="좋아요" onClick={handleLikeClick}>
             <FiHeart aria-hidden="true" />
             <span className={styles.actionValue}>{data.likeCount.toLocaleString()}</span>
           </button>
+          <div className={styles.actionItem} aria-label="조회수">
+            <FiEye aria-hidden="true" />
+            <span className={styles.actionValue}>{data.viewCount.toLocaleString()}</span>
+          </div>
           <button
             type="button"
             className={styles.actionButton}

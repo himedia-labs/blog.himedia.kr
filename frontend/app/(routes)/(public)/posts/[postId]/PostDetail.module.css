@@ -73,9 +73,10 @@
   margin-top: 0;
 }
 
-.actionButton {
-  width: 60px;
-  height: 60px;
+.actionButton,
+.actionItem {
+  width: 65px;
+  height: 65px;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
@@ -89,13 +90,18 @@
   padding: 0;
 }
 
-.actionButton :global(svg) {
-  width: 18px;
-  height: 18px;
+.actionItem {
+  cursor: default;
+}
+
+.actionButton :global(svg),
+.actionItem :global(svg) {
+  width: 24px;
+  height: 24px;
 }
 
 .actionValue {
-  font-size: 0.75rem;
+  font-size: 14px;
   color: #6f6f6f;
 }
 

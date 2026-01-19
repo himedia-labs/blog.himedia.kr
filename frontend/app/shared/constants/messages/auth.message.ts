@@ -5,7 +5,7 @@ export const LOGIN_MESSAGES = {
   missingEmail: '이메일을 입력해주세요.',
   missingPassword: '비밀번호를 입력해주세요.',
   missingCredentials: '이메일과 비밀번호를 입력해주세요.',
-  requireAuth: '로그인이 필요합니다. 로그인 후 계속하세요.',
+  requireAuth: '로그인 후 이용할 수 있어요.',
 } as const;
 
 export const EMAIL_MESSAGES = {

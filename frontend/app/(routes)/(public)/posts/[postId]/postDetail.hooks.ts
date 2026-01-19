@@ -5,8 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useSharePostMutation, useViewPostMutation } from '@/app/api/posts/posts.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
+import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { POST_DETAIL_MESSAGES } from '@/app/shared/constants/messages/post.message';
 import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
+import { useAuthStore } from '@/app/shared/store/authStore';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
 import { copyToClipboard } from './postDetail.utils';
@@ -23,6 +25,7 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   const queryClient = useQueryClient();
   const viewTimerRef = useRef<number | null>(null);
   const viewedPostIdRef = useRef<string | null>(null);
+  const accessToken = useAuthStore(state => state.accessToken);
   const { mutateAsync: viewPost } = useViewPostMutation();
   const { mutateAsync: sharePost } = useSharePostMutation();
 
@@ -88,5 +91,11 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   // 프리뷰 컨텐츠
   const previewContent = useMemo(() => renderMarkdownPreview(data?.content ?? ''), [data?.content]);
 
-  return { handleShareCopy, previewContent };
+  // 좋아요 클릭
+  const handleLikeClick = useCallback(() => {
+    if (accessToken) return;
+    showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
+  }, [accessToken, showToast]);
+
+  return { handleShareCopy, handleLikeClick, previewContent };
 };
