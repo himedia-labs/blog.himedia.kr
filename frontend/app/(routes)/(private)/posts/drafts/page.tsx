@@ -10,6 +10,10 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './DraftList.module.css';
 
+/**
+ * 임시저장 목록 페이지
+ * @description 작성 중인 게시물 목록을 로딩/빈 상태와 함께 표시합니다.
+ */
 export default function DraftListPage() {
   // 인증 상태
   const { accessToken } = useAuthStore();

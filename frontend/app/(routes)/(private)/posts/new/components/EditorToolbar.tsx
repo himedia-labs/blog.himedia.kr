@@ -18,7 +18,7 @@ import styles from '../PostCreate.module.css';
 
 import type { EditorToolbarProps, ToolbarItem } from '@/app/shared/types/post';
 
-// 툴바 버튼 설정
+// 에디터 툴바 설정
 const TOOLBAR_ITEMS: ToolbarItem[] = [
   { type: 'heading', level: 1, icon: HiOutlineH1, label: '제목 1' },
   { type: 'heading', level: 2, icon: HiOutlineH2, label: '제목 2' },
@@ -39,6 +39,10 @@ const TOOLBAR_ITEMS: ToolbarItem[] = [
   { type: 'action', action: 'numbered', icon: HiOutlineNumberedList, label: '번호 리스트' },
 ];
 
+/**
+ * 에디터 툴바
+ * @description 마크다운 서식 버튼을 렌더링하고 클릭 이벤트를 연결합니다.
+ */
 export default function EditorToolbar(handlers: EditorToolbarProps) {
   // 핸들러 매핑
   const actionsMap = {
