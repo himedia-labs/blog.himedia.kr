@@ -2,17 +2,20 @@ import type { AxiosError } from 'axios';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type {
+  AuthStep,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   SendResetCodeRequest,
   SendResetCodeResponse,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
-  ResetPasswordRequest,
-  ResetPasswordResponse,
-  AuthStep,
 } from '@/app/shared/types/auth';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 
-// 비밀번호 상태 초기화
+/**
+ * 비밀번호 상태 초기화
+ * @description 비밀번호 입력/에러 상태를 초기화합니다.
+ */
 export const resetPasswordState = (params: {
   setNewPassword: (value: string) => void;
   setConfirmPassword: (value: string) => void;
@@ -27,7 +30,10 @@ export const resetPasswordState = (params: {
   };
 };
 
-// 인증번호 발송
+/**
+ * 인증번호 발송
+ * @description 이메일 인증번호 발송을 요청합니다.
+ */
 export const sendCode = (params: {
   email: string;
   setEmailError: (value: string) => void;
@@ -94,7 +100,10 @@ export const sendCode = (params: {
   };
 };
 
-// 인증번호 검증
+/**
+ * 인증번호 검증
+ * @description 이메일 인증번호를 검증합니다.
+ */
 export const verifyCode = (params: {
   email: string;
   code: string;
@@ -152,7 +161,10 @@ export const verifyCode = (params: {
   };
 };
 
-// 새 비밀번호 설정
+/**
+ * 새 비밀번호 설정
+ * @description 검증된 인증번호로 비밀번호를 변경합니다.
+ */
 export const resetPassword = (params: {
   email: string;
   code: string;

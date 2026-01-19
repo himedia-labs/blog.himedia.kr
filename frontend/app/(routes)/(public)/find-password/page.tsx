@@ -1,78 +1,65 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import {
+  useResetPasswordMutation,
   useSendResetCodeMutation,
   useVerifyResetCodeMutation,
-  useResetPasswordMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { resetPasswordState, sendCode, verifyCode, resetPassword } from './find-password.handlers';
+import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/limits/passwordReset.limit';
+
+import { resetPasswordState, resetPassword, sendCode, verifyCode } from './find-password.handlers';
+import { formatCode, formatRemainingTime, isValidPassword } from './find-password.utils';
 
 import styles from './find-password.module.css';
 import type { AuthStep } from '@/app/shared/types/auth';
 
-// 비밀번호 유효성 검사 (최소 8자, 영문+숫자+특수문자)
-const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const isValidPassword = (value: string) => PASSWORD_PATTERN.test(value);
-
-// 인증번호 포맷팅 (영문+숫자만, 대문자 변환, 8자 제한)
-const formatCode = (value: string) =>
-  value
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toUpperCase()
-    .slice(0, 8);
-
-const formatRemainingTime = (seconds: number) => {
-  const clamped = Math.max(seconds, 0);
-  const minutes = Math.floor(clamped / 60)
-    .toString()
-    .padStart(2, '0');
-  const secs = Math.floor(clamped % 60)
-    .toString()
-    .padStart(2, '0');
-  return `${minutes}:${secs}`;
-};
-
-const RESET_CODE_EXPIRY_SECONDS = 600;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+/**
+ * 비밀번호 찾기 페이지
+ * @description 인증번호 발송과 비밀번호 재설정을 진행합니다.
+ */
 export default function ForgotPasswordPage() {
-  // Hooks & Mutations
+  // 라우트 훅
   const router = useRouter();
+
+  // 변이 훅
   const sendCodeMutation = useSendResetCodeMutation();
   const verifyCodeMutation = useVerifyResetCodeMutation();
   const resetPasswordMutation = useResetPasswordMutation();
+
+  // 토스트 훅
   const { showToast } = useToast();
 
-  // Form
+  // 폼 상태
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // UI
+  // UI 상태
   const [step, setStep] = useState<AuthStep>('verify');
   const [codeSent, setCodeSent] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-  // Error
+  // 에러 상태
   const [emailError, setEmailError] = useState('');
   const [codeError, setCodeError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  // Loading
+  // 로딩 상태
   const isSending = sendCodeMutation.isPending;
   const isVerifying = verifyCodeMutation.isPending;
   const isResetting = resetPasswordMutation.isPending;
 
-  // 인증번호 만료 타이머 (10분 카운트다운)
+  // 인증번호 만료 타이머
   useEffect(() => {
     if (!codeSent || remainingSeconds <= 0) return undefined;
 
@@ -83,14 +70,14 @@ export default function ForgotPasswordPage() {
     return () => window.clearTimeout(timerId);
   }, [codeSent, remainingSeconds]);
 
-  // 인증번호 만료 알림
+  // 만료 알림
   useEffect(() => {
     if (codeSent && remainingSeconds === 0) {
       showToast({ message: '인증번호가 만료되었습니다. 다시 발송해주세요.', type: 'warning' });
     }
   }, [codeSent, remainingSeconds, showToast]);
 
-  // 비밀번호 상태 초기화 핸들러
+  // 상태 초기화
   const handleResetPasswordState = resetPasswordState({
     setNewPassword,
     setConfirmPassword,
@@ -98,7 +85,7 @@ export default function ForgotPasswordPage() {
     setConfirmPasswordError,
   });
 
-  // 인증번호 발송 핸들러
+  // 코드 발송
   const handleSendCode = sendCode({
     email,
     setEmailError,
@@ -111,7 +98,7 @@ export default function ForgotPasswordPage() {
     },
   });
 
-  // 인증번호 검증 핸들러
+  // 코드 검증
   const handleVerifyCode = verifyCode({
     email,
     code,
@@ -122,7 +109,7 @@ export default function ForgotPasswordPage() {
     showToast,
   });
 
-  // 새 비밀번호 설정 핸들러
+  // 비밀번호 변경
   const handleResetPassword = resetPassword({
     email,
     code,
@@ -244,8 +231,8 @@ export default function ForgotPasswordPage() {
                       ? '발송 중...'
                       : '인증번호 발송'
                     : isVerifying
-                    ? '확인 중...'
-                    : '인증번호 확인'}
+                      ? '확인 중...'
+                      : '인증번호 확인'}
                 </button>
               </div>
             </form>
