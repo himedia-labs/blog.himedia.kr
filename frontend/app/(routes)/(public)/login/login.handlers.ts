@@ -1,13 +1,12 @@
-import type { AxiosError } from 'axios';
-import type { QueryClient } from '@tanstack/react-query';
-import type { UseMutationResult } from '@tanstack/react-query';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 
+import type { AxiosError } from 'axios';
+import type { QueryClient } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { LoginRequest, AuthResponse } from '@/app/shared/types/auth';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 // 로그인 로직
 export const authenticateUser = (params: {
