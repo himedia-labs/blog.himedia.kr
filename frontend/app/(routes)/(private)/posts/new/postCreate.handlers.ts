@@ -2,10 +2,13 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { extractTags } from './postCreate.utils';
 
-import type { ToastOptions } from '@/app/shared/types/toast';
 import type { TagCommit } from '@/app/shared/types/post';
+import type { ToastOptions } from '@/app/shared/types/toast';
 
-// 태그 추가 헬퍼 생성
+/**
+ * 태그 추가 헬퍼 생성
+ * @description 입력값에서 태그를 추출해 목록에 추가합니다.
+ */
 export const createAddTagsFromInput = (params: {
   tags: string[];
   setTags: Dispatch<SetStateAction<string[]>>;
@@ -60,7 +63,10 @@ export const createAddTagsFromInput = (params: {
   };
 };
 
-// 태그 입력 확정 헬퍼 생성
+/**
+ * 태그 입력 확정 헬퍼 생성
+ * @description 입력값을 태그로 확정하고 입력창을 비웁니다.
+ */
 export const createCommitTagInput = (params: { addTagsFromInput: TagCommit; setTagInput: (value: string) => void }) => {
   return (value: string) => {
     if (!params.addTagsFromInput(value)) return false;
@@ -68,4 +74,3 @@ export const createCommitTagInput = (params: { addTagsFromInput: TagCommit; setT
     return true;
   };
 };
-
