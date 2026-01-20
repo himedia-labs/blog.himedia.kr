@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -29,6 +30,9 @@ export default function PostListSection() {
 
   // 목록 상태
   const {
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     viewMode,
     setViewMode,
     sortFilter,
@@ -48,11 +52,29 @@ export default function PostListSection() {
   const topSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
+
+  // 무한 스크롤
+  useEffect(() => {
+    const target = sentinelRef.current;
+    if (!target || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (!entries[0]?.isIntersecting || isFetchingNextPage) return;
+        fetchNextPage();
+      },
+      { rootMargin: '200px' },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -171,6 +193,27 @@ export default function PostListSection() {
                     </Link>
                   </li>
                 ))}
+            {isFetchingNextPage
+              ? listSkeletons.map((_, index) => (
+                  <li key={`list-more-skeleton-${index}`}>
+                    <article className={styles.listItem} aria-hidden="true">
+                      <div className={styles.listBody}>
+                        <Skeleton height={26} width="70%" />
+                        <Skeleton count={2} height={16} style={{ marginBottom: '6px' }} />
+                        <div className={styles.meta}>
+                          <span className={styles.metaGroup}>
+                            <Skeleton width={140} height={12} />
+                          </span>
+                          <span className={styles.metaGroup}>
+                            <Skeleton width={160} height={12} />
+                          </span>
+                        </div>
+                      </div>
+                      <Skeleton height={150} width="100%" borderRadius={12} />
+                    </article>
+                  </li>
+                ))
+              : null}
           </ul>
         ) : (
           <ul className={styles.cardGrid}>
@@ -215,8 +258,25 @@ export default function PostListSection() {
                     </Link>
                   </li>
                 ))}
+            {isFetchingNextPage
+              ? cardSkeletons.map((_, index) => (
+                  <li key={`card-more-skeleton-${index}`}>
+                    <article className={styles.cardItem} aria-hidden="true">
+                      <Skeleton className={styles.cardThumb} />
+                      <div className={styles.cardBody}>
+                        <Skeleton height={18} width="75%" />
+                        <Skeleton count={2} height={14} style={{ marginBottom: '6px' }} />
+                      </div>
+                      <div className={styles.cardFooter}>
+                        <Skeleton width={140} height={12} />
+                      </div>
+                    </article>
+                  </li>
+                ))
+              : null}
           </ul>
         )}
+        {!isFollowingEmpty ? <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" /> : null}
       </div>
 
       <aside className={styles.sidebar} aria-label="TOP 5 인기글">

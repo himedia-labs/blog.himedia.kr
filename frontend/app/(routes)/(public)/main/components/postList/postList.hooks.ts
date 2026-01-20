@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
+import { useInfinitePostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
 
 import { toViewPost } from './postList.utils';
 
@@ -17,12 +17,13 @@ export const usePostList = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const { data: categories, isLoading: isCategoriesLoading } = useCategoriesQuery();
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
-  const { data, isLoading } = usePostsQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfinitePostsQuery({
     status: 'PUBLISHED',
     categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
     feed: sortFilter === 'following' ? 'following' : undefined,
     sort: sortFilter === 'top' ? 'likeCount' : 'publishedAt',
     order: 'DESC',
+    limit: 10,
   });
   const { data: topPostsData, isLoading: isTopPostsLoading } = usePostsQuery({
     status: 'PUBLISHED',
@@ -31,11 +32,14 @@ export const usePostList = () => {
     limit: 5,
   });
   const categoryNames = ['ALL', ...(categories ?? []).map(category => category.name)];
-  const posts = (data?.items ?? []).map(item => toViewPost(item));
+  const posts = (data?.pages ?? []).flatMap(page => page.items).map(item => toViewPost(item));
   const filteredPosts = selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory);
   const topPosts: TopPost[] = (topPostsData?.items ?? []).map(post => ({ id: post.id, title: post.title }));
 
   return {
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     viewMode,
     setViewMode,
     sortFilter,

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import { postsApi } from './posts.api';
 import { postsKeys } from './posts.keys';
@@ -6,6 +6,16 @@ import type { PostDetailResponse, PostListQuery, PostListResponse } from '@/app/
 
 type QueryOptions = {
   enabled?: boolean;
+};
+
+export const useInfinitePostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+  return useInfiniteQuery<PostListResponse, Error>({
+    queryKey: postsKeys.infinite(params),
+    queryFn: ({ pageParam }) => postsApi.getPosts({ ...params, page: pageParam as number }),
+    enabled: options?.enabled ?? true,
+    getNextPageParam: lastPage => (lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined),
+    initialPageParam: 1,
+  });
 };
 
 export const usePostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
