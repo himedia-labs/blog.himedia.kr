@@ -74,8 +74,9 @@ export class PostsController {
   }
 
   @Get(':postId')
-  getPostDetail(@Param('postId') postId: string) {
-    return this.postsService.getPostDetail(postId);
+  @UseGuards(OptionalJwtGuard)
+  getPostDetail(@Param('postId') postId: string, @Request() req: ExpressRequest & { user?: JwtPayload }) {
+    return this.postsService.getPostDetail(postId, req.user?.sub);
   }
 
   @Post(':postId/share')
@@ -103,5 +104,14 @@ export class PostsController {
     const userAgent = req.headers['user-agent'] ?? 'unknown';
     const anonymousId = this.getAnonymousId(req, res);
     return this.postsService.incrementViewCount(postId, ip, userAgent, anonymousId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post(':postId/like')
+  toggleLike(
+    @Param('postId') postId: string,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ): Promise<{ likeCount: number; liked: boolean }> {
+    return this.postsService.toggleLikeCount(postId, req.user.sub);
   }
 }

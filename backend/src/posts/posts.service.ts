@@ -6,6 +6,7 @@ import { Post, PostStatus } from './entities/post.entity';
 import { Tag } from './entities/tag.entity';
 import { PostTag } from './entities/postTag.entity';
 import { PostImage, PostImageType } from './entities/postImage.entity';
+import { PostLike } from './entities/postLike.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
@@ -16,7 +17,11 @@ import { CreatePostDto } from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import { SnowflakeService } from '../common/services/snowflake.service';
 
-const ensurePublishFields = (fields: { title?: string | null; content?: string | null; categoryId?: string | null }) => {
+const ensurePublishFields = (fields: {
+  title?: string | null;
+  content?: string | null;
+  categoryId?: string | null;
+}) => {
   const code = ERROR_CODES.VALIDATION_FAILED as ErrorCode;
 
   if (!fields.title?.trim()) {
@@ -62,6 +67,8 @@ export class PostsService {
   constructor(
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
+    @InjectRepository(PostLike)
+    private readonly postLikeRepository: Repository<PostLike>,
     @InjectRepository(PostShareLog)
     private readonly postShareLogRepository: Repository<PostShareLog>,
     @InjectRepository(PostViewLog)
@@ -248,9 +255,7 @@ export class PostsService {
       });
     }
     const rawTags = payload.tags ?? [];
-    const normalizedTags = rawTags
-      .map(tag => tag.trim().replace(/^#+/, ''))
-      .filter(Boolean);
+    const normalizedTags = rawTags.map(tag => tag.trim().replace(/^#+/, '')).filter(Boolean);
 
     return this.postsRepository.manager.transaction(async manager => {
       const postRepository = manager.getRepository(Post);
@@ -376,9 +381,7 @@ export class PostsService {
       if (payload.tags !== undefined) {
         await postTagRepository.delete({ postId: savedPost.id });
 
-        const normalizedTags = payload.tags
-          .map(tag => tag.trim().replace(/^#+/, ''))
-          .filter(Boolean);
+        const normalizedTags = payload.tags.map(tag => tag.trim().replace(/^#+/, '')).filter(Boolean);
 
         if (normalizedTags.length) {
           const existingTags = await tagRepository.find({
@@ -431,7 +434,7 @@ export class PostsService {
     });
   }
 
-  async getPostDetail(postId: string) {
+  async getPostDetail(postId: string, userId?: string | null) {
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.PUBLISHED },
       relations: {
@@ -451,6 +454,8 @@ export class PostsService {
       });
     }
 
+    const liked = userId ? Boolean(await this.postLikeRepository.findOne({ where: { postId, userId } })) : false;
+
     return {
       id: post.id,
       title: post.title,
@@ -459,6 +464,7 @@ export class PostsService {
       status: post.status,
       viewCount: post.viewCount,
       likeCount: post.likeCount,
+      liked,
       shareCount: post.shareCount,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
@@ -538,6 +544,52 @@ export class PostsService {
     };
   }
 
+  // 좋아요 토글
+  async toggleLikeCount(postId: string, userId: string): Promise<{ likeCount: number; liked: boolean }> {
+    const safeUserId = userId.trim();
+
+    return this.postsRepository.manager.transaction(async manager => {
+      const postRepository = manager.getRepository(Post);
+      const likeRepository = manager.getRepository(PostLike);
+
+      const post = await postRepository.findOne({
+        where: { id: postId, status: PostStatus.PUBLISHED },
+        select: { id: true, likeCount: true },
+      });
+
+      if (!post) {
+        const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+        throw new NotFoundException({
+          message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+          code,
+        });
+      }
+
+      const existing = await likeRepository.findOne({ where: { postId, userId: safeUserId } });
+      let liked = false;
+
+      if (existing) {
+        await likeRepository.delete({ postId, userId: safeUserId });
+        await postRepository.decrement({ id: postId }, 'likeCount', 1);
+      } else {
+        const like = likeRepository.create({ postId, userId: safeUserId });
+        await likeRepository.save(like);
+        await postRepository.increment({ id: postId }, 'likeCount', 1);
+        liked = true;
+      }
+
+      const updated = await postRepository.findOne({
+        where: { id: postId },
+        select: { id: true, likeCount: true },
+      });
+
+      return {
+        likeCount: updated?.likeCount ?? post.likeCount,
+        liked,
+      };
+    });
+  }
+
   // 조회수 증가
   async incrementViewCount(
     postId: string,
@@ -562,11 +614,7 @@ export class PostsService {
     });
 
     if (!existingLog) {
-      const result = await this.postsRepository.increment(
-        { id: postId, status: PostStatus.PUBLISHED },
-        'viewCount',
-        1,
-      );
+      const result = await this.postsRepository.increment({ id: postId, status: PostStatus.PUBLISHED }, 'viewCount', 1);
 
       if (!result.affected) {
         const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
