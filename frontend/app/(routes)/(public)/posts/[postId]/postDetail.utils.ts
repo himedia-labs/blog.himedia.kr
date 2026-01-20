@@ -21,6 +21,7 @@ export const formatDate = (value?: string | null) => {
 export const formatRole = (role: UserRole) => {
   const roleMap: Record<UserRole, string> = {
     TRAINEE: '훈련생',
+    GRADUATE: '수료생',
     MENTOR: '멘토',
     INSTRUCTOR: '강사',
     ADMIN: '관리자',

@@ -120,10 +120,7 @@ export default function PostDetailPage() {
             ·
           </span>
           <span className={styles.metaItem}>
-            {data.author?.name ?? '익명'}
-            {data.author?.role && (
-              <span className={styles.authorRole}>{formatRole(data.author.role)}</span>
-            )}
+            {data.author?.name ?? '익명'} {data.author?.role && `${formatRole(data.author.role)}`}
           </span>
         </div>
       </div>
