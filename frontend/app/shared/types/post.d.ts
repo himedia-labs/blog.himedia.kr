@@ -64,9 +64,12 @@ export interface PostCategoryRef {
   name: string;
 }
 
+export type UserRole = 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR' | 'ADMIN';
+
 export interface PostAuthorRef {
   id: string;
   name: string;
+  role: UserRole;
 }
 
 export interface PostListItem {

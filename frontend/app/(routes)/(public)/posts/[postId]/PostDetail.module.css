@@ -39,6 +39,16 @@
   color: #c2c2c2;
 }
 
+.authorRole {
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(49, 130, 246, 0.1);
+  color: #3182f6;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .headerDivider {
   max-width: 960px;
   height: 1px;

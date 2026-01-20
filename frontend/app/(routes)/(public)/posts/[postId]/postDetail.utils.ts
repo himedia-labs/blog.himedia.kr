@@ -1,3 +1,5 @@
+import type { UserRole } from '@/app/shared/types/post';
+
 /**
  * 날짜 포맷
  * @description 게시물 날짜 문자열을 포맷
@@ -10,6 +12,20 @@ export const formatDate = (value?: string | null) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}.${month}.${day}`;
+};
+
+/**
+ * 역할 변환
+ * @description 사용자 역할을 한글로 변환
+ */
+export const formatRole = (role: UserRole) => {
+  const roleMap: Record<UserRole, string> = {
+    TRAINEE: '훈련생',
+    MENTOR: '멘토',
+    INSTRUCTOR: '강사',
+    ADMIN: '관리자',
+  };
+  return roleMap[role] ?? '훈련생';
 };
 
 /**

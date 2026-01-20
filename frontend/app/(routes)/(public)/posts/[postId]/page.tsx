@@ -14,7 +14,7 @@ import Skeleton from 'react-loading-skeleton';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { usePostDetailActions } from './postDetail.hooks';
-import { formatDate } from './postDetail.utils';
+import { formatDate, formatRole } from './postDetail.utils';
 
 import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -119,7 +119,12 @@ export default function PostDetailPage() {
           <span className={styles.metaDivider} aria-hidden="true">
             ·
           </span>
-          <span className={styles.metaItem}>{data.author?.name ?? '익명'}</span>
+          <span className={styles.metaItem}>
+            {data.author?.name ?? '익명'}
+            {data.author?.role && (
+              <span className={styles.authorRole}>{formatRole(data.author.role)}</span>
+            )}
+          </span>
         </div>
       </div>
       <div className={styles.headerDivider} aria-hidden="true" />
