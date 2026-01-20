@@ -8,7 +8,9 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 
-import { createHandleCreatePost } from './postList.handlers';
+import { useAuthStore } from '@/app/shared/store/authStore';
+
+import { createHandleCreatePost, createHandleSortFilter } from './postList.handlers';
 import usePostList from './postList.hooks';
 
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -22,10 +24,15 @@ export default function PostListSection() {
   // 라우트 훅
   const router = useRouter();
 
+  // 인증 상태
+  const { accessToken } = useAuthStore();
+
   // 목록 상태
   const {
     viewMode,
     setViewMode,
+    sortFilter,
+    setSortFilter,
     selectedCategory,
     setSelectedCategory,
     categoryNames,
@@ -41,9 +48,11 @@ export default function PostListSection() {
   const topSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
+  const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
+  const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -62,7 +71,36 @@ export default function PostListSection() {
           </button>
         </div>
 
-        {viewMode === 'list' ? (
+        <div className={styles.sortBar}>
+          <button
+            type="button"
+            className={sortFilter === 'latest' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => handleSortFilter('latest')}
+          >
+            최신
+          </button>
+          <button
+            type="button"
+            className={sortFilter === 'top' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => handleSortFilter('top')}
+          >
+            TOP
+          </button>
+          <button
+            type="button"
+            className={sortFilter === 'following' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => handleSortFilter('following')}
+          >
+            피드
+          </button>
+        </div>
+
+        {isFollowingEmpty ? (
+          <div className={styles.emptyState} role="status">
+            <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
+            <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
+          </div>
+        ) : viewMode === 'list' ? (
           <ul className={styles.listView}>
             {isLoading
               ? listSkeletons.map((_, index) => (

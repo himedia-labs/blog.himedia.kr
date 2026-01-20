@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
-import { toViewPost } from './postList.utils';
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
+import { usePostsQuery } from '@/app/api/posts/posts.queries';
 
-import type { TopPost, ViewMode } from '@/app/shared/types/post';
+import { toViewPost } from './postList.utils';
+
+import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
 /**
  * 메인 포스트 목록 훅
@@ -12,12 +13,16 @@ import type { TopPost, ViewMode } from '@/app/shared/types/post';
  */
 export const usePostList = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [sortFilter, setSortFilter] = useState<SortFilter>('latest');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const { data: categories, isLoading: isCategoriesLoading } = useCategoriesQuery();
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
   const { data, isLoading } = usePostsQuery({
     status: 'PUBLISHED',
     categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
+    feed: sortFilter === 'following' ? 'following' : undefined,
+    sort: sortFilter === 'top' ? 'likeCount' : 'publishedAt',
+    order: 'DESC',
   });
   const { data: topPostsData, isLoading: isTopPostsLoading } = usePostsQuery({
     status: 'PUBLISHED',
@@ -33,6 +38,8 @@ export const usePostList = () => {
   return {
     viewMode,
     setViewMode,
+    sortFilter,
+    setSortFilter,
     selectedCategory,
     setSelectedCategory,
     categoryNames,

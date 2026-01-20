@@ -13,6 +13,8 @@ import type { IconType } from 'react-icons';
 
 export type ViewMode = 'list' | 'card';
 
+export type SortFilter = 'latest' | 'top' | 'following';
+
 export type Post = {
   id: string;
   title: string;
@@ -49,6 +51,7 @@ export type TagSuggestionResponse = TagSuggestion[];
 export type PostStatus = 'DRAFT' | 'PUBLISHED';
 export type PostSortOption = 'createdAt' | 'publishedAt' | 'viewCount' | 'likeCount';
 export type SortOrder = 'ASC' | 'DESC';
+export type PostFeedOption = 'following';
 
 export interface PostListQuery {
   page?: number;
@@ -57,6 +60,7 @@ export interface PostListQuery {
   status?: PostStatus;
   sort?: PostSortOption;
   order?: SortOrder;
+  feed?: PostFeedOption;
 }
 
 export interface PostCategoryRef {
