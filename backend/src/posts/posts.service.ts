@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, MoreThan, Repository } from 'typeorm';
 
@@ -10,13 +10,15 @@ import { PostLike } from './entities/postLike.entity';
 import { PostShareLog } from './entities/postShareLog.entity';
 import { PostViewLog } from './entities/postViewLog.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
-import type { ErrorCode } from '../constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '../constants/message/auth.messages';
 import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
 import { ListPostsQueryDto, PostSortOption, SortOrder } from './dto/listPostsQuery.dto';
 import { CreatePostDto } from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import { SnowflakeService } from '../common/services/snowflake.service';
+import { Follow } from '../follows/entities/follow.entity';
 
+import type { ErrorCode } from '../constants/error/error-codes';
 const ensurePublishFields = (fields: {
   title?: string | null;
   content?: string | null;
@@ -110,11 +112,12 @@ export class PostsService {
     return images;
   }
 
-  async getPosts(query: ListPostsQueryDto) {
+  async getPosts(query: ListPostsQueryDto, userId?: string | null) {
+    const feed = query.feed ?? null;
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
-    const sort = query.sort ?? PostSortOption.CREATED_AT;
     const order = query.order ?? SortOrder.DESC;
+    const sort = query.sort ?? PostSortOption.CREATED_AT;
 
     const status = query.status ?? PostStatus.PUBLISHED;
     const queryBuilder = this.postsRepository
@@ -125,6 +128,22 @@ export class PostsService {
         qb.andWhere('comment.deletedAt IS NULL'),
       )
       .where('post.status = :status', { status });
+
+    // 피드 조건
+    if (feed === 'following') {
+      const safeUserId = userId?.trim();
+      if (!safeUserId) {
+        const code = ERROR_CODES.AUTH_LOGIN_REQUIRED as ErrorCode;
+        throw new UnauthorizedException({ message: AUTH_ERROR_MESSAGES.LOGIN_REQUIRED, code });
+      }
+
+      queryBuilder.innerJoin(
+        Follow,
+        'follow',
+        'follow.followingId = post.authorId AND follow.followerId = :followerId',
+        { followerId: safeUserId },
+      );
+    }
 
     if (query.categoryId) {
       queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });

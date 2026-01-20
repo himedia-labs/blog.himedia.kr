@@ -19,6 +19,7 @@ export const POST_VALIDATION_MESSAGES = {
   LIMIT_MIN: 'limit은 1 이상이어야 합니다.',
   LIMIT_MAX: 'limit은 50 이하여야 합니다.',
   POST_SORT_ENUM: '유효한 정렬 기준을 선택해주세요.',
+  POST_FEED_ENUM: '유효한 피드 기준을 선택해주세요.',
   SORT_ORDER_ENUM: '유효한 정렬 방향을 선택해주세요.',
 } as const;
 

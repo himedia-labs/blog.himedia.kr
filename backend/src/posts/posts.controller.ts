@@ -4,13 +4,13 @@ import { randomUUID } from 'crypto';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
-import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 import { PostsService } from './posts.service';
 import { ListPostsQueryDto } from './dto/listPostsQuery.dto';
 import { CreatePostDto } from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import { INTERACTION_CONFIG } from '../constants/config/interaction.config';
 
+import type { JwtPayload } from '../auth/interfaces/jwt.interface';
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 
 @Controller('posts')
@@ -41,8 +41,9 @@ export class PostsController {
   }
 
   @Get()
-  getPosts(@Query() query: ListPostsQueryDto) {
-    return this.postsService.getPosts(query);
+  @UseGuards(OptionalJwtGuard)
+  getPosts(@Query() query: ListPostsQueryDto, @Request() req: ExpressRequest & { user?: JwtPayload }) {
+    return this.postsService.getPosts(query, req.user?.sub);
   }
 
   @UseGuards(JwtGuard)

@@ -11,6 +11,9 @@ export enum PostSortOption {
   LIKE_COUNT = 'likeCount',
 }
 
+export const POST_FEED_OPTIONS = ['following'] as const;
+export type PostFeedOption = (typeof POST_FEED_OPTIONS)[number];
+
 export enum SortOrder {
   ASC = 'ASC',
   DESC = 'DESC',
@@ -51,4 +54,8 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsIn([SortOrder.ASC, SortOrder.DESC], { message: POST_VALIDATION_MESSAGES.SORT_ORDER_ENUM })
   order?: SortOrder;
+
+  @IsOptional()
+  @IsIn(POST_FEED_OPTIONS, { message: POST_VALIDATION_MESSAGES.POST_FEED_ENUM })
+  feed?: PostFeedOption;
 }
