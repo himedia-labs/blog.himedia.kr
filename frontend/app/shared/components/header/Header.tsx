@@ -82,7 +82,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
             <Image src="/icon/logo.png" alt="하이미디어아카데미 로고" fill priority sizes="90px" draggable={false} />
           </span>
           <span className={styles.logoText}>
-            하이미디어
+            하이미디어커뮤니티
             <span className={styles.logoSub}>HIMEDIA COMMUNITY</span>
           </span>
         </Link>
