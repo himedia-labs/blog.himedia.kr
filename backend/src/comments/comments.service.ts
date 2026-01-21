@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Repository } from 'typeorm';
 
@@ -9,6 +9,7 @@ import { POST_ERROR_MESSAGES } from '../constants/message/post.messages';
 import { SnowflakeService } from '../common/services/snowflake.service';
 import { Post, PostStatus } from '../posts/entities/post.entity';
 import { CreateCommentDto } from './dto/createComment.dto';
+import { UpdateCommentDto } from './dto/updateComment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentReaction, CommentReactionType } from './entities/commentReaction.entity';
 
@@ -62,6 +63,7 @@ export class CommentsService {
       likeCount: comment.likeCount,
       dislikeCount: comment.dislikeCount,
       liked: reactionMap.has(comment.id),
+      isOwner: userId ? comment.authorId === userId : false,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
       author: comment.author
@@ -119,6 +121,54 @@ export class CommentsService {
       depth,
     });
 
+    await this.commentsRepository.save(comment);
+
+    return { id: comment.id };
+  }
+
+  async updateComment(postId: string, commentId: string, body: UpdateCommentDto, userId: string) {
+    const content = body.content?.trim();
+    if (!content) {
+      const code = ERROR_CODES.VALIDATION_FAILED as ErrorCode;
+      throw new BadRequestException({ message: COMMENT_VALIDATION_MESSAGES.CONTENT_REQUIRED, code });
+    }
+
+    const comment = await this.commentsRepository.findOne({
+      where: { id: commentId, postId, deletedAt: IsNull() },
+    });
+
+    if (!comment) {
+      const code = ERROR_CODES.COMMENT_NOT_FOUND as ErrorCode;
+      throw new NotFoundException({ message: COMMENT_ERROR_MESSAGES.COMMENT_NOT_FOUND, code });
+    }
+
+    if (comment.authorId !== userId) {
+      const code = ERROR_CODES.COMMENT_FORBIDDEN as ErrorCode;
+      throw new ForbiddenException({ message: COMMENT_ERROR_MESSAGES.COMMENT_FORBIDDEN, code });
+    }
+
+    comment.content = content;
+    await this.commentsRepository.save(comment);
+
+    return { id: comment.id };
+  }
+
+  async deleteComment(postId: string, commentId: string, userId: string) {
+    const comment = await this.commentsRepository.findOne({
+      where: { id: commentId, postId, deletedAt: IsNull() },
+    });
+
+    if (!comment) {
+      const code = ERROR_CODES.COMMENT_NOT_FOUND as ErrorCode;
+      throw new NotFoundException({ message: COMMENT_ERROR_MESSAGES.COMMENT_NOT_FOUND, code });
+    }
+
+    if (comment.authorId !== userId) {
+      const code = ERROR_CODES.COMMENT_FORBIDDEN as ErrorCode;
+      throw new ForbiddenException({ message: COMMENT_ERROR_MESSAGES.COMMENT_FORBIDDEN, code });
+    }
+
+    comment.deletedAt = new Date();
     await this.commentsRepository.save(comment);
 
     return { id: comment.id };

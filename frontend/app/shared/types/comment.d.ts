@@ -14,6 +14,7 @@ export interface CommentItem {
   likeCount: number;
   dislikeCount: number;
   liked: boolean;
+  isOwner: boolean;
   createdAt: string;
   updatedAt: string;
   author: CommentAuthorRef | null;
@@ -27,6 +28,18 @@ export interface CreateCommentRequest {
 }
 
 export interface CreateCommentResponse {
+  id: string;
+}
+
+export interface UpdateCommentRequest {
+  content: string;
+}
+
+export interface UpdateCommentResponse {
+  id: string;
+}
+
+export interface DeleteCommentResponse {
   id: string;
 }
 

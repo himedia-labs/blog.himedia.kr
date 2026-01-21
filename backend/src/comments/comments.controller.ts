@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { CreateCommentDto } from './dto/createComment.dto';
+import { UpdateCommentDto } from './dto/updateComment.dto';
 import { CommentsService } from './comments.service';
 
 import type { JwtPayload } from '../auth/interfaces/jwt.interface';
@@ -37,5 +38,26 @@ export class CommentsController {
     @Request() req: ExpressRequest & { user: JwtPayload },
   ) {
     return this.commentsService.toggleCommentLike(postId, commentId, req.user.sub);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch(':commentId')
+  updateComment(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+    @Body() body: UpdateCommentDto,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ) {
+    return this.commentsService.updateComment(postId, commentId, body, req.user.sub);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':commentId')
+  deleteComment(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ) {
+    return this.commentsService.deleteComment(postId, commentId, req.user.sub);
   }
 }

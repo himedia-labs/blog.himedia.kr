@@ -11,8 +11,8 @@ const MAX_CONTENT_LENGTH = 1000;
 export const usePostCommentForm = (postId: string) => {
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
-  const { mutateAsync, isPending } = useCreateCommentMutation(postId);
   const hasLengthError = content.length > MAX_CONTENT_LENGTH;
+  const { mutateAsync, isPending } = useCreateCommentMutation(postId);
 
   const handleSubmit = useCallback(async () => {
     if (!postId) return;

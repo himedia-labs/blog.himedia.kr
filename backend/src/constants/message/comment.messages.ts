@@ -7,4 +7,5 @@ export const COMMENT_VALIDATION_MESSAGES = {
 
 export const COMMENT_ERROR_MESSAGES = {
   COMMENT_NOT_FOUND: '댓글을 찾을 수 없습니다.',
+  COMMENT_FORBIDDEN: '본인 댓글만 수정/삭제할 수 있습니다.',
 } as const;

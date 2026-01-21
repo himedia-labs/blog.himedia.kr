@@ -8,14 +8,26 @@ import { useParams } from 'next/navigation';
 
 import NumberFlow from '@number-flow/react';
 import { FaHeart } from 'react-icons/fa';
-import { FiClock, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
+import {
+  FiClock,
+  FiEdit2,
+  FiEye,
+  FiHeart,
+  FiMessageCircle,
+  FiMoreHorizontal,
+  FiShare2,
+  FiTrash2,
+  FiTrendingUp,
+} from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 
 import { useQueryClient } from '@tanstack/react-query';
 
 import { commentsApi } from '@/app/api/comments/comments.api';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
+import { useDeleteCommentMutation, useUpdateCommentMutation } from '@/app/api/comments/comments.mutations';
 import { usePostCommentsQuery } from '@/app/api/comments/comments.queries';
+import { postsKeys } from '@/app/api/posts/posts.keys';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -53,13 +65,20 @@ export default function PostDetailPage() {
   const isInitialized = useAuthStore(state => state.isInitialized);
 
   // 파생 데이터
-  const viewCount = data?.viewCount ?? 0;
   const likeCount = data?.likeCount ?? 0;
+  const viewCount = data?.viewCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const commentCount = data?.commentCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
+  const postAuthorId = data?.author?.id ?? null;
   const commentSkeletons = Array.from({ length: 3 });
+  const { mutateAsync: deleteComment } = useDeleteCommentMutation(postId);
+  const { mutateAsync: updateComment, isPending: isUpdating } = useUpdateCommentMutation(postId);
   const [commentSort, setCommentSort] = useState<'popular' | 'latest'>('latest');
+  const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState('');
+  const hasEditingLengthError = editingContent.length > 1000;
   const sortedComments = useMemo(() => {
     if (!comments?.length) return [];
     if (commentSort === 'popular') {
@@ -73,6 +92,58 @@ export default function PostDetailPage() {
 
   // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
+  const handleDeleteComment = async (commentId: string) => {
+    if (!accessToken) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
+
+    try {
+      await deleteComment(commentId);
+      if (editingCommentId === commentId) {
+        setEditingCommentId(null);
+        setEditingContent('');
+      }
+      setOpenCommentMenuId(null);
+      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+    } catch {
+      showToast({ message: '댓글 삭제에 실패했습니다.', type: 'error' });
+    }
+  };
+  const handleEditStart = (commentId: string, nextContent: string) => {
+    setEditingCommentId(commentId);
+    setEditingContent(nextContent);
+    setOpenCommentMenuId(null);
+  };
+  const handleEditCancel = () => {
+    setEditingCommentId(null);
+    setEditingContent('');
+  };
+  const handleEditSubmit = async (commentId: string) => {
+    if (!accessToken) {
+      showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
+      return;
+    }
+    const trimmed = editingContent.trim();
+    if (!trimmed) {
+      showToast({ message: '댓글을 입력해주세요.', type: 'warning' });
+      return;
+    }
+    if (hasEditingLengthError) {
+      showToast({ message: '1,000자까지 입력 가능해요.', type: 'warning' });
+      return;
+    }
+
+    try {
+      await updateComment({ commentId, payload: { content: trimmed } });
+      handleEditCancel();
+      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+    } catch {
+      showToast({ message: '댓글 수정에 실패했습니다.', type: 'error' });
+    }
+  };
   const handleTocClick = (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const target = document.getElementById(id);
@@ -339,15 +410,93 @@ export default function PostDetailPage() {
                             <span className={styles.commentAuthor}>
                               {comment.author?.name ?? '익명'}{' '}
                               {comment.author?.role ? formatRole(comment.author.role) : ''}
+                              {comment.author?.id && comment.author.id === postAuthorId ? ' (작성자)' : ''}
                             </span>
-                            <span className={styles.commentDate}>{formatDateTime(comment.createdAt)}</span>
+                            <span className={styles.commentDate}>
+                              {formatDateTime(comment.createdAt)}
+                              {comment.updatedAt !== comment.createdAt ? ' (수정됨)' : ''}
+                            </span>
                           </div>
                         </div>
-                        <button type="button" className={styles.commentFollowButton}>
-                          팔로우
-                        </button>
+                        {comment.isOwner ? (
+                          <div className={styles.commentMoreWrapper}>
+                            <button
+                              type="button"
+                              className={styles.commentMoreButton}
+                              aria-label="댓글 옵션"
+                              onClick={() =>
+                                setOpenCommentMenuId(prev => (prev === comment.id ? null : comment.id))
+                              }
+                            >
+                              <FiMoreHorizontal aria-hidden="true" />
+                            </button>
+                            {openCommentMenuId === comment.id ? (
+                              <div className={styles.commentMoreMenu} role="menu">
+                                <button
+                                  type="button"
+                                  className={styles.commentMoreItem}
+                                  role="menuitem"
+                                  onClick={() => handleEditStart(comment.id, comment.content)}
+                                >
+                                  <FiEdit2 aria-hidden="true" />
+                                  수정
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.commentMoreItem}
+                                  role="menuitem"
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                >
+                                  <FiTrash2 aria-hidden="true" />
+                                  삭제
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <button type="button" className={styles.commentFollowButton}>
+                            팔로우
+                          </button>
+                        )}
                       </div>
-                      <p className={styles.commentBody}>{comment.content}</p>
+                      {editingCommentId === comment.id ? (
+                        <div className={styles.commentEditForm}>
+                          <textarea
+                            className={`${styles.commentTextarea} ${
+                              hasEditingLengthError ? styles.commentTextareaError : ''
+                            }`}
+                            value={editingContent}
+                            onChange={event => setEditingContent(event.target.value)}
+                          />
+                          <div className={styles.commentEditActions}>
+                            {hasEditingLengthError ? (
+                              <span className={styles.commentError}>1,000자까지 입력 가능해요.</span>
+                            ) : null}
+                            <button
+                              type="button"
+                              className={styles.commentCancelButton}
+                              onClick={handleEditCancel}
+                              disabled={isUpdating}
+                            >
+                              취소
+                            </button>
+                            <button
+                              type="button"
+                              className={
+                                editingContent.trim()
+                                  ? `${styles.commentButton} ${styles.commentButtonActive}`
+                                  : styles.commentButton
+                              }
+                              disabled={!editingContent.trim() || isUpdating || hasEditingLengthError}
+                              onClick={() => handleEditSubmit(comment.id)}
+                            >
+                              수정 완료
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className={styles.commentBody}>{comment.content}</p>
+                      )}
                       <div className={styles.commentFooter}>
                         <button
                           type="button"

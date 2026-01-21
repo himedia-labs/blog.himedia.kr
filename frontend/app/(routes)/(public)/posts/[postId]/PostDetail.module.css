@@ -255,14 +255,14 @@
   min-height: 55px;
   max-height: 234px;
   height: 120px;
-  padding: 1.2rem 1rem 1rem;
+  padding: 1rem;
   border: 1px solid #e2e6ee;
   border-radius: 12px;
   box-sizing: border-box;
   font-size: 0.9rem;
   line-height: 1.6;
   color: #1f1f1f;
-  resize: none;
+  resize: vertical;
   outline: none;
   background: #fff;
   transition:
@@ -319,6 +319,19 @@
   font-size: 0.85rem;
   color: #ef4444;
   font-weight: 600;
+}
+
+.commentCancelButton {
+  border: none;
+  background: transparent;
+  color: #7a7a7a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.commentCancelButton:hover {
+  color: #4b5563;
 }
 
 .commentButton {
@@ -448,6 +461,84 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.commentMoreButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: transparent;
+  color: #8a8a8a;
+  cursor: pointer;
+}
+
+.commentMoreWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.commentMoreButton:hover {
+  color: #6b7280;
+}
+
+.commentMoreButton :global(svg) {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.commentMoreMenu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 4rem;
+  padding: 0.35rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+  z-index: 5;
+}
+
+.commentMoreItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #4e5968;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.commentMoreItem:hover {
+  background: #f3f4f6;
+}
+
+.commentMoreItem :global(svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.commentEditForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.commentEditActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 .commentBody {

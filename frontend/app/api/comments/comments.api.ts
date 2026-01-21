@@ -3,7 +3,10 @@ import type {
   CommentListResponse,
   CreateCommentRequest,
   CreateCommentResponse,
+  DeleteCommentResponse,
   ToggleCommentLikeResponse,
+  UpdateCommentRequest,
+  UpdateCommentResponse,
 } from '@/app/shared/types/comment';
 
 const getComments = async (postId: string): Promise<CommentListResponse> => {
@@ -21,8 +24,24 @@ const toggleCommentLike = async (postId: string, commentId: string): Promise<Tog
   return res.data;
 };
 
+const updateComment = async (
+  postId: string,
+  commentId: string,
+  payload: UpdateCommentRequest,
+): Promise<UpdateCommentResponse> => {
+  const res = await axiosInstance.patch<UpdateCommentResponse>(`/posts/${postId}/comments/${commentId}`, payload);
+  return res.data;
+};
+
+const deleteComment = async (postId: string, commentId: string): Promise<DeleteCommentResponse> => {
+  const res = await axiosInstance.delete<DeleteCommentResponse>(`/posts/${postId}/comments/${commentId}`);
+  return res.data;
+};
+
 export const commentsApi = {
   getComments,
   createComment,
   toggleCommentLike,
+  updateComment,
+  deleteComment,
 };
