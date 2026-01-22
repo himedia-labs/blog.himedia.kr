@@ -39,6 +39,7 @@ import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 import type { MouseEvent } from 'react';
+import type { CommentListResponse } from '@/app/shared/types/comment';
 
 /**
  * 게시물 상세 페이지
@@ -509,10 +510,12 @@ export default function PostDetailPage() {
                             }
                             try {
                               const result = await commentsApi.toggleCommentLike(postId, comment.id);
-                              queryClient.setQueryData(commentsKeys.list(postId), (old: any) => {
+                              queryClient.setQueryData(commentsKeys.list(postId), (old: CommentListResponse | undefined) => {
                                 if (!old) return old;
-                                return old.map((c: any) =>
-                                  c.id === comment.id ? { ...c, likeCount: result.likeCount, liked: result.liked } : c,
+                                return old.map(commentItem =>
+                                  commentItem.id === comment.id
+                                    ? { ...commentItem, likeCount: result.likeCount, liked: result.liked }
+                                    : commentItem,
                                 );
                               });
                             } catch {

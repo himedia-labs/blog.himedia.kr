@@ -569,6 +569,10 @@
   transition: background-color 0.15s ease;
 }
 
+.commentFooter .commentActionButton:first-child {
+  transform: translateX(-0.5rem);
+}
+
 .commentActionButton:hover {
   background: rgba(0, 0, 0, 0.04);
 }
