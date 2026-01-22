@@ -181,10 +181,17 @@ export default function PostDetailPage() {
     return (
       <section className={styles.container} aria-label="게시물 상세">
         <div className={styles.header}>
-          <Skeleton width={120} height={12} />
-          <Skeleton width="70%" height={42} />
-          <Skeleton width={220} height={14} />
+          <Skeleton width={90} height={12} />
+          <Skeleton width="75%" height={38} />
+          <div className={styles.metaRow}>
+            <Skeleton width={120} height={14} />
+            <span className={styles.metaDivider} aria-hidden="true">
+              ·
+            </span>
+            <Skeleton width={140} height={14} />
+          </div>
         </div>
+        <div className={styles.headerDivider} aria-hidden="true" />
         <div className={styles.body}>
           <aside className={styles.actions} aria-label="게시물 반응">
             <div className={styles.actionsInner}>
