@@ -142,6 +142,59 @@
   align-items: center;
 }
 
+.profileWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.profileMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.6rem);
+  min-width: 180px;
+  padding: 0.65rem;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+}
+
+.profileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.profileItem:hover {
+  background: #f3f4f6;
+}
+
+.profileItem :global(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.profileDivider {
+  width: 100%;
+  height: 1px;
+  margin: 0.45rem 0;
+  background: #e5e7eb;
+}
+
 .notificationBadge {
   position: absolute;
   top: -6px;
@@ -372,6 +425,38 @@
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
+}
+
+.dropdownOpen {
+  transform-origin: top right;
+  animation: dropdownIn 0.18s ease forwards;
+}
+
+.dropdownClose {
+  transform-origin: top right;
+  animation: dropdownOut 0.16s ease forwards;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdownOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
 }
 
 .menuButton {

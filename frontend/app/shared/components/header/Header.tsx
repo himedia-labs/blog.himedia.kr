@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { CiLogin, CiMenuBurger, CiUser } from 'react-icons/ci';
+import { FiBookOpen, FiLogOut, FiUser } from 'react-icons/fi';
 import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
@@ -78,9 +79,13 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   // UI 상태
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationTab, setNotificationTab] = useState<'today' | 'week' | 'earlier'>('today');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
 
   // UI 참조
   const notificationRef = useRef<HTMLDivElement | null>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
   // 요청 훅
   const queryClient = useQueryClient();
@@ -135,6 +140,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
       markReadMutation.mutate(id, { onSuccess: () => updateNotificationRead(id) });
     }
     setIsNotificationOpen(false);
+    setTimeout(() => setIsNotificationVisible(false), 160);
     router.push(href);
   };
   const handleMarkAllRead = () => {
@@ -152,18 +158,49 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
       },
     });
   };
-  const toggleNotifications = () => setIsNotificationOpen(prev => !prev);
+  const openNotificationMenu = () => {
+    setIsNotificationVisible(true);
+    setIsNotificationOpen(true);
+  };
+  const closeNotificationMenu = () => {
+    setIsNotificationOpen(false);
+    setTimeout(() => setIsNotificationVisible(false), 160);
+  };
+  const toggleNotifications = () => {
+    closeProfileMenu();
+    if (isNotificationOpen) {
+      closeNotificationMenu();
+      return;
+    }
+    openNotificationMenu();
+  };
+  const openProfileMenu = () => {
+    setIsProfileVisible(true);
+    setIsProfileOpen(true);
+  };
+  const closeProfileMenu = () => {
+    setIsProfileOpen(false);
+    setTimeout(() => setIsProfileVisible(false), 160);
+  };
+  const toggleProfileMenu = () => {
+    closeNotificationMenu();
+    if (isProfileOpen) {
+      closeProfileMenu();
+      return;
+    }
+    openProfileMenu();
+  };
 
   useEffect(() => {
     if (!isNotificationOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (!notificationRef.current || notificationRef.current.contains(event.target as Node)) return;
-      setIsNotificationOpen(false);
+      closeNotificationMenu();
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsNotificationOpen(false);
+      if (event.key === 'Escape') closeNotificationMenu();
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -173,6 +210,32 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isNotificationOpen]);
+
+  useEffect(() => {
+    if (!isProfileOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!profileRef.current || profileRef.current.contains(event.target as Node)) return;
+      closeProfileMenu();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeProfileMenu();
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isProfileOpen]);
+
+  useEffect(() => {
+    if (isLoggedIn) return;
+    setIsProfileOpen(false);
+    setIsProfileVisible(false);
+  }, [isLoggedIn]);
 
   // 특정 경로에서는 Header 숨김
   if (HeaderConfig.hidePaths.includes(pathname)) {
@@ -207,21 +270,65 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
           <ul>
             {HeaderConfig.navItems.map(item => {
               if (item.isAuthDependent) {
-                const Icon = isLoggedIn ? CiLogin : CiUser;
-                const label = isLoggedIn ? '로그아웃' : '로그인';
+                const Icon = isLoggedIn ? CiUser : CiLogin;
+                const label = isLoggedIn ? '프로필' : '로그인';
 
                 return (
                   <li key={item.label}>
                     {isLoggedIn ? (
-                      <button
-                        type="button"
-                        className={`${styles.navLink} ${styles.navButton}`}
-                        aria-label={label}
-                        title={label}
-                        onClick={handleLogout}
-                      >
-                        <Icon aria-hidden="true" focusable="false" />
-                      </button>
+                      <div className={styles.profileWrapper} ref={profileRef}>
+                        <button
+                          type="button"
+                          className={`${styles.navLink} ${styles.navButton}`}
+                          aria-label={label}
+                          aria-expanded={isProfileOpen}
+                          aria-haspopup="menu"
+                          title={label}
+                          onClick={toggleProfileMenu}
+                        >
+                          <Icon aria-hidden="true" focusable="false" />
+                        </button>
+                        {isProfileVisible ? (
+                          <div
+                            className={`${styles.profileMenu} ${
+                              isProfileOpen ? styles.dropdownOpen : styles.dropdownClose
+                            }`}
+                            role="menu"
+                          >
+                            <Link
+                              href="/mypage"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <FiUser aria-hidden="true" />
+                              마이페이지
+                            </Link>
+                            <Link
+                              href="/my-blog"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <FiBookOpen aria-hidden="true" />
+                              내 블로그
+                            </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
+                            <button
+                              type="button"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={() => {
+                                closeProfileMenu();
+                                handleLogout();
+                              }}
+                            >
+                              <FiLogOut aria-hidden="true" />
+                              로그아웃
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
                     ) : (
                       <Link
                         href="/login"
@@ -261,8 +368,13 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           </span>
                         ) : null}
                       </button>
-                      {isNotificationOpen ? (
-                        <div className={styles.notificationMenu} role="menu">
+                        {isNotificationVisible ? (
+                        <div
+                          className={`${styles.notificationMenu} ${
+                            isNotificationOpen ? styles.dropdownOpen : styles.dropdownClose
+                          }`}
+                          role="menu"
+                        >
                           <div className={styles.notificationHeader}>
                             <div className={styles.notificationHeaderText}>
                               <span className={styles.notificationTitle}>알림 센터</span>
