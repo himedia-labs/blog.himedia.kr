@@ -215,8 +215,8 @@
 
 .notificationBadge {
   position: absolute;
-  top: -6px;
-  right: -3px;
+  top: 1px;
+  right: 1px;
   width: 14px;
   height: 14px;
   display: inline-flex;

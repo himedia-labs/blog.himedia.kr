@@ -4,6 +4,8 @@ export interface CommentAuthorRef {
   id: string;
   name: string;
   role: UserRole;
+  followerCount?: number;
+  isFollowing?: boolean;
 }
 
 export interface CommentItem {
