@@ -218,6 +218,13 @@ export type PostDetailActionsParams = {
   postId: string;
 };
 
+export type PostDetailRefreshParams = {
+  accessToken: string | null;
+  isInitialized: boolean;
+  refetchComments: () => Promise<unknown>;
+  refetchPost: () => Promise<unknown>;
+};
+
 export type PostTocItem = {
   id: string;
   level: 1 | 2 | 3;
