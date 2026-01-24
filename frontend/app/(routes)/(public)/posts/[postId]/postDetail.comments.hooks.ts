@@ -15,15 +15,20 @@ export const usePostCommentForm = (postId: string) => {
   const { mutateAsync, isPending } = useCreateCommentMutation(postId);
 
   const handleSubmit = useCallback(async () => {
-    if (!postId) return;
+    if (!postId) return false;
     const trimmed = content.trim();
-    if (!trimmed) return;
-    if (hasLengthError) return;
+    if (!trimmed) return false;
+    if (hasLengthError) return false;
 
-    await mutateAsync({ content: trimmed });
-    setContent('');
-    await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-    await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+    try {
+      await mutateAsync({ content: trimmed });
+      setContent('');
+      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
+      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
+      return true;
+    } catch {
+      return false;
+    }
   }, [content, hasLengthError, mutateAsync, postId, queryClient]);
 
   return {

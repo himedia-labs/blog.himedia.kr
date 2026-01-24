@@ -1,5 +1,12 @@
 import type { UserRole } from '@/app/shared/types/post';
 
+const mentionBoundaryPattern = /[\s.,!?(){}\[\]<>/\\'"`~:;]/;
+
+const isMentionBoundary = (value: string, index: number) => {
+  if (index < 0 || index >= value.length) return true;
+  return mentionBoundaryPattern.test(value[index]);
+};
+
 /**
  * 날짜 포맷
  * @description 게시물 날짜 문자열을 포맷
@@ -43,6 +50,38 @@ export const formatRole = (role: UserRole) => {
     ADMIN: '관리자',
   };
   return roleMap[role] ?? '훈련생';
+};
+
+/**
+ * 댓글 태그 분리
+ * @description @멘션 텍스트를 분리해 렌더링 정보로 변환
+ */
+export const splitCommentMentions = (value: string) => {
+  const mentionPattern = /@[A-Za-z0-9_가-힣]+/g;
+  const parts: Array<{ type: 'text' | 'mention'; value: string }> = [];
+  let lastIndex = 0;
+
+  for (const match of value.matchAll(mentionPattern)) {
+    const startIndex = match.index ?? 0;
+    const endIndex = startIndex + match[0].length;
+
+    if (!isMentionBoundary(value, startIndex - 1) || !isMentionBoundary(value, endIndex)) {
+      continue;
+    }
+
+    if (startIndex > lastIndex) {
+      parts.push({ type: 'text', value: value.slice(lastIndex, startIndex) });
+    }
+
+    parts.push({ type: 'mention', value: match[0] });
+    lastIndex = endIndex;
+  }
+
+  if (lastIndex < value.length) {
+    parts.push({ type: 'text', value: value.slice(lastIndex) });
+  }
+
+  return parts;
 };
 
 /**
