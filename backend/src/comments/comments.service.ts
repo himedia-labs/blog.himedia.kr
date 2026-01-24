@@ -12,6 +12,7 @@ import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
 import { Comment } from './entities/comment.entity';
 import { CommentReaction, CommentReactionType } from './entities/commentReaction.entity';
+import { Follow } from '../follows/entities/follow.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/entities/notification.entity';
 
@@ -22,6 +23,8 @@ export class CommentsService {
     private readonly commentsRepository: Repository<Comment>,
     @InjectRepository(CommentReaction)
     private readonly commentReactionsRepository: Repository<CommentReaction>,
+    @InjectRepository(Follow)
+    private readonly followsRepository: Repository<Follow>,
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
     private readonly snowflakeService: SnowflakeService,
@@ -56,6 +59,33 @@ export class CommentsService {
     }
 
     const reactionMap = new Map(userReactions.map(r => [r.commentId, r]));
+    const authorIds = Array.from(
+      new Set(comments.map(comment => comment.authorId).filter((id): id is string => Boolean(id))),
+    );
+    const followerCountMap = new Map<string, number>();
+    const followingMap = new Map<string, boolean>();
+
+    if (authorIds.length > 0) {
+      const followerCounts = await this.followsRepository
+        .createQueryBuilder('follow')
+        .select('follow.followingId', 'followingId')
+        .addSelect('COUNT(*)', 'count')
+        .where('follow.followingId IN (:...authorIds)', { authorIds })
+        .groupBy('follow.followingId')
+        .getRawMany<{ followingId: string; count: string }>();
+
+      followerCounts.forEach(row => {
+        followerCountMap.set(row.followingId, Number(row.count));
+      });
+    }
+    if (userId && authorIds.length > 0) {
+      const followings = await this.followsRepository.find({
+        where: { followerId: userId, followingId: In(authorIds) },
+      });
+      followings.forEach(follow => {
+        followingMap.set(follow.followingId, true);
+      });
+    }
 
     return comments.map(comment => ({
       id: comment.id,
@@ -69,7 +99,13 @@ export class CommentsService {
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
       author: comment.author
-        ? { id: comment.author.id, name: comment.author.name, role: comment.author.role }
+        ? {
+            id: comment.author.id,
+            name: comment.author.name,
+            role: comment.author.role,
+            followerCount: followerCountMap.get(comment.author.id) ?? 0,
+            isFollowing: followingMap.get(comment.author.id) ?? false,
+          }
         : null,
     }));
   }
