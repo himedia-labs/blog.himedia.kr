@@ -258,7 +258,9 @@
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 0;
-  right: 0;
+  right: auto;
+  width: 100%;
+  max-width: 280px;
   max-height: 10.3rem;
   padding: 0.35rem;
   border-radius: 12px;
@@ -272,6 +274,7 @@
 .commentMentionItem {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.6rem;
   width: 100%;
   padding: 0.45rem 0.6rem;
@@ -300,6 +303,17 @@
 .commentMentionName {
   font-weight: 600;
   color: #4e5968;
+}
+
+.commentMentionTextGroup {
+  flex: 1;
+  text-align: left;
+}
+
+.commentMentionRole {
+  color: #9a9a9a;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .commentMentionMatch {
@@ -574,7 +588,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 5px;
   gap: 1.25rem;
 }
 
@@ -582,6 +595,13 @@
   display: flex;
   align-items: center;
   gap: 0;
+}
+
+.commentAvatarGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
 }
 
 .commentAvatar {
@@ -592,11 +612,19 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+.commentAuthorText {
+  font-size: 10px;
+  font-weight: bold;
+  color: #3182f6;
+  line-height: 1.2;
+}
+
 .commentMeta {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   margin-left: 0.9rem;
+  margin-bottom: 0.7rem;
 }
 
 .commentAuthor {
@@ -810,8 +838,8 @@
   font-weight: 500;
   color: #4e5968;
   line-height: 1.5;
+  white-space: pre-wrap;
   word-break: break-word;
-  margin-bottom: 0.5rem;
 }
 
 .commentMention {
@@ -836,6 +864,7 @@
 .commentFooter {
   display: flex;
   align-items: center;
+  padding: 1.5rem 0 0;
 }
 
 .commentActionButton {
