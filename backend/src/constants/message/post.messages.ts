@@ -6,6 +6,7 @@ export const POST_VALIDATION_MESSAGES = {
   CONTENT_STRING: '내용은 문자열이어야 합니다.',
   CATEGORY_REQUIRED: '카테고리를 선택해주세요.',
   CATEGORY_ID_STRING: '카테고리 ID는 문자열이어야 합니다.',
+  AUTHOR_ID_STRING: '작성자 ID는 문자열이어야 합니다.',
   POST_STATUS_ENUM: '유효한 게시 상태를 선택해주세요.',
   THUMBNAIL_URL_STRING: '썸네일 URL은 문자열이어야 합니다.',
   THUMBNAIL_URL_MAX_LENGTH: '썸네일 URL은 500자 이하여야 합니다.',

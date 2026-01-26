@@ -39,6 +39,10 @@ export class ListPostsQueryDto {
   categoryId?: string;
 
   @IsOptional()
+  @IsString({ message: POST_VALIDATION_MESSAGES.AUTHOR_ID_STRING })
+  authorId?: string;
+
+  @IsOptional()
   @IsIn([PostStatus.DRAFT, PostStatus.PUBLISHED], { message: POST_VALIDATION_MESSAGES.POST_STATUS_ENUM })
   status?: PostStatus;
 

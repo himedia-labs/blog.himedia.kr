@@ -155,6 +155,10 @@ export class PostsService {
       queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
     }
 
+    if (query.authorId) {
+      queryBuilder.andWhere('post.authorId = :authorId', { authorId: query.authorId });
+    }
+
     const [posts, total] = await queryBuilder
       .orderBy(`post.${sort}`, order)
       .skip((page - 1) * limit)

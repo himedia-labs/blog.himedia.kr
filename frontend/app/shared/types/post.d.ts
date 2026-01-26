@@ -57,6 +57,7 @@ export interface PostListQuery {
   page?: number;
   limit?: number;
   categoryId?: string;
+  authorId?: string;
   status?: PostStatus;
   sort?: PostSortOption;
   order?: SortOrder;
