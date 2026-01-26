@@ -22,6 +22,8 @@ export const AUTH_VALIDATION_MESSAGES = {
   COURSE_MAX_LENGTH: '과정명은 255자 이하여야 합니다.',
   PROFILE_BIO_STRING: '자기소개는 문자열이어야 합니다.',
   PROFILE_BIO_MAX_LENGTH: '자기소개는 500자 이하여야 합니다.',
+  PROFILE_IMAGE_URL_STRING: '프로필 이미지 URL은 문자열이어야 합니다.',
+  PROFILE_IMAGE_URL_MAX_LENGTH: '프로필 이미지 URL은 500자 이하여야 합니다.',
   PRIVACY_CONSENT_BOOLEAN: '개인정보 동의는 불리언 값이어야 합니다.',
   PRIVACY_CONSENT_REQUIRED: '개인정보 수집 및 이용에 동의가 필요합니다.',
 } as const;

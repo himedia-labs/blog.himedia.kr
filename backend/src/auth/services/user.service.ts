@@ -1,13 +1,13 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 import { User } from '../entities/user.entity';
 import { ERROR_CODES } from '../../constants/error/error-codes';
 import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
 
-import type { AuthUserProfile } from '../interfaces/user.interface';
+import type { AuthUserProfile, PublicUserProfile } from '../interfaces/user.interface';
 
 /**
  * 사용자 서비스
@@ -100,8 +100,53 @@ export class UserService {
       role: user.role,
       phone: user.phone,
       course: user.course ?? null,
+      profileHandle: user.profileHandle ?? null,
+      profileImageUrl: user.profileImageUrl ?? null,
       profileBio: user.profileBio ?? null,
     };
+  }
+
+  /**
+   * 공개 프로필 조회
+   * @description 프로필 핸들로 공개 프로필 정보 반환
+   */
+  async getPublicProfileByHandle(profileHandle: string): Promise<PublicUserProfile> {
+    const normalized = profileHandle.trim();
+    const user = await this.usersRepository.findOne({
+      where: [{ profileHandle: ILike(normalized) }, { email: ILike(`${normalized}@%`) }],
+    });
+
+    if (!user) {
+      throw new NotFoundException({
+        message: AUTH_ERROR_MESSAGES.USER_NOT_FOUND,
+        code: ERROR_CODES.AUTH_USER_NOT_FOUND,
+      });
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      profileHandle: user.profileHandle ?? null,
+      profileImageUrl: user.profileImageUrl ?? null,
+      profileBio: user.profileBio ?? null,
+    };
+  }
+
+  /**
+   * 프로필 이미지 수정
+   * @description 프로필 이미지 URL을 업데이트
+   */
+  async updateProfileImage(userId: string, profileImageUrl?: string | null): Promise<AuthUserProfile> {
+    const user = await this.getUserByIdOrThrow(userId);
+    if (typeof profileImageUrl === 'undefined') {
+      return this.buildUserProfile(user);
+    }
+
+    const trimmed = profileImageUrl?.trim() ?? '';
+    user.profileImageUrl = trimmed ? trimmed : null;
+    await this.usersRepository.save(user);
+
+    return this.buildUserProfile(user);
   }
 
   // --------------------------- 프로필 수정 ---------------------------

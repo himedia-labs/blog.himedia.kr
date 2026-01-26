@@ -6,6 +6,7 @@ import {
   HttpCode,
   Inject,
   Ip,
+  Param,
   Patch,
   Post,
   Request,
@@ -22,6 +23,7 @@ import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
 import { UpdateProfileBioDto } from './dto/updateProfileBio.dto';
+import { UpdateProfileImageDto } from './dto/updateProfileImage.dto';
 
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
@@ -150,6 +152,26 @@ export class AuthController {
   @Patch('me/profile-bio')
   updateProfileBio(@Body() body: UpdateProfileBioDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
     return this.userService.updateProfileBio(req.user.sub, body.profileBio);
+  }
+
+  /**
+   * 내 정보 수정
+   * @description 프로필 이미지 수정
+   */
+  @UseGuards(JwtGuard)
+  @Patch('me/profile-image')
+  updateProfileImage(@Body() body: UpdateProfileImageDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.userService.updateProfileImage(req.user.sub, body.profileImageUrl);
+  }
+
+  /**
+   * 공개 프로필 조회
+   * @description 프로필 핸들로 공개 프로필 정보 반환
+   */
+  @Get('profile/:handle')
+  getPublicProfile(@Param('handle') handle: string) {
+    const normalizedHandle = (handle.startsWith('@') ? handle.slice(1) : handle).toLowerCase();
+    return this.userService.getPublicProfileByHandle(normalizedHandle);
   }
 
   /**

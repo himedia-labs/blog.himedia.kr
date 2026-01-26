@@ -74,6 +74,12 @@ export class AuthService {
     // Snowflake ID 생성
     const id = this.snowflakeService.generate();
 
+    // 프로필 핸들 생성
+    const baseHandle = registerData.email.split('@')[0]?.trim().toLowerCase() ?? '';
+    const cleanedHandle = baseHandle.replace(/[^a-z0-9._-]/g, '');
+    const seedHandle = cleanedHandle || `user${id.slice(-6)}`;
+    const profileHandle = await this.createUniqueProfileHandle(seedHandle.slice(0, 30));
+
     // 사용자 엔티티 생성
     const userEntity = this.usersRepository.create({
       id,
@@ -82,6 +88,7 @@ export class AuthService {
       phone: formattedPhone,
       role: UserRole.TRAINEE,
       requestedRole,
+      profileHandle,
     });
 
     // DB 저장
@@ -147,5 +154,18 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  // 프로필 핸들 생성
+  private async createUniqueProfileHandle(seedHandle: string): Promise<string> {
+    let candidate = seedHandle;
+    let suffix = 1;
+
+    while (await this.usersRepository.exist({ where: { profileHandle: candidate } })) {
+      candidate = `${seedHandle}${suffix}`;
+      suffix += 1;
+    }
+
+    return candidate;
   }
 }
