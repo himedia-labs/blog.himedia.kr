@@ -4,6 +4,7 @@ import type {
   CreateCommentRequest,
   CreateCommentResponse,
   DeleteCommentResponse,
+  MyCommentListResponse,
   ToggleCommentLikeResponse,
   UpdateCommentRequest,
   UpdateCommentResponse,
@@ -38,10 +39,16 @@ const deleteComment = async (postId: string, commentId: string): Promise<DeleteC
   return res.data;
 };
 
+const getMyComments = async (): Promise<MyCommentListResponse> => {
+  const res = await axiosInstance.get<MyCommentListResponse>('/comments/me');
+  return res.data;
+};
+
 export const commentsApi = {
   getComments,
   createComment,
   toggleCommentLike,
   updateComment,
   deleteComment,
+  getMyComments,
 };

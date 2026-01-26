@@ -24,6 +24,21 @@ export interface CommentItem {
 
 export type CommentListResponse = CommentItem[];
 
+export interface CommentPostRef {
+  id: string;
+  title: string;
+  thumbnailUrl: string | null;
+}
+
+export interface MyCommentItem {
+  id: string;
+  content: string;
+  createdAt: string;
+  post: CommentPostRef | null;
+}
+
+export type MyCommentListResponse = MyCommentItem[];
+
 export interface CreateCommentRequest {
   content: string;
   parentId?: string | null;

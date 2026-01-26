@@ -61,3 +61,14 @@ export class CommentsController {
     return this.commentsService.deleteComment(postId, commentId, req.user.sub);
   }
 }
+
+@Controller('comments')
+export class MyCommentsController {
+  constructor(private readonly commentsService: CommentsService) {}
+
+  @UseGuards(JwtGuard)
+  @Get('me')
+  getMyComments(@Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.commentsService.getCommentsByAuthorId(req.user.sub);
+  }
+}

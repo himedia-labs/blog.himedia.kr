@@ -1,20 +1,30 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
 
-type FollowResponse = {
-  following: boolean;
-};
+import type { FollowListResponse, FollowToggleResponse } from '@/app/shared/types/follow';
 
-const followUser = async (userId: string): Promise<FollowResponse> => {
-  const res = await axiosInstance.post<FollowResponse>(`/follows/${userId}`);
+const followUser = async (userId: string): Promise<FollowToggleResponse> => {
+  const res = await axiosInstance.post<FollowToggleResponse>(`/follows/${userId}`);
   return res.data;
 };
 
-const unfollowUser = async (userId: string): Promise<FollowResponse> => {
-  const res = await axiosInstance.delete<FollowResponse>(`/follows/${userId}`);
+const unfollowUser = async (userId: string): Promise<FollowToggleResponse> => {
+  const res = await axiosInstance.delete<FollowToggleResponse>(`/follows/${userId}`);
+  return res.data;
+};
+
+const getFollowers = async (): Promise<FollowListResponse> => {
+  const res = await axiosInstance.get<FollowListResponse>('/follows/me/followers');
+  return res.data;
+};
+
+const getFollowings = async (): Promise<FollowListResponse> => {
+  const res = await axiosInstance.get<FollowListResponse>('/follows/me/followings');
   return res.data;
 };
 
 export const followsApi = {
   followUser,
   unfollowUser,
+  getFollowers,
+  getFollowings,
 };

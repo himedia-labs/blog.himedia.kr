@@ -110,6 +110,30 @@ export class CommentsService {
     }));
   }
 
+  async getCommentsByAuthorId(userId: string) {
+    const comments = await this.commentsRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.post', 'post')
+      .where('comment.authorId = :userId', { userId })
+      .andWhere('comment.deletedAt IS NULL')
+      .andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
+      .orderBy('comment.createdAt', 'DESC')
+      .getMany();
+
+    return comments.map(comment => ({
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      post: comment.post
+        ? {
+            id: comment.post.id,
+            title: comment.post.title,
+            thumbnailUrl: comment.post.thumbnailUrl ?? null,
+          }
+        : null,
+    }));
+  }
+
   async createComment(postId: string, body: CreateCommentDto, authorId: string) {
     const content = body.content?.trim();
     if (!content) {

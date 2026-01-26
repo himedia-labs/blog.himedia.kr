@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { User } from '../auth/entities/user.entity';
 import { ERROR_CODES } from '../constants/error/error-codes';
@@ -61,5 +61,51 @@ export class FollowsService {
     await this.followsRepository.delete({ followerId, followingId });
 
     return { following: false };
+  }
+
+  async getFollowers(userId: string) {
+    const followers = await this.followsRepository.find({
+      where: { followingId: userId },
+      relations: { follower: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    const followerIds = followers.map(follow => follow.followerId);
+    const mutuals = followerIds.length
+      ? await this.followsRepository.find({
+          where: { followerId: userId, followingId: In(followerIds) },
+        })
+      : [];
+    const mutualSet = new Set(mutuals.map(follow => follow.followingId));
+
+    return followers.map(follow => ({
+      id: follow.follower.id,
+      name: follow.follower.name,
+      role: follow.follower.role,
+      isMutual: mutualSet.has(follow.followerId),
+    }));
+  }
+
+  async getFollowings(userId: string) {
+    const followings = await this.followsRepository.find({
+      where: { followerId: userId },
+      relations: { following: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    const followingIds = followings.map(follow => follow.followingId);
+    const mutuals = followingIds.length
+      ? await this.followsRepository.find({
+          where: { followingId: userId, followerId: In(followingIds) },
+        })
+      : [];
+    const mutualSet = new Set(mutuals.map(follow => follow.followerId));
+
+    return followings.map(follow => ({
+      id: follow.following.id,
+      name: follow.following.name,
+      role: follow.following.role,
+      isMutual: mutualSet.has(follow.followingId),
+    }));
   }
 }
