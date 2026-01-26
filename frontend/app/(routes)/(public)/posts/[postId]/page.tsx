@@ -37,6 +37,7 @@ import {
   splitCommentMentions,
 } from './postDetail.utils';
 
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -495,7 +496,7 @@ export default function PostDetailPage() {
             <div className={styles.thumbnail}>
               <Skeleton height={700} borderRadius={16} />
             </div>
-            <div className={styles.content}>
+            <div className={markdownStyles.markdown}>
               <Skeleton height={16} />
               <Skeleton height={16} />
               <Skeleton height={16} />
@@ -601,7 +602,7 @@ export default function PostDetailPage() {
             </div>
           ) : null}
 
-          <article className={styles.content}>{previewContent}</article>
+          <article className={markdownStyles.markdown}>{previewContent}</article>
 
           <div className={styles.commentDivider} aria-hidden="true" />
           <section aria-label="댓글 작성">

@@ -2,6 +2,7 @@ import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FiEye, FiHeart, FiMail, FiMessageCircle, FiTag } from 'react-icons/fi';
 import { RiTwitterXFill } from 'react-icons/ri';
 
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '../PostCreate.module.css';
 
 import type { PostPreviewProps } from '@/app/shared/types/post';
@@ -62,7 +63,7 @@ export default function PostPreview({
           <div className={styles.previewThumb} style={{ backgroundImage: `url(${thumbnailUrl})` }} />
         </>
       ) : null}
-      <div className={styles.previewContent}>{content}</div>
+      <div className={`${styles.previewContent} ${markdownStyles.markdown}`}>{content}</div>
       {tags.length > 0 ? (
         <div className={styles.previewTags}>
           <span className={styles.previewTagIcon} aria-hidden="true">

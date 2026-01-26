@@ -18,7 +18,6 @@ import styles from '@/app/shared/styles/markdownEditor.module.css';
 
 import type { EditorToolbarProps, ToolbarItem } from '@/app/shared/types/post';
 
-// 에디터 툴바 설정
 const TOOLBAR_ITEMS: ToolbarItem[] = [
   { type: 'heading', level: 1, icon: HiOutlineH1, label: '제목 1' },
   { type: 'heading', level: 2, icon: HiOutlineH2, label: '제목 2' },
@@ -44,7 +43,6 @@ const TOOLBAR_ITEMS: ToolbarItem[] = [
  * @description 마크다운 서식 버튼을 렌더링하고 클릭 이벤트를 연결
  */
 export default function EditorToolbar(handlers: EditorToolbarProps) {
-  // 핸들러 매핑
   const actionsMap = {
     code: handlers.onCode,
     link: handlers.onLink,

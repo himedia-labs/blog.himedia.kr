@@ -8,11 +8,8 @@ import { FiSend } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-import {
-  DEFAULT_AUTHOR_NAME,
-  DEFAULT_CATEGORY_LABEL,
-  DEFAULT_PREVIEW_STATS,
-} from '@/app/shared/constants/config/post.config';
+import { DEFAULT_AUTHOR_NAME, DEFAULT_CATEGORY_LABEL, DEFAULT_PREVIEW_STATS } from '@/app/shared/constants/config/post.config';
+import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 
 import { EditorToolbar, PostPreview, PostDetailsForm } from './components';
 import { renderMarkdownPreview, formatDateLabel } from './postCreate.utils';
@@ -166,7 +163,7 @@ export default function PostCreatePage() {
             }}
           />
 
-          <div className={styles.editorBox}>
+          <div className={markdownEditorStyles.editorBox}>
             <EditorToolbar
               onHeading={handleHeadingClick}
               onBold={() => applyInlineWrap('**')}
@@ -182,18 +179,18 @@ export default function PostCreatePage() {
             />
             <input
               ref={imageInputRef}
-              className={styles.srOnly}
+              className={markdownEditorStyles.srOnly}
               type="file"
               accept="image/*"
               aria-label="이미지 파일 선택"
               onChange={handleImageSelect}
             />
-            <label className={styles.srOnly} htmlFor="post-content">
+            <label className={markdownEditorStyles.srOnly} htmlFor="post-content">
               본문
             </label>
             <textarea
               id="post-content"
-              className={styles.editor}
+              className={markdownEditorStyles.editor}
               placeholder="본문 내용을 입력하세요"
               value={content}
               ref={contentRef}
