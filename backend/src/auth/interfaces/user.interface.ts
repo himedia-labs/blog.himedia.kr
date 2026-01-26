@@ -7,4 +7,5 @@ export interface AuthUserProfile {
   role: UserRole;
   phone: string;
   course: string | null;
+  profileBio: string | null;
 }

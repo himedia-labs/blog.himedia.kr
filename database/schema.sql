@@ -13,6 +13,7 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL CHECK (role IN ('TRAINEE', 'MENTOR', 'INSTRUCTOR', 'ADMIN')),
     requested_role VARCHAR(20) CHECK (requested_role IN ('TRAINEE', 'GRADUATE', 'MENTOR', 'INSTRUCTOR')),
     course VARCHAR(255),
+    profile_bio TEXT,
     privacy_consent BOOLEAN NOT NULL DEFAULT false,
     approved BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -243,6 +244,7 @@ COMMENT ON COLUMN users.phone IS '전화번호';
 COMMENT ON COLUMN users.role IS '역할: TRAINEE(훈련생), MENTOR(멘토), INSTRUCTOR(강사), ADMIN(관리자)';
 COMMENT ON COLUMN users.requested_role IS '가입 시 신청 역할: TRAINEE(훈련생), MENTOR(멘토), INSTRUCTOR(강사)';
 COMMENT ON COLUMN users.course IS '과정명 및 기수';
+COMMENT ON COLUMN users.profile_bio IS '자기소개';
 COMMENT ON COLUMN users.privacy_consent IS '개인정보 수집 및 이용 동의 여부';
 COMMENT ON COLUMN users.approved IS '관리자 승인 여부';
 COMMENT ON COLUMN users.created_at IS '생성 일시';

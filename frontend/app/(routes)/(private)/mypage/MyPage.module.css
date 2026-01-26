@@ -107,6 +107,117 @@
   flex-direction: column;
 }
 
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  min-height: 48px;
+}
+
+.settingsLabel {
+  font-size: 20px;
+  color: #000000;
+  border-bottom: 0.125rem solid #000;
+}
+
+.settingsButton {
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  color: #333d4b;
+  background: #fff;
+  cursor: pointer;
+}
+
+.settingsButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.settingsBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settingsEditorBox {
+  min-height: 35rem;
+}
+
+.settingsEditor {
+  min-height: 35rem;
+}
+
+.settingsActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.settingsCancelButton {
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  color: #4e5968;
+  background: #fff;
+  cursor: pointer;
+}
+
+.settingsCancelButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.settingsSaveButton {
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  color: #333d4b;
+  background: #fff;
+  cursor: pointer;
+}
+
+.settingsSaveButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.settingsEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 8.75rem;
+  justify-content: center;
+}
+
+.settingsText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #4e5968;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: center;
+}
+
+.settingsSubtext {
+  font-size: 0.85rem;
+  color: #9aa4b2;
+  text-align: center;
+}
+
 .commentLink {
   display: block;
   color: inherit;

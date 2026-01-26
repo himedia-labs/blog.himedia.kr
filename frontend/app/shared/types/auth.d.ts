@@ -6,6 +6,7 @@ export interface User {
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   phone: string;
   course?: string | null;
+  profileBio?: string | null;
 }
 
 // Auth Response
@@ -24,6 +25,12 @@ export interface RegisterRequest {
   course?: string;
   privacyConsent: boolean;
 }
+
+export interface UpdateProfileBioRequest {
+  profileBio?: string | null;
+}
+
+export type UpdateProfileBioResponse = User;
 
 
 // Login Request

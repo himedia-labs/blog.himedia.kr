@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -9,7 +9,9 @@ import { useSearchParams } from 'next/navigation';
 import { CiCalendar } from 'react-icons/ci';
 import { FiEdit2, FiEye, FiHeart, FiMessageCircle, FiMoreHorizontal, FiTrash2 } from 'react-icons/fi';
 
+import { useUpdateProfileBioMutation } from '@/app/api/auth/auth.mutations';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import { authKeys } from '@/app/api/auth/auth.keys';
 import { commentsApi } from '@/app/api/comments/comments.api';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
 import { useMyCommentsQuery } from '@/app/api/comments/comments.queries';
@@ -17,10 +19,16 @@ import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows
 import { postsApi } from '@/app/api/posts/posts.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { usePostsQuery } from '@/app/api/posts/posts.queries';
+import { uploadsApi } from '@/app/api/uploads/uploads.api';
+import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
+import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 import styles from './MyPage.module.css';
 
 import type { ChangeEvent, MouseEvent } from 'react';
@@ -58,13 +66,18 @@ type MyPagePostsPanelProps = {
 export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPanelProps) {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const bioEditorRef = useRef<HTMLTextAreaElement | null>(null);
+  const bioImageInputRef = useRef<HTMLInputElement | null>(null);
 
   // 탭 상태
-  const [activeList, setActiveList] = useState<TabKey>(getInitialTab(searchParams.get('tab'), defaultTab));
+  const [profileBio, setProfileBio] = useState('');
   const [editingContent, setEditingContent] = useState('');
+  const [showBioEditor, setShowBioEditor] = useState(false);
+  const [openPostMenuId, setOpenPostMenuId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null);
-  const [openPostMenuId, setOpenPostMenuId] = useState<string | null>(null);
+  const [activeList, setActiveList] = useState<TabKey>(getInitialTab(searchParams.get('tab'), defaultTab));
 
   // 인증 상태
   const { accessToken } = useAuthStore();
@@ -81,9 +94,11 @@ export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPa
 
   // 파생 데이터
   const myComments = myCommentsData ?? [];
+  const userBio = currentUser?.profileBio ?? '';
   const displayName = currentUser?.name ?? '사용자';
   const followerCount = followersData?.length ?? 0;
   const followingCount = followingsData?.length ?? 0;
+  const bioPreview = useMemo(() => renderMarkdownPreview(profileBio), [profileBio]);
   const myPosts = useMemo(() => {
     if (!postsData?.items?.length || !currentUser?.id) return [];
     return postsData.items.filter(item => item.author?.id === currentUser.id && item.status === 'PUBLISHED');
@@ -92,6 +107,10 @@ export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPa
   useEffect(() => {
     setActiveList(getInitialTab(searchParams.get('tab'), defaultTab));
   }, [defaultTab, searchParams]);
+
+  useEffect(() => {
+    setProfileBio(userBio);
+  }, [userBio]);
 
   const { mutateAsync: deleteMyComment, isPending: isDeleting } = useMutation({
     mutationFn: ({ postId, commentId }: { postId: string; commentId: string }) =>
@@ -104,6 +123,7 @@ export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPa
     mutationFn: ({ postId, commentId, content }: { postId: string; commentId: string; content: string }) =>
       commentsApi.updateComment(postId, commentId, { content }),
   });
+  const { mutateAsync: updateMyBio, isPending: isBioUpdating } = useUpdateProfileBioMutation();
 
   const hasEditingLengthError = editingContent.length > 1000;
   const handleCommentMenuToggle = (commentId: string) =>
@@ -117,6 +137,116 @@ export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPa
   const handlePostMenuClick = (event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+  };
+  const handleBioChange = (event: ChangeEvent<HTMLTextAreaElement>) => setProfileBio(event.target.value);
+  const handleBioToggle = () =>
+    setShowBioEditor(prev => {
+      if (prev) setProfileBio(userBio);
+      return !prev;
+    });
+  const setBioValue = (nextValue: string, selectionStart: number, selectionEnd = selectionStart) => {
+    setProfileBio(nextValue);
+    requestAnimationFrame(() => {
+      if (!bioEditorRef.current) return;
+      bioEditorRef.current.focus();
+      bioEditorRef.current.setSelectionRange(selectionStart, selectionEnd);
+    });
+  };
+  const applyInlineWrap = (prefix: string, suffix = prefix, fallback = '텍스트') => {
+    if (!bioEditorRef.current) return;
+    const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+    const selectedText = value.slice(selectionStart, selectionEnd) || fallback;
+    const nextValue = `${value.slice(0, selectionStart)}${prefix}${selectedText}${suffix}${value.slice(selectionEnd)}`;
+    const nextStart = selectionStart + prefix.length;
+    const nextEnd = nextStart + selectedText.length;
+    setBioValue(nextValue, nextStart, nextEnd);
+  };
+  const applyLinePrefix = (prefix: string) => {
+    if (!bioEditorRef.current) return;
+    const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+    const lineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+    const lineEnd = value.indexOf('\n', selectionEnd);
+    const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+    const selectedText = value.slice(lineStart, sliceEnd);
+    const nextText = selectedText
+      .split('\n')
+      .map(line => `${prefix}${line}`)
+      .join('\n');
+    const nextValue = `${value.slice(0, lineStart)}${nextText}${value.slice(sliceEnd)}`;
+    setBioValue(nextValue, lineStart, lineStart + nextText.length);
+  };
+  const applyNumbered = () => {
+    if (!bioEditorRef.current) return;
+    const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+    const lineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+    const lineEnd = value.indexOf('\n', selectionEnd);
+    const sliceEnd = lineEnd === -1 ? value.length : lineEnd;
+    const selectedText = value.slice(lineStart, sliceEnd);
+    const nextText = selectedText
+      .split('\n')
+      .map((line, index) => `${index + 1}. ${line}`)
+      .join('\n');
+    const nextValue = `${value.slice(0, lineStart)}${nextText}${value.slice(sliceEnd)}`;
+    setBioValue(nextValue, lineStart, lineStart + nextText.length);
+  };
+  const applyHeading = (level: 1 | 2 | 3) => applyLinePrefix(`${'#'.repeat(level)} `);
+  const applyQuote = () => applyLinePrefix('> ');
+  const applyBullet = () => applyLinePrefix('- ');
+  const applyCode = () => {
+    if (!bioEditorRef.current) return;
+    const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+    const selectedText = value.slice(selectionStart, selectionEnd);
+    if (selectedText.includes('\n')) {
+      const nextValue = `${value.slice(0, selectionStart)}\n\`\`\`\n${selectedText}\n\`\`\`\n${value.slice(selectionEnd)}`;
+      const cursor = selectionStart + selectedText.length + 8;
+      setBioValue(nextValue, cursor, cursor);
+      return;
+    }
+    applyInlineWrap('`', '`', '코드');
+  };
+  const applyLink = () => {
+    if (!bioEditorRef.current) return;
+    const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+    const selectedText = value.slice(selectionStart, selectionEnd) || '링크 텍스트';
+    const nextValue = `${value.slice(0, selectionStart)}[${selectedText}](url)${value.slice(selectionEnd)}`;
+    const nextStart = selectionStart + selectedText.length + 3;
+    const nextEnd = nextStart + 3;
+    setBioValue(nextValue, nextStart, nextEnd);
+  };
+  const handleBioImageClick = () => {
+    bioImageInputRef.current?.click();
+  };
+  const handleBioImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const { url } = await uploadsApi.uploadImage(file);
+      if (!bioEditorRef.current) return;
+      const { selectionStart, selectionEnd, value } = bioEditorRef.current;
+      const nextValue = `${value.slice(0, selectionStart)}![이미지](${url})${value.slice(selectionEnd)}`;
+      const cursor = selectionStart + url.length + 6;
+      setBioValue(nextValue, cursor, cursor);
+      showToast({ message: '이미지가 삽입되었습니다.', type: 'success' });
+    } catch {
+      showToast({ message: '이미지 업로드에 실패했습니다.', type: 'error' });
+    } finally {
+      if (event.target) event.target.value = '';
+    }
+  };
+  const handleBioSave = async () => {
+    if (isBioUpdating) return;
+    if (profileBio === userBio) {
+      showToast({ message: '변경된 내용이 없습니다.', type: 'info' });
+      return;
+    }
+    try {
+      await updateMyBio({ profileBio });
+      await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
+      showToast({ message: '자기소개가 저장되었습니다.', type: 'success' });
+      setShowBioEditor(false);
+    } catch {
+      showToast({ message: '자기소개 저장에 실패했습니다.', type: 'error' });
+    }
   };
   const handlePostEdit = (postId: string) => {
     window.location.href = `/posts/new?draftId=${postId}`;
@@ -199,7 +329,78 @@ export default function MyPagePostsPanel({ defaultTab = 'posts' }: MyPagePostsPa
       <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.content}>
-        {activeList === 'settings' ? null : activeList === 'posts' ? (
+        {activeList === 'settings' ? (
+          <div className={styles.settingsSection}>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsLabel}>소개</span>
+              {!showBioEditor ? (
+                <button type="button" className={styles.settingsButton} onClick={handleBioToggle}>
+                  {userBio ? '수정하기' : '작성하기'}
+                </button>
+              ) : null}
+            </div>
+            {showBioEditor ? (
+              <div className={styles.settingsBody}>
+                <div className={`${markdownEditorStyles.editorBox} ${styles.settingsEditorBox}`}>
+                  <EditorToolbar
+                    onHeading={applyHeading}
+                    onBold={() => applyInlineWrap('**')}
+                    onItalic={() => applyInlineWrap('_')}
+                    onUnderline={() => applyInlineWrap('<u>', '</u>')}
+                    onStrike={() => applyInlineWrap('~~')}
+                    onQuote={applyQuote}
+                    onCode={applyCode}
+                    onLink={applyLink}
+                    onImage={handleBioImageClick}
+                    onBullet={applyBullet}
+                    onNumbered={applyNumbered}
+                  />
+                  <input
+                    ref={bioImageInputRef}
+                    className={markdownEditorStyles.srOnly}
+                    type="file"
+                    accept="image/*"
+                    aria-label="자기소개 이미지 선택"
+                    onChange={handleBioImageSelect}
+                  />
+                  <label className={markdownEditorStyles.srOnly} htmlFor="profile-bio">
+                    자기소개
+                  </label>
+                  <textarea
+                    ref={bioEditorRef}
+                    id="profile-bio"
+                    className={`${markdownEditorStyles.editor} ${styles.settingsEditor}`}
+                    placeholder="자기소개를 입력하세요."
+                    value={profileBio}
+                    maxLength={500}
+                    onChange={handleBioChange}
+                    disabled={isBioUpdating}
+                  />
+                </div>
+                <div className={styles.settingsActions}>
+                  <button type="button" className={styles.settingsCancelButton} onClick={handleBioToggle}>
+                    닫기
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.settingsSaveButton}
+                    onClick={handleBioSave}
+                    disabled={isBioUpdating}
+                  >
+                    저장
+                  </button>
+                </div>
+              </div>
+            ) : profileBio ? (
+              <div className={markdownStyles.markdown}>{bioPreview}</div>
+            ) : (
+              <div className={styles.settingsEmpty}>
+                <p className={styles.settingsText}>아직 작성된 소개가 없습니다.</p>
+                <span className={styles.settingsSubtext}>자기소개를 작성하면 내 블로그 상단에 노출됩니다.</span>
+              </div>
+            )}
+          </div>
+        ) : activeList === 'posts' ? (
           myPosts.length ? (
             <ul className={styles.listView}>
               {myPosts.map((post, index) => (

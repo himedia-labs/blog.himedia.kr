@@ -6,6 +6,7 @@ import {
   HttpCode,
   Inject,
   Ip,
+  Patch,
   Post,
   Request,
   Response,
@@ -20,6 +21,7 @@ import { ChangePasswordDto } from './dto/changePassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
 import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
+import { UpdateProfileBioDto } from './dto/updateProfileBio.dto';
 
 import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
@@ -138,6 +140,16 @@ export class AuthController {
   @Get('me')
   me(@Request() req: ExpressRequest & { user: JwtPayload }) {
     return this.userService.getProfileById(req.user.sub);
+  }
+
+  /**
+   * 내 정보 수정
+   * @description 자기소개 수정
+   */
+  @UseGuards(JwtGuard)
+  @Patch('me/profile-bio')
+  updateProfileBio(@Body() body: UpdateProfileBioDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.userService.updateProfileBio(req.user.sub, body.profileBio);
   }
 
   /**

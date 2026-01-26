@@ -7,6 +7,8 @@ import {
   ResetPasswordResponse,
   SendResetCodeRequest,
   SendResetCodeResponse,
+  UpdateProfileBioRequest,
+  UpdateProfileBioResponse,
   User,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
@@ -47,6 +49,12 @@ const getCurrentUser = async (): Promise<User> => {
   return axiosInstance.get<User>('/auth/me').then(res => res.data);
 };
 
+// 자기소개 수정
+const updateProfileBio = async (payload: UpdateProfileBioRequest): Promise<UpdateProfileBioResponse> => {
+  const res = await axiosInstance.patch<UpdateProfileBioResponse>('/auth/me/profile-bio', payload);
+  return res.data;
+};
+
 // 로그아웃
 const logout = async (): Promise<void> => {
   await axiosInstance.post('/auth/logout');
@@ -59,5 +67,6 @@ export const authApi = {
   verifyResetCode,
   resetPassword,
   getCurrentUser,
+  updateProfileBio,
   logout,
 };

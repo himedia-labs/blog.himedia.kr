@@ -100,6 +100,26 @@ export class UserService {
       role: user.role,
       phone: user.phone,
       course: user.course ?? null,
+      profileBio: user.profileBio ?? null,
     };
+  }
+
+  // --------------------------- 프로필 수정 ---------------------------
+
+  /**
+   * 프로필 수정
+   * @description 사용자 자기소개를 업데이트
+   */
+  async updateProfileBio(userId: string, profileBio?: string | null): Promise<AuthUserProfile> {
+    const user = await this.getUserByIdOrThrow(userId);
+    if (typeof profileBio === 'undefined') {
+      return this.buildUserProfile(user);
+    }
+
+    const trimmed = profileBio?.trim() ?? '';
+    user.profileBio = trimmed ? trimmed : null;
+    await this.usersRepository.save(user);
+
+    return this.buildUserProfile(user);
   }
 }

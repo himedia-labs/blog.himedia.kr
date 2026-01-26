@@ -9,6 +9,8 @@ import {
   ResetPasswordResponse,
   SendResetCodeRequest,
   SendResetCodeResponse,
+  UpdateProfileBioRequest,
+  UpdateProfileBioResponse,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
 } from '@/app/shared/types/auth';
@@ -45,6 +47,13 @@ export const useVerifyResetCodeMutation = () => {
 export const useResetPasswordMutation = () => {
   return useMutation<ResetPasswordResponse, Error, ResetPasswordRequest>({
     mutationFn: authApi.resetPassword,
+  });
+};
+
+// 자기소개 수정
+export const useUpdateProfileBioMutation = () => {
+  return useMutation<UpdateProfileBioResponse, Error, UpdateProfileBioRequest>({
+    mutationFn: authApi.updateProfileBio,
   });
 };
 
