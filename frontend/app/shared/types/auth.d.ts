@@ -25,6 +25,13 @@ export interface UpdateProfileImageRequest {
 
 export type UpdateProfileImageResponse = User;
 
+export interface UpdateProfileRequest {
+  name?: string | null;
+  profileHandle?: string | null;
+}
+
+export type UpdateProfileResponse = User;
+
 // Auth Response
 export interface AuthResponse {
   accessToken: string;

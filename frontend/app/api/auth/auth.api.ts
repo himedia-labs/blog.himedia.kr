@@ -11,6 +11,8 @@ import {
   UpdateProfileBioResponse,
   UpdateProfileImageRequest,
   UpdateProfileImageResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
   PublicProfile,
   User,
   VerifyResetCodeRequest,
@@ -70,6 +72,12 @@ const updateProfileImage = async (payload: UpdateProfileImageRequest): Promise<U
   return res.data;
 };
 
+// 프로필 수정
+const updateProfile = async (payload: UpdateProfileRequest): Promise<UpdateProfileResponse> => {
+  const res = await axiosInstance.patch<UpdateProfileResponse>('/auth/me/profile', payload);
+  return res.data;
+};
+
 // 로그아웃
 const logout = async (): Promise<void> => {
   await axiosInstance.post('/auth/logout');
@@ -85,5 +93,6 @@ export const authApi = {
   getProfileByHandle,
   updateProfileBio,
   updateProfileImage,
+  updateProfile,
   logout,
 };
