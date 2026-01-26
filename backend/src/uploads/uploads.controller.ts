@@ -89,4 +89,37 @@ export class UploadsController {
 
     return this.uploadsService.uploadImage(file, req.user.sub);
   }
+
+  @UseGuards(JwtGuard)
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: MAX_IMAGE_SIZE },
+      fileFilter: (_req, file, callback) => {
+        if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
+          return callback(
+            new BadRequestException({
+              message: '이미지 파일만 업로드할 수 있습니다.',
+              code: ERROR_CODES.VALIDATION_FAILED,
+            }),
+            false,
+          );
+        }
+        return callback(null, true);
+      },
+    }),
+  )
+  uploadAvatar(
+    @UploadedFile() file: UploadedFilePayload | undefined,
+    @Request() req: ExpressRequest & { user: JwtPayload },
+  ) {
+    if (!file) {
+      throw new BadRequestException({
+        message: '이미지 파일을 선택해주세요.',
+        code: ERROR_CODES.VALIDATION_FAILED,
+      });
+    }
+
+    return this.uploadsService.uploadAvatar(file, req.user.sub);
+  }
 }

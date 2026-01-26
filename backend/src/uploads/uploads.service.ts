@@ -64,4 +64,8 @@ export class UploadsService {
   async uploadImage(file: UploadedFilePayload, userId: string) {
     return this.uploadImageFile(file, userId, 'images');
   }
+
+  async uploadAvatar(file: UploadedFilePayload, userId: string) {
+    return this.uploadImageFile(file, userId, 'avatars');
+  }
 }
