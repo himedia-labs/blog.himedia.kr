@@ -8,10 +8,11 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { CiUser, CiFileOn, CiLogin, CiLogout, CiMenuBurger } from 'react-icons/ci';
-import { PiUserCircleThin } from 'react-icons/pi';
+import { FaUser } from 'react-icons/fa6';
 import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
 import {
   useMarkNotificationReadMutation,
@@ -105,6 +106,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   // - accessToken: 클라이언트 토큰 상태
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
 
+  const { data: currentUser } = useCurrentUserQuery();
+
   const { data: notificationsData } = useNotificationsQuery({ enabled: isLoggedIn });
 
   // 파생 상태
@@ -115,6 +118,8 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const notifications = notificationsData?.items ?? [];
   const unreadCount = notificationsData?.unreadCount ?? 0;
   const hasUnread = unreadCount > 0;
+  const profileHandle = currentUser?.profileHandle ?? currentUser?.email?.split('@')[0] ?? '';
+  const profileLink = profileHandle ? `/@${profileHandle}` : '/mypage';
   const filteredNotifications = useMemo(
     () =>
       notifications
@@ -270,7 +275,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
           <ul>
             {HeaderConfig.navItems.map(item => {
               if (item.isAuthDependent) {
-                const Icon = isLoggedIn ? PiUserCircleThin : CiLogin;
+                const Icon = isLoggedIn ? FaUser : CiLogin;
                 const label = isLoggedIn ? '프로필' : '로그인';
 
                 return (
@@ -286,7 +291,11 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           title={label}
                           onClick={toggleProfileMenu}
                         >
-                          <Icon aria-hidden="true" focusable="false" />
+                          {currentUser?.profileImageUrl ? (
+                            <img className={styles.profileIconImage} src={currentUser.profileImageUrl} alt="" />
+                          ) : (
+                            <Icon aria-hidden="true" focusable="false" />
+                          )}
                         </button>
                         {isProfileVisible ? (
                           <div
@@ -305,7 +314,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               마이페이지
                             </Link>
                             <Link
-                              href="/mypage/posts"
+                              href={profileLink}
                               className={styles.profileItem}
                               role="menuitem"
                               onClick={closeProfileMenu}

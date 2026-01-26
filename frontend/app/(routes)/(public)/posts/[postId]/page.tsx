@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation';
 
 import NumberFlow from '@number-flow/react';
 import { FaHeart } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa6';
 import {
   FiClock,
   FiEdit2,
@@ -191,7 +192,13 @@ export default function PostDetailPage() {
           <div className={styles.commentHeaderRow}>
             <div className={styles.commentProfile}>
               <div className={styles.commentAvatarGroup}>
-                <span className={styles.commentAvatar} aria-hidden="true" />
+                <span className={styles.commentAvatar} aria-hidden="true">
+                  {comment.author?.profileImageUrl ? (
+                    <img className={styles.commentAvatarImage} src={comment.author.profileImageUrl} alt="" />
+                  ) : (
+                    <FaUser />
+                  )}
+                </span>
                 {isAuthor ? <span className={styles.commentAuthorText}>작성자</span> : null}
               </div>
               <div className={styles.commentMeta}>
@@ -386,7 +393,13 @@ export default function PostDetailPage() {
                 <span className={styles.commentInlineIcon} aria-hidden="true">
                   <FiCornerDownRight />
                 </span>
-                <span className={styles.commentAvatar} aria-hidden="true" />
+                <span className={styles.commentAvatar} aria-hidden="true">
+                  {comment.author?.profileImageUrl ? (
+                    <img className={styles.commentAvatarImage} src={comment.author.profileImageUrl} alt="" />
+                  ) : (
+                    <FaUser />
+                  )}
+                </span>
                 <div className={styles.commentInlineBody}>
                   <div className={styles.commentTextareaWrapper}>
                     <div

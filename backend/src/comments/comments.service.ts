@@ -98,11 +98,12 @@ export class CommentsService {
       isOwner: userId ? comment.authorId === userId : false,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
-      author: comment.author
+          author: comment.author
         ? {
             id: comment.author.id,
             name: comment.author.name,
             role: comment.author.role,
+            profileImageUrl: comment.author.profileImageUrl ?? null,
             followerCount: followerCountMap.get(comment.author.id) ?? 0,
             isFollowing: followingMap.get(comment.author.id) ?? false,
           }

@@ -541,9 +541,24 @@
   height: 30px;
   border-radius: 50%;
   background: #e9edf4;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid #d0d7de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.commentAvatar :global(svg) {
+  width: 12px;
+  height: 12px;
+  color: #6b7280;
+}
+
+.commentAvatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
 .commentAuthorText {
   font-size: 10px;
   font-weight: bold;
