@@ -176,6 +176,10 @@ export interface UpdatePostResponse {
   id: string;
 }
 
+export interface DeletePostResponse {
+  id: string;
+}
+
 export interface PostTagRef {
   id: string;
   name: string;

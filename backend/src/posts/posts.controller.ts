@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Request, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, Response, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 
@@ -72,6 +72,12 @@ export class PostsController {
     @Request() req: ExpressRequest & { user: JwtPayload },
   ) {
     return this.postsService.updatePost(postId, body, req.user.sub);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':postId')
+  deletePost(@Param('postId') postId: string, @Request() req: ExpressRequest & { user: JwtPayload }) {
+    return this.postsService.deletePost(postId, req.user.sub);
   }
 
   @Get(':postId')

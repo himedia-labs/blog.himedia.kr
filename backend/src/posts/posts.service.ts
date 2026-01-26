@@ -460,6 +460,24 @@ export class PostsService {
     });
   }
 
+  async deletePost(postId: string, authorId: string) {
+    const post = await this.postsRepository.findOne({
+      where: { id: postId, authorId },
+      select: { id: true },
+    });
+
+    if (!post) {
+      const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
+      throw new NotFoundException({
+        message: POST_ERROR_MESSAGES.POST_NOT_FOUND,
+        code,
+      });
+    }
+
+    await this.postsRepository.delete({ id: postId, authorId });
+    return { id: postId };
+  }
+
   async getPostDetail(postId: string, userId?: string | null) {
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.PUBLISHED },

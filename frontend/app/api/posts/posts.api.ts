@@ -2,6 +2,7 @@ import { axiosInstance } from '@/app/shared/network/axios.instance';
 import type {
   CreatePostRequest,
   CreatePostResponse,
+  DeletePostResponse,
   PostDetailResponse,
   PostLikeResponse,
   PostListQuery,
@@ -66,6 +67,12 @@ const updatePost = async (payload: UpdatePostRequest): Promise<UpdatePostRespons
   return res.data;
 };
 
+// 게시물 삭제
+const deletePost = async (postId: string): Promise<DeletePostResponse> => {
+  const res = await axiosInstance.delete<DeletePostResponse>(`/posts/${postId}`);
+  return res.data;
+};
+
 export const postsApi = {
   getPosts,
   createPost,
@@ -76,4 +83,5 @@ export const postsApi = {
   viewPost,
   likePost,
   updatePost,
+  deletePost,
 };
