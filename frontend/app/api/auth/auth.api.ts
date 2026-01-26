@@ -9,6 +9,9 @@ import {
   SendResetCodeResponse,
   UpdateProfileBioRequest,
   UpdateProfileBioResponse,
+  UpdateProfileImageRequest,
+  UpdateProfileImageResponse,
+  PublicProfile,
   User,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
@@ -49,9 +52,21 @@ const getCurrentUser = async (): Promise<User> => {
   return axiosInstance.get<User>('/auth/me').then(res => res.data);
 };
 
+// 공개 프로필 조회
+const getProfileByHandle = async (handle: string): Promise<PublicProfile> => {
+  const encoded = encodeURIComponent(handle);
+  return axiosInstance.get<PublicProfile>(`/auth/profile/${encoded}`).then(res => res.data);
+};
+
 // 자기소개 수정
 const updateProfileBio = async (payload: UpdateProfileBioRequest): Promise<UpdateProfileBioResponse> => {
   const res = await axiosInstance.patch<UpdateProfileBioResponse>('/auth/me/profile-bio', payload);
+  return res.data;
+};
+
+// 프로필 이미지 수정
+const updateProfileImage = async (payload: UpdateProfileImageRequest): Promise<UpdateProfileImageResponse> => {
+  const res = await axiosInstance.patch<UpdateProfileImageResponse>('/auth/me/profile-image', payload);
   return res.data;
 };
 
@@ -67,6 +82,8 @@ export const authApi = {
   verifyResetCode,
   resetPassword,
   getCurrentUser,
+  getProfileByHandle,
   updateProfileBio,
+  updateProfileImage,
   logout,
 };

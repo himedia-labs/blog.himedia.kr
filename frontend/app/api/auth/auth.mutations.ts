@@ -11,6 +11,8 @@ import {
   SendResetCodeResponse,
   UpdateProfileBioRequest,
   UpdateProfileBioResponse,
+  UpdateProfileImageRequest,
+  UpdateProfileImageResponse,
   VerifyResetCodeRequest,
   VerifyResetCodeResponse,
 } from '@/app/shared/types/auth';
@@ -54,6 +56,13 @@ export const useResetPasswordMutation = () => {
 export const useUpdateProfileBioMutation = () => {
   return useMutation<UpdateProfileBioResponse, Error, UpdateProfileBioRequest>({
     mutationFn: authApi.updateProfileBio,
+  });
+};
+
+// 프로필 이미지 수정
+export const useUpdateProfileImageMutation = () => {
+  return useMutation<UpdateProfileImageResponse, Error, UpdateProfileImageRequest>({
+    mutationFn: authApi.updateProfileImage,
   });
 };
 

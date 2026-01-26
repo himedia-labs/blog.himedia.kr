@@ -6,8 +6,24 @@ export interface User {
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
   phone: string;
   course?: string | null;
+  profileHandle?: string | null;
+  profileImageUrl?: string | null;
   profileBio?: string | null;
 }
+
+export interface PublicProfile {
+  id: string;
+  name: string;
+  profileHandle?: string | null;
+  profileImageUrl?: string | null;
+  profileBio?: string | null;
+}
+
+export interface UpdateProfileImageRequest {
+  profileImageUrl?: string | null;
+}
+
+export type UpdateProfileImageResponse = User;
 
 // Auth Response
 export interface AuthResponse {

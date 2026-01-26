@@ -23,7 +23,19 @@ const uploadImage = async (file: File): Promise<UploadThumbnailResponse> => {
   return res.data;
 };
 
+// 프로필 이미지 업로드
+const uploadAvatar = async (file: File): Promise<UploadThumbnailResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await axiosInstance.post<UploadThumbnailResponse>('/uploads/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data;
+};
+
 export const uploadsApi = {
   uploadThumbnail,
   uploadImage,
+  uploadAvatar,
 };
