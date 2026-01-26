@@ -305,7 +305,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               마이페이지
                             </Link>
                             <Link
-                              href="/my-blog"
+                              href="/mypage/posts"
                               className={styles.profileItem}
                               role="menuitem"
                               onClick={closeProfileMenu}
