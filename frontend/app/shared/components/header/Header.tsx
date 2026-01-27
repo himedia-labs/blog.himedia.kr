@@ -112,7 +112,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
 
   // 파생 상태
   const isPostDetail = usePostDetailPath(pathname);
-  const scrollProgress = useScrollProgress(isPostDetail);
+  const scrollProgress = useScrollProgress(isPostDetail, '[data-scroll-progress-end="post-content"]');
 
   // 알림 상태
   const notifications = notificationsData?.items ?? [];

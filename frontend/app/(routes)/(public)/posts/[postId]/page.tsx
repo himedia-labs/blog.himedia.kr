@@ -615,7 +615,9 @@ export default function PostDetailPage() {
             </div>
           ) : null}
 
-          <article className={markdownStyles.markdown}>{previewContent}</article>
+          <article className={markdownStyles.markdown} data-scroll-progress-end="post-content">
+            {previewContent}
+          </article>
 
           <div className={styles.commentDivider} aria-hidden="true" />
           <section aria-label="댓글 작성">
