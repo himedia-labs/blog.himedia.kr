@@ -90,6 +90,7 @@ export interface PostListItem {
   createdAt: string;
   publishedAt: string | null;
   category: PostCategoryRef | null;
+  tags?: PostTagRef[];
   author: PostAuthorRef | null;
 }
 

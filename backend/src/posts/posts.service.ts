@@ -130,10 +130,13 @@ export class PostsService {
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.category', 'category')
       .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.postTags', 'postTags')
+      .leftJoinAndSelect('postTags.tag', 'tag')
       .loadRelationCountAndMap('post.commentCount', 'post.comments', 'comment', qb =>
         qb.andWhere('comment.deletedAt IS NULL'),
       )
-      .where('post.status = :status', { status });
+      .where('post.status = :status', { status })
+      .distinct(true);
 
     // 피드 조건
     if (feed === 'following') {
@@ -179,6 +182,7 @@ export class PostsService {
         createdAt: post.createdAt,
         publishedAt: post.publishedAt,
         category: post.category ? { id: post.category.id, name: post.category.name } : null,
+        tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
         author: post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null,
       })),
       page,
