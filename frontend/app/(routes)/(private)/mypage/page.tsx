@@ -663,6 +663,7 @@ export default function MyPage() {
                       {sortedComments.map((comment, index) => {
                         const postId = comment.post?.id ?? '';
                         const postTitle = comment.post?.title ?? '게시글 없음';
+                        const commentLabel = comment.parentId ? '남긴 대댓글' : '남긴 댓글';
                         const commentLink = postId ? `/posts/${postId}#comment-${comment.id}` : '';
                         const commentDate = formatDateTimeLabel(comment.createdAt);
                         const isEditing = editingCommentId === comment.id;
@@ -690,7 +691,9 @@ export default function MyPage() {
                                           </span>
                                         </div>
                                         <div className={commentStyles.commentMeta}>
-                                          <span className={commentStyles.commentAuthor}>‘{postTitle}’에 남긴 글</span>
+                                          <span className={commentStyles.commentAuthor}>
+                                            ‘{postTitle}’에 {commentLabel}
+                                          </span>
                                           <span className={commentStyles.commentDate}>{commentDate}</span>
                                         </div>
                                       </div>
@@ -831,7 +834,9 @@ export default function MyPage() {
                                         </span>
                                       </div>
                                       <div className={commentStyles.commentMeta}>
-                                        <span className={commentStyles.commentAuthor}>‘{postTitle}’에 남긴 글</span>
+                                        <span className={commentStyles.commentAuthor}>
+                                          ‘{postTitle}’에 {commentLabel}
+                                        </span>
                                         <span className={commentStyles.commentDate}>{commentDate}</span>
                                       </div>
                                     </div>

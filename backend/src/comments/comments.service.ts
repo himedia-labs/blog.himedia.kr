@@ -145,6 +145,7 @@ export class CommentsService {
       createdAt: comment.createdAt,
       likeCount: comment.likeCount,
       replyCount: replyCountMap.get(comment.id) ?? 0,
+      parentId: comment.parentId,
       post: comment.post
         ? {
             id: comment.post.id,
