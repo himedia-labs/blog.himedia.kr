@@ -3,7 +3,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 
-import { useUpdateProfileBioMutation, useUpdateProfileImageMutation, useUpdateProfileMutation } from '@/app/api/auth/auth.mutations';
+import {
+  useUpdateProfileBioMutation,
+  useUpdateProfileImageMutation,
+  useUpdateProfileMutation,
+} from '@/app/api/auth/auth.mutations';
 import { authKeys } from '@/app/api/auth/auth.keys';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { commentsApi } from '@/app/api/comments/comments.api';
@@ -81,6 +85,43 @@ export const useMyPageData = () => {
   };
 };
 
+// 내 블로그 사이드바 훅
+export const usePostSidebarData = (posts: PostListItem[]) => {
+  // 카테고리 목록
+  const categories = useMemo(() => {
+    const counter = new Map<string, { id: string; name: string; count: number }>();
+    posts.forEach(post => {
+      const category = post.category;
+      if (!category) return;
+      const existing = counter.get(category.id);
+      if (existing) {
+        existing.count += 1;
+        return;
+      }
+      counter.set(category.id, { id: category.id, name: category.name, count: 1 });
+    });
+    return Array.from(counter.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [posts]);
+
+  // 태그 목록
+  const tags = useMemo(() => {
+    const counter = new Map<string, { id: string; name: string; count: number }>();
+    posts.forEach(post => {
+      post.tags?.forEach(tag => {
+        const existing = counter.get(tag.id);
+        if (existing) {
+          existing.count += 1;
+          return;
+        }
+        counter.set(tag.id, { id: tag.id, name: tag.name, count: 1 });
+      });
+    });
+    return Array.from(counter.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [posts]);
+
+  return { categories, tags };
+};
+
 export type ActivitySortKey = 'latest' | 'popular';
 
 // 활동 정렬 훅
@@ -102,6 +143,14 @@ export const useActivitySort = (posts: PostListItem[], comments: MyCommentItem[]
   // 댓글 정렬
   const sortedComments = useMemo(() => {
     const list = [...comments];
+    if (sortKey === 'popular') {
+      return list.sort(
+        (a, b) =>
+          b.likeCount - a.likeCount ||
+          b.replyCount - a.replyCount ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    }
     return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [comments, sortKey]);
 

@@ -35,6 +35,8 @@ export interface MyCommentItem {
   id: string;
   content: string;
   createdAt: string;
+  likeCount: number;
+  replyCount: number;
   post: CommentPostRef | null;
 }
 

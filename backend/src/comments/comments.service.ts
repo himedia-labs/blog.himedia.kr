@@ -121,10 +121,30 @@ export class CommentsService {
       .orderBy('comment.createdAt', 'DESC')
       .getMany();
 
+    const commentIds = comments.map(comment => comment.id);
+    const replyCountMap = new Map<string, number>();
+
+    if (commentIds.length > 0) {
+      const replyCounts = await this.commentsRepository
+        .createQueryBuilder('reply')
+        .select('reply.parentId', 'parentId')
+        .addSelect('COUNT(*)', 'count')
+        .where('reply.parentId IN (:...commentIds)', { commentIds })
+        .andWhere('reply.deletedAt IS NULL')
+        .groupBy('reply.parentId')
+        .getRawMany<{ parentId: string; count: string }>();
+
+      replyCounts.forEach(row => {
+        replyCountMap.set(row.parentId, Number(row.count));
+      });
+    }
+
     return comments.map(comment => ({
       id: comment.id,
       content: comment.content,
       createdAt: comment.createdAt,
+      likeCount: comment.likeCount,
+      replyCount: replyCountMap.get(comment.id) ?? 0,
       post: comment.post
         ? {
             id: comment.post.id,
