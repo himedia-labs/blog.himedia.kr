@@ -16,18 +16,18 @@ import { useMyCommentsQuery } from '@/app/api/comments/comments.queries';
 import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows.queries';
 import { postsApi } from '@/app/api/posts/posts.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
-import { usePostsQuery } from '@/app/api/posts/posts.queries';
+import { useLikedPostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
 import { uploadsApi } from '@/app/api/uploads/uploads.api';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
-import { getInitialTab } from './mypage.utils';
+import { getInitialTab, sortPostsByKey } from './mypage.utils';
 
 import type { ChangeEvent } from 'react';
 import type { MyCommentItem } from '@/app/shared/types/comment';
 import type { PostListItem } from '@/app/shared/types/post';
-import type { TabKey } from './mypage.utils';
+import type { ActivitySortKey, TabKey } from './mypage.utils';
 
 // 마이페이지 탭 훅
 export const useMyPageTab = (defaultTab: TabKey) => {
@@ -53,6 +53,10 @@ export const useMyPageData = () => {
   const { data: followersData } = useFollowersQuery({ enabled: Boolean(accessToken) });
   const { data: followingsData } = useFollowingsQuery({ enabled: Boolean(accessToken) });
   const { data: myCommentsData } = useMyCommentsQuery({ enabled: Boolean(accessToken) });
+  const { data: likedPostsData } = useLikedPostsQuery(
+    { sort: 'createdAt', order: 'DESC', limit: 30 },
+    { enabled: Boolean(accessToken) },
+  );
   const { data: postsData } = usePostsQuery(
     { sort: 'createdAt', order: 'DESC', limit: 30 },
     { enabled: Boolean(accessToken) },
@@ -60,9 +64,12 @@ export const useMyPageData = () => {
 
   // 파생 데이터
   const myComments = myCommentsData ?? [];
+  const likedPosts = likedPostsData?.items ?? [];
   const userBio = currentUser?.profileBio ?? '';
   const profileImageUrl = currentUser?.profileImageUrl ?? '';
   const displayName = currentUser?.name ?? '사용자';
+  const userEmail = currentUser?.email ?? '';
+  const userPhone = currentUser?.phone ?? '';
   const profileHandle = currentUser?.profileHandle ?? currentUser?.email?.split('@')[0] ?? '';
   const followerCount = followersData?.length ?? 0;
   const followingCount = followingsData?.length ?? 0;
@@ -77,6 +84,9 @@ export const useMyPageData = () => {
     displayName,
     followerCount,
     followingCount,
+    userEmail,
+    userPhone,
+    likedPosts,
     myComments,
     myPosts,
     profileImageUrl,
@@ -122,8 +132,6 @@ export const usePostSidebarData = (posts: PostListItem[]) => {
   return { categories, tags };
 };
 
-export type ActivitySortKey = 'latest' | 'popular';
-
 // 활동 정렬 훅
 export const useActivitySort = (posts: PostListItem[], comments: MyCommentItem[]) => {
   // 정렬 상태
@@ -131,13 +139,7 @@ export const useActivitySort = (posts: PostListItem[], comments: MyCommentItem[]
 
   // 게시글 정렬
   const sortedPosts = useMemo(() => {
-    const list = [...posts];
-    if (sortKey === 'popular') {
-      return list.sort((a, b) => b.likeCount - a.likeCount || b.viewCount - a.viewCount);
-    }
-    return list.sort(
-      (a, b) => new Date(b.publishedAt ?? b.createdAt).getTime() - new Date(a.publishedAt ?? a.createdAt).getTime(),
-    );
+    return sortPostsByKey(posts, sortKey);
   }, [posts, sortKey]);
 
   // 댓글 정렬

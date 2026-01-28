@@ -37,7 +37,7 @@ import {
   useProfileEditor,
   useProfileImageEditor,
 } from './mypage.hooks';
-import { formatDateLabel, formatDateTimeLabel, formatSummary } from './mypage.utils';
+import { formatDateLabel, formatDateTimeLabel, formatSummary, sortPostsByKey } from './mypage.utils';
 import styles from './MyPage.module.css';
 
 export default function MyPage() {
@@ -50,8 +50,11 @@ export default function MyPage() {
     displayName,
     followerCount,
     followingCount,
+    likedPosts,
     myComments,
     myPosts,
+    userEmail,
+    userPhone,
     profileHandle,
     profileImageUrl,
     userBio,
@@ -61,6 +64,7 @@ export default function MyPage() {
   const { sortKey, sortedPosts, sortedComments, handleSortChange } = useActivitySort(myPosts, myComments);
   const handleSortToggle = () => handleSortChange(sortKey === 'latest' ? 'popular' : 'latest');
   const { categories: postCategories, tags: postTags } = usePostSidebarData(myPosts);
+  const sortedLikedPosts = useMemo(() => sortPostsByKey(likedPosts, sortKey), [likedPosts, sortKey]);
 
   // 프로필 편집
   const {
@@ -619,23 +623,46 @@ export default function MyPage() {
                 <div className={styles.settingsRow}>
                   <span className={styles.settingsLabel}>계정 설정</span>
                 </div>
-                <div className={styles.settingsBlock}>
-                  <div className={styles.settingsBlockTitle}>기본 정보</div>
-                  <div className={styles.settingsGroup}>
-                    <div className={styles.settingsItem}>
-                      <div className={styles.settingsItemLabel}>비밀번호</div>
-                      <button type="button" className={styles.settingsButton}>
-                        변경하기
-                      </button>
-                    </div>
-                    <div className={styles.settingsItem}>
-                      <div className={styles.settingsItemLabel}>전화번호</div>
-                      <button type="button" className={styles.settingsButton}>
-                        수정하기
-                      </button>
+                  <div className={styles.settingsBlock}>
+                    <div className={styles.settingsBlockTitle}>기본 정보</div>
+                    <div className={styles.settingsGroup}>
+                      <div className={styles.settingsItem}>
+                        <div className={styles.settingsItemLabel}>이름</div>
+                        <div className={styles.settingsItemValue}>{displayName}</div>
+                        <button type="button" className={styles.settingsButton} disabled>
+                          변경 불가
+                        </button>
+                      </div>
+                      <div className={styles.settingsItem}>
+                        <div className={styles.settingsItemLabel}>이메일 주소</div>
+                        <div className={styles.settingsItemValue}>{userEmail || '미등록'}</div>
+                        <button type="button" className={styles.settingsButton}>
+                          변경하기
+                        </button>
+                      </div>
+                      <div className={styles.settingsItem}>
+                        <div className={styles.settingsItemLabel}>비밀번호</div>
+                        <div className={styles.settingsItemValue}>********</div>
+                        <button type="button" className={styles.settingsButton}>
+                          변경하기
+                        </button>
+                      </div>
+                      <div className={styles.settingsItem}>
+                        <div className={styles.settingsItemLabel}>전화번호</div>
+                        <div className={styles.settingsItemValue}>{userPhone || '미등록'}</div>
+                        <button type="button" className={styles.settingsButton}>
+                          변경하기
+                        </button>
+                      </div>
+                      <div className={styles.settingsItem}>
+                        <div className={styles.settingsItemLabel}>생년월일</div>
+                        <div className={styles.settingsItemValue}>미등록</div>
+                        <button type="button" className={styles.settingsButton}>
+                          변경하기
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
                 <div className={styles.settingsFooter}>
                   <button type="button" className={styles.withdrawButton}>
                     회원탈퇴 <FiChevronRight aria-hidden="true" />
@@ -1034,7 +1061,65 @@ export default function MyPage() {
                     </button>
                   </div>
                 </div>
-                <div className={styles.empty}>아직 활동 내역이 없습니다.</div>
+                {sortedLikedPosts.length ? (
+                  <ul className={styles.listView}>
+                    {sortedLikedPosts.map((post, index) => (
+                      <Fragment key={post.id}>
+                        <li>
+                          <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                            <article className={styles.listItem}>
+                              <div className={styles.listBody}>
+                                <div className={styles.listHeaderRow}>
+                                  <h3>{post.title || '제목 없음'}</h3>
+                                </div>
+                                <p className={styles.summary}>{formatSummary(post.content)}</p>
+                                <div className={styles.meta}>
+                                  <span className={styles.metaGroup}>
+                                    <span className={styles.metaItem}>
+                                      <CiCalendar aria-hidden="true" />{' '}
+                                      {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                    </span>
+                                  </span>
+                                  <span className={styles.metaGroup}>
+                                    <span className={styles.metaItem}>
+                                      <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
+                                    </span>
+                                    <span className={styles.separator} aria-hidden="true">
+                                      |
+                                    </span>
+                                    <span className={styles.metaItem}>
+                                      <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                                    </span>
+                                    <span className={styles.separator} aria-hidden="true">
+                                      |
+                                    </span>
+                                    <span className={styles.metaItem}>
+                                      <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                                    </span>
+                                  </span>
+                                </div>
+                              </div>
+                              {post.thumbnailUrl ? (
+                                <div
+                                  className={styles.listThumb}
+                                  style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
+                                  aria-hidden="true"
+                                />
+                              ) : null}
+                            </article>
+                          </Link>
+                        </li>
+                        {index < sortedLikedPosts.length - 1 ? (
+                          <li className={styles.listDividerItem} aria-hidden="true">
+                            <div className={styles.listDivider} />
+                          </li>
+                        ) : null}
+                      </Fragment>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className={styles.empty}>아직 좋아요한 게시물이 없습니다.</div>
+                )}
               </>
             ) : null}
           </div>
