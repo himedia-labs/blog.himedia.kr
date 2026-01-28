@@ -73,6 +73,66 @@
   gap: 12px;
 }
 
+.label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.labelHint {
+  color: #8b95a1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  align-self: center;
+}
+
+.infoIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  color: #8b95a1;
+  cursor: pointer;
+}
+
+.labelText {
+  display: inline-flex;
+  align-items: center;
+}
+
+.infoIcon :global(svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.infoIcon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+
+.infoIcon:hover::after {
+  opacity: 1;
+}
+
 .input {
   width: 100%;
   padding: 12px 14px;
@@ -91,6 +151,10 @@
 }
 
 .input.error {
+  border-color: #ef4444;
+}
+
+.error {
   border-color: #ef4444;
 }
 
@@ -164,6 +228,28 @@
   transition: background 0.2s ease;
 }
 
+.stepActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.secondaryButton {
+  padding: 14px 28px;
+  background: #fff;
+  color: #4e5968;
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: #f2f4f6;
+}
+
 .consentRow {
   display: flex;
   flex-direction: column;
@@ -202,7 +288,10 @@
   border: 2px solid #cfd3da;
   border-radius: 6px;
   background-color: #ffffff;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .checkboxBox {
