@@ -530,7 +530,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                       className={`${styles.navLink} ${styles.navButton}`}
                       aria-label={item.label}
                       title={item.label}
-                      onClick={isBellItem ? toggleBell : undefined}
+                      onClick={isBellItem ? toggleNotifications : undefined}
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </button>
