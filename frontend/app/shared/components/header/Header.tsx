@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { CiUser, CiFileOn, CiLogin, CiLogout, CiMenuBurger } from 'react-icons/ci';
+import { CiChat1, CiFileOn, CiHeart, CiLogin, CiLogout, CiMenuBurger, CiUser } from 'react-icons/ci';
 import { FaUser } from 'react-icons/fa6';
 import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 
@@ -314,15 +314,34 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                               onClick={closeProfileMenu}
                             >
                               <CiUser aria-hidden="true" />
-                              마이페이지
+                              내 정보
                             </Link>
+                            <div className={styles.profileDivider} aria-hidden="true" />
                             <Link
-                              href={profileLink}
+                              href="/mypage?tab=posts"
                               className={styles.profileItem}
                               role="menuitem"
                               onClick={closeProfileMenu}
                             >
                               <CiFileOn aria-hidden="true" />내 블로그
+                            </Link>
+                            <Link
+                              href="/mypage?tab=comments"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiChat1 aria-hidden="true" />
+                              남긴 댓글
+                            </Link>
+                            <Link
+                              href="/mypage?tab=likes"
+                              className={styles.profileItem}
+                              role="menuitem"
+                              onClick={closeProfileMenu}
+                            >
+                              <CiHeart aria-hidden="true" />
+                              좋아한 포스트
                             </Link>
                             <div className={styles.profileDivider} aria-hidden="true" />
                             <button

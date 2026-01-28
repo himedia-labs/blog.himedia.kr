@@ -272,6 +272,12 @@
   color: #1f1f1f;
 }
 
+.settingsButton:disabled {
+  background: #f9fafb;
+  color: #b0b8c1;
+  cursor: not-allowed;
+}
+
 .settingsButtonActive {
   background: #f2f4f6;
   color: #1f1f1f;
@@ -343,6 +349,13 @@
   font-size: 1rem;
   color: #4e5968;
   min-width: 200px;
+}
+
+.settingsItemValue {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #1f1f1f;
+  text-align: left;
 }
 
 .settingsEditorBox {
