@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo, useState } from 'react';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { CiCalendar } from 'react-icons/ci';
@@ -196,7 +197,15 @@ export default function MyPage() {
                 >
                   <div className={styles.avatar} aria-hidden="true">
                     {profileAvatarUrl ? (
-                      <img className={styles.avatarImage} src={profileAvatarUrl} alt="" />
+                      <Image
+                        className={styles.avatarImage}
+                        src={profileAvatarUrl}
+                        alt=""
+                        width={62}
+                        height={62}
+                        sizes="62px"
+                        unoptimized
+                      />
                     ) : isProfileEditing ? (
                       <FaUserEdit className={`${styles.avatarIcon} ${styles.avatarIconEdit}`} />
                     ) : (
@@ -659,7 +668,7 @@ export default function MyPage() {
                     </div>
                   </div>
                   <div className={`${commentStyles.commentList} ${styles.commentListReset}`}>
-                    {sortedComments.map((comment, index) => {
+                    {sortedComments.map(comment => {
                       const postId = comment.post?.id ?? '';
                       const postTitle = comment.post?.title ?? '게시글 없음';
                       const commentLabel = comment.parentId ? '남긴 대댓글' : '남긴 댓글';
@@ -682,10 +691,14 @@ export default function MyPage() {
                                       <div className={commentStyles.commentAvatarGroup}>
                                         <span className={commentStyles.commentAvatar} aria-hidden="true">
                                           {profileAvatarUrl ? (
-                                            <img
+                                            <Image
                                               className={commentStyles.commentAvatarImage}
                                               src={profileAvatarUrl}
                                               alt=""
+                                              width={30}
+                                              height={30}
+                                              sizes="30px"
+                                              unoptimized
                                             />
                                           ) : (
                                             <FaUser />
@@ -828,10 +841,14 @@ export default function MyPage() {
                                     <div className={commentStyles.commentAvatarGroup}>
                                       <span className={commentStyles.commentAvatar} aria-hidden="true">
                                         {profileAvatarUrl ? (
-                                          <img
+                                          <Image
                                             className={commentStyles.commentAvatarImage}
                                             src={profileAvatarUrl}
                                             alt=""
+                                            width={30}
+                                            height={30}
+                                            sizes="30px"
+                                            unoptimized
                                           />
                                         ) : (
                                           <FaUser />
