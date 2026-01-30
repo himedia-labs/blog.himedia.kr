@@ -4,7 +4,10 @@ import { mapDraftToForm } from '@/app/(routes)/(private)/posts/new/postCreate.ut
 
 import type { PostEditInitializerParams } from '@/app/shared/types/postEdit';
 
-// 게시물 수정 : 초기화 훅
+/**
+ * 게시물 수정 초기화 훅
+ * @description 상세 데이터를 폼 상태로 반영
+ */
 export const usePostEditInitializer = ({ postDetail, applyPartial, setTags }: PostEditInitializerParams) => {
   // 데이터 반영
   useEffect(() => {

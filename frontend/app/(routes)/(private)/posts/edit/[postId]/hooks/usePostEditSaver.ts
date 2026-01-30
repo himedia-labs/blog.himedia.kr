@@ -19,9 +19,8 @@ import type { PostEditSaverParams } from '@/app/shared/types/postEdit';
 
 /**
  * 게시물 수정 저장 훅
- * @description 게시물 수정 저장과 유효성 검증을 담당
+ * @description 수정 저장과 유효성 검증을 관리
  */
-// 게시물 수정 : 저장 훅
 export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   // 공통 훅
   const router = useRouter();
@@ -29,7 +28,6 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   const queryClient = useQueryClient();
   const updatePostMutation = useUpdatePostMutation();
 
-  // 유효성 데이터 정리
   // 입력값 정리
   const getValidatedFormData = () => ({
     tags: formData.tags,
@@ -40,7 +38,6 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   });
 
   // 발행 필수 항목 검증
-  // 필수값 확인
   const validatePublishRequirements = (validated: ReturnType<typeof getValidatedFormData>) => {
     if (!validated.title) {
       showToast({ message: TOAST_TITLE_REQUIRED_MESSAGE, type: 'warning' });
@@ -58,7 +55,6 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   };
 
   // 에러 처리
-  // API 에러 알림
   const handleApiError = (error: unknown) => {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     const message = axiosError.response?.data?.message ?? TOAST_SAVE_FAILURE_MESSAGE;
@@ -66,7 +62,6 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
   };
 
   // 게시물 수정 저장
-  // 게시물 수정 저장 실행
   const handlePostUpdate = async () => {
     if (!postId) return;
     if (updatePostMutation.isPending) return;
