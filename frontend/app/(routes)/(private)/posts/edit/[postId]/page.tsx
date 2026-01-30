@@ -1,23 +1,32 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { useParams, useRouter } from 'next/navigation';
 import { FiSend } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
+import { useParams, useRouter } from 'next/navigation';
 
-import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
-import { DEFAULT_AUTHOR_NAME, DEFAULT_CATEGORY_LABEL, DEFAULT_PREVIEW_STATS } from '@/app/shared/constants/config/post.config';
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
-import { renderMarkdownPreview, formatDateLabel, mapDraftToForm } from '@/app/(routes)/(private)/posts/new/postCreate.utils';
-import { useMarkdownEditor, usePostForm, useTagInput, useThumbnailUpload } from '@/app/(routes)/(private)/posts/new/hooks';
+import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/postCreate.utils';
+import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
+import {
+  useMarkdownEditor,
+  usePostForm,
+  useTagInput,
+  useThumbnailUpload,
+} from '@/app/(routes)/(private)/posts/new/hooks';
 
-import { usePostEditSaver } from '../hooks';
+import {
+  DEFAULT_AUTHOR_NAME,
+  DEFAULT_CATEGORY_LABEL,
+  DEFAULT_PREVIEW_STATS,
+} from '@/app/shared/constants/config/post.config';
 
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
+import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 
 /**
  * 게시물 수정 페이지
@@ -29,10 +38,10 @@ export default function PostEditPage() {
   const params = useParams<{ postId: string }>();
   const postId = Array.isArray(params.postId) ? params.postId[0] : params.postId;
 
-  // 게시글 상세 조회
+  // 상세 조회
   const { data: postDetail, isLoading } = usePostDetailQuery(postId, { enabled: Boolean(postId) });
 
-  // 기본 폼 상태
+  // 기본 폼
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
   const { title, categoryId, thumbnailUrl, content, titleLengthError } = formState;
   const { setContent, setThumbnailUrl } = formSetters;
@@ -79,28 +88,23 @@ export default function PostEditPage() {
     },
   } = useMarkdownEditor({ content, setContentValue: setContent });
 
-  // 수정 저장
+  // 저장 처리
   const { handlePostUpdate } = usePostEditSaver({
     postId,
     formData: { title, categoryId, thumbnailUrl, content, tags },
   });
 
-  // 게시글 데이터 적용
-  useEffect(() => {
-    if (!postDetail) return;
-    const formData = mapDraftToForm(postDetail);
-    applyPartial(formData);
-    setTags(formData.tags);
-  }, [applyPartial, postDetail, setTags]);
+  // 데이터 적용
+  usePostEditInitializer({ postDetail, applyPartial, setTags });
 
   // 카테고리 목록
   const { data: categories, isLoading: isCategoryLoading } = useCategoriesQuery();
 
   // 미리보기 데이터
-  const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
+  const authorName = DEFAULT_AUTHOR_NAME;
   const dateLabel = formatDateLabel(new Date());
   const previewStats = DEFAULT_PREVIEW_STATS;
-  const authorName = DEFAULT_AUTHOR_NAME;
+  const categoryName = categories?.find(category => String(category.id) === categoryId)?.name ?? DEFAULT_CATEGORY_LABEL;
   const previewContent = useMemo(() => renderMarkdownPreview(content), [content]);
 
   if (!postDetail && !isLoading) {
