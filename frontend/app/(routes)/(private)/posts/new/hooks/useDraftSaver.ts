@@ -19,7 +19,10 @@ import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { DraftSaveOptions, DraftSaverParams } from '@/app/shared/types/post';
 
-// 게시물 작성 : 임시저장/발행 훅
+/**
+ * 임시저장/발행 훅
+ * @description 임시저장 및 발행 검증/처리를 담당
+ */
 export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaverParams) => {
   const router = useRouter();
   const { showToast } = useToast();

@@ -12,7 +12,10 @@ import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEve
 // 태그 커밋 트리거 키
 const COMMIT_KEYS = ['Enter', ' ', ','];
 
-// 게시물 작성 : 태그 입력 훅
+/**
+ * 태그 입력 훅
+ * @description 태그 입력/추천/조합 상태와 이벤트를 관리
+ */
 export const useTagInput = () => {
   const { showToast } = useToast();
   const [tagQuery, setTagQuery] = useState('');

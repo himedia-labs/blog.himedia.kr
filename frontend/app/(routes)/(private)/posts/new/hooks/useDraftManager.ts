@@ -12,7 +12,10 @@ import { mapDraftToForm } from '../postCreate.utils';
 
 import type { DraftData } from '@/app/shared/types/post';
 
-// 게시물 작성 : 임시저장 불러오기/저장/발행/자동저장 상태 관리
+/**
+ * 임시저장 관리 훅
+ * @description 임시저장 불러오기/저장/발행/자동저장을 통합 관리
+ */
 export const useDraftManager = (formData: DraftData, setFormData: (data: Partial<DraftData>) => void) => {
   // 라우터 및 유틸리티
   const router = useRouter();

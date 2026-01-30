@@ -15,7 +15,10 @@ import type { ChangeEvent } from 'react';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 
-// 게시물 작성 : 썸네일 업로드 훅
+/**
+ * 썸네일 업로드 훅
+ * @description 썸네일 이미지 선택/업로드/유효성 검증을 처리
+ */
 export const useThumbnailUpload = (onUploadSuccess: (url: string) => void) => {
   const { showToast } = useToast();
   const { accessToken } = useAuthStore();
