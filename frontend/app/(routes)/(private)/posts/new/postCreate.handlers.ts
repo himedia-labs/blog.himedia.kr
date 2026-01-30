@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import { extractTags } from './postCreate.utils';
+import { extractTags } from '@/app/(routes)/(private)/posts/new/utils';
 
 import type { TagCommit } from '@/app/shared/types/post';
 import type { ToastOptions } from '@/app/shared/types/toast';

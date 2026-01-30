@@ -1,9 +1,12 @@
 import { useRef } from 'react';
 
-import { useToast } from '@/app/shared/components/toast/toast';
-import { useUploadThumbnailMutation } from '@/app/api/uploads/uploads.mutations';
 import { useAuthStore } from '@/app/shared/store/authStore';
+
+import { useToast } from '@/app/shared/components/toast/toast';
 import { THUMBNAIL_MAX_SIZE } from '@/app/shared/constants/config/post.config';
+
+import { useUploadThumbnailMutation } from '@/app/api/uploads/uploads.mutations';
+
 import {
   TOAST_THUMBNAIL_UPLOAD_FAILURE_MESSAGE,
   TOAST_THUMBNAIL_UPLOAD_SIZE_MESSAGE,

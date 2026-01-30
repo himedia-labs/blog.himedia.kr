@@ -3,8 +3,10 @@ import { useRouter } from 'next/navigation';
 
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { buildPostPayload } from '@/app/api/posts/posts.payload';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { useCreatePostMutation, useUpdatePostMutation } from '@/app/api/posts/posts.mutations';
+
+import { useToast } from '@/app/shared/components/toast/toast';
+import { DRAFT_TOAST_DURATION_MS } from '@/app/shared/constants/config/post.config';
 import {
   TOAST_CATEGORY_REQUIRED_MESSAGE,
   TOAST_CONTENT_REQUIRED_MESSAGE,
@@ -13,7 +15,6 @@ import {
   TOAST_SAVE_SUCCESS_MESSAGE,
   TOAST_TITLE_REQUIRED_MESSAGE,
 } from '@/app/shared/constants/messages/post.message';
-import { DRAFT_TOAST_DURATION_MS } from '@/app/shared/constants/config/post.config';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';

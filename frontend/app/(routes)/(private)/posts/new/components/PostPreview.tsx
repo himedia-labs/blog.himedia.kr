@@ -1,6 +1,6 @@
+import { RiTwitterXFill } from 'react-icons/ri';
 import { FaFacebookSquare, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FiEye, FiHeart, FiMail, FiMessageCircle, FiTag } from 'react-icons/fi';
-import { RiTwitterXFill } from 'react-icons/ri';
 
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '../PostCreate.module.css';

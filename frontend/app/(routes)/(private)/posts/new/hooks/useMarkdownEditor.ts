@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
-import { useMarkdownImageUpload } from './useMarkdownImageUpload';
-import { useSplitView } from './useSplitView';
+import { useSplitView } from '@/app/(routes)/(private)/posts/new/hooks/useSplitView';
+import { useMarkdownImageUpload } from '@/app/(routes)/(private)/posts/new/hooks/useMarkdownImageUpload';
 
 import type { MarkdownEditorParams } from '@/app/shared/types/post';
 

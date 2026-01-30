@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useToast } from '@/app/shared/components/toast/toast';
 import { useTagSuggestionsQuery } from '@/app/api/tags/tags.queries';
-import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '@/app/shared/constants/config/post.config';
 
-import { getTagQueryFromInput } from '../postCreate.utils';
-import { createAddTagsFromInput, createCommitTagInput } from '../postCreate.handlers';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { getTagQueryFromInput } from '@/app/(routes)/(private)/posts/new/utils';
+import { TAG_MAX_COUNT, TAG_MAX_LENGTH } from '@/app/shared/constants/config/post.config';
+import { createAddTagsFromInput, createCommitTagInput } from '@/app/(routes)/(private)/posts/new/postCreate.handlers';
 
 import type { ChangeEvent, CompositionEvent, FocusEvent, KeyboardEvent, MouseEvent } from 'react';
 

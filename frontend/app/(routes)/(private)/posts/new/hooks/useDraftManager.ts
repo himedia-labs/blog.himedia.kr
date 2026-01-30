@@ -3,12 +3,13 @@ import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
+
 import { useDraftDetailQuery, useDraftsQuery } from '@/app/api/posts/posts.queries';
 
-import { useAutoSave } from './useAutoSave';
-import { useDraftNotice } from './useDraftNotice';
-import { useDraftSaver } from './useDraftSaver';
-import { mapDraftToForm } from '../postCreate.utils';
+import { mapDraftToForm } from '@/app/(routes)/(private)/posts/new/utils';
+import { useAutoSave } from '@/app/(routes)/(private)/posts/new/hooks/useAutoSave';
+import { useDraftSaver } from '@/app/(routes)/(private)/posts/new/hooks/useDraftSaver';
+import { useDraftNotice } from '@/app/(routes)/(private)/posts/new/hooks/useDraftNotice';
 
 import type { DraftData } from '@/app/shared/types/post';
 

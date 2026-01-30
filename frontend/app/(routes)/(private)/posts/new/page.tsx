@@ -2,24 +2,33 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { useRouter } from 'next/navigation';
-import { CiImport } from 'react-icons/ci';
 import { FiSend } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
+import { CiImport } from 'react-icons/ci';
+import { useRouter } from 'next/navigation';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
+
 import {
   DEFAULT_AUTHOR_NAME,
   DEFAULT_CATEGORY_LABEL,
   DEFAULT_PREVIEW_STATS,
 } from '@/app/shared/constants/config/post.config';
-import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 
-import { EditorToolbar, PostPreview, PostDetailsForm } from './components';
+import {
+  useDraftManager,
+  useMarkdownEditor,
+  usePostForm,
+  useTagInput,
+  useThumbnailUpload,
+} from '@/app/(routes)/(private)/posts/new/hooks';
+
 import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
-import { usePostForm, useTagInput, useThumbnailUpload, useDraftManager, useMarkdownEditor } from './hooks';
+import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
 
-import styles from './PostCreate.module.css';
+import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
+import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
+
 import type { DraftData } from '@/app/shared/types/post';
 
 /**
