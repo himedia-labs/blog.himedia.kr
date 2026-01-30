@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { FaReact } from 'react-icons/fa';
 
-import styles from './banner.module.css';
+import styles from '@/app/(routes)/(public)/main/components/banner/banner.module.css';
 
 /**
  * 메인 배너
