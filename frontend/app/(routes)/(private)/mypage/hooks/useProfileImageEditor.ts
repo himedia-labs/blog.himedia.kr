@@ -9,7 +9,10 @@ import { useToast } from '@/app/shared/components/toast/toast';
 
 import type { ChangeEvent } from 'react';
 
-// 마이페이지 : 프로필 이미지 편집
+/**
+ * 마이페이지 프로필 이미지 훅
+ * @description 프로필 이미지 변경과 업로드를 관리
+ */
 export const useProfileImageEditor = (initialImageUrl?: string | null, isProfileEditing?: boolean) => {
   // ref(참조) 변수들
   const queryClient = useQueryClient();

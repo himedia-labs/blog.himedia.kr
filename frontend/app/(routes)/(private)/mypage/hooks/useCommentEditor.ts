@@ -7,7 +7,10 @@ import { commentsKeys } from '@/app/api/comments/comments.keys';
 
 import type { ChangeEvent } from 'react';
 
-// 마이페이지 : 댓글 편집
+/**
+ * 마이페이지 댓글 편집 훅
+ * @description 내 댓글 수정/삭제 상태를 관리
+ */
 export const useCommentEditor = () => {
   // 편집 상태
   const queryClient = useQueryClient();

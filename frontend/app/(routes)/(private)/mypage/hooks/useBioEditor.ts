@@ -10,7 +10,10 @@ import { renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
 import type { ChangeEvent } from 'react';
 
-// 마이페이지 : 자기소개 편집
+/**
+ * 마이페이지 자기소개 훅
+ * @description 자기소개 편집/미리보기/저장을 관리
+ */
 export const useBioEditor = (userBio: string) => {
   // ref 변수들
   const queryClient = useQueryClient();

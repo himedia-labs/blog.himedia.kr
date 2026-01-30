@@ -6,7 +6,10 @@ import { useFollowersQuery, useFollowingsQuery } from '@/app/api/follows/follows
 import { useLikedPostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-// 마이페이지 : 데이터 상태
+/**
+ * 마이페이지 데이터 훅
+ * @description 내 정보/활동 데이터를 조회하고 파생값을 구성
+ */
 export const useMyPageData = () => {
   const { accessToken } = useAuthStore();
 

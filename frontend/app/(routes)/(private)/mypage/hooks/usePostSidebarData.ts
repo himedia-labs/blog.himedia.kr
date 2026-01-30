@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 
 import type { PostListItem } from '@/app/shared/types/post';
 
-// 마이페이지 : 내 블로그 사이드바
+/**
+ * 마이페이지 사이드바 훅
+ * @description 내 블로그 카테고리/태그 목록을 구성
+ */
 export const usePostSidebarData = (posts: PostListItem[]) => {
   // 카테고리 목록
   const categories = useMemo(() => {

@@ -8,7 +8,10 @@ import { useToast } from '@/app/shared/components/toast/toast';
 
 import type { ChangeEvent } from 'react';
 
-// 마이페이지 : 프로필 편집
+/**
+ * 마이페이지 프로필 편집 훅
+ * @description 프로필 아이디 변경과 저장 상태를 관리
+ */
 export const useProfileEditor = (initialName?: string, initialHandle?: string) => {
   // ref(참조) 변수들
   const queryClient = useQueryClient();

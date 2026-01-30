@@ -24,7 +24,7 @@ import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/mypage.handlers';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/postDetail.utils';
-import { formatDateLabel, formatDateTimeLabel, formatSummary, sortPostsByKey } from '@/app/(routes)/(private)/mypage/mypage.utils';
+import { formatDateLabel, formatDateTimeLabel, formatSummary, sortPostsByKey } from '@/app/(routes)/(private)/mypage/utils';
 import {
   useActivitySort,
   useBioEditor,
