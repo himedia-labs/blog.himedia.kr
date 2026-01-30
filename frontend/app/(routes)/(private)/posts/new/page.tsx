@@ -8,11 +8,15 @@ import { FiSend } from 'react-icons/fi';
 import { RxWidth } from 'react-icons/rx';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
-import { DEFAULT_AUTHOR_NAME, DEFAULT_CATEGORY_LABEL, DEFAULT_PREVIEW_STATS } from '@/app/shared/constants/config/post.config';
+import {
+  DEFAULT_AUTHOR_NAME,
+  DEFAULT_CATEGORY_LABEL,
+  DEFAULT_PREVIEW_STATS,
+} from '@/app/shared/constants/config/post.config';
 import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 
 import { EditorToolbar, PostPreview, PostDetailsForm } from './components';
-import { renderMarkdownPreview, formatDateLabel } from './postCreate.utils';
+import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
 import { usePostForm, useTagInput, useThumbnailUpload, useDraftManager, useMarkdownEditor } from './hooks';
 
 import styles from './PostCreate.module.css';
