@@ -1,21 +1,24 @@
 'use client';
 
-import { Fragment, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Fragment, useEffect, useRef } from 'react';
 
-import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiPlus } from 'react-icons/fi';
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
+import { CiCalendar, CiGrid41 } from 'react-icons/ci';
+import { FiEye, FiHeart, FiMessageCircle, FiPlus } from 'react-icons/fi';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import { createHandleCreatePost, createHandleSortFilter } from './postList.handlers';
-import usePostList from './postList.hooks';
+import { usePostList } from '@/app/(routes)/(public)/main/components/postList/hooks';
+import {
+  createHandleCreatePost,
+  createHandleSortFilter,
+} from '@/app/(routes)/(public)/main/components/postList/handlers';
 
 import 'react-loading-skeleton/dist/skeleton.css';
-import styles from './postList.module.css';
+import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
 /**
  * 메인 포스트 리스트

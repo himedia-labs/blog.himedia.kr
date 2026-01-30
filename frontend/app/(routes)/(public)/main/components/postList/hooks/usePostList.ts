@@ -2,8 +2,7 @@ import { useState } from 'react';
 
 import { useCategoriesQuery } from '@/app/api/categories/categories.queries';
 import { useInfinitePostsQuery, usePostsQuery } from '@/app/api/posts/posts.queries';
-
-import { toViewPost } from './postList.utils';
+import { toViewPost } from '@/app/(routes)/(public)/main/components/postList/utils/toViewPost';
 
 import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
@@ -54,5 +53,3 @@ export const usePostList = () => {
     isTopPostsLoading,
   };
 };
-
-export default usePostList;
