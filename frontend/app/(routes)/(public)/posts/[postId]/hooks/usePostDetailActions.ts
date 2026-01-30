@@ -11,9 +11,9 @@ import { VIEW_DELAY_MS } from '@/app/shared/constants/config/post.config';
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { extractMarkdownHeadings, renderMarkdownPreview } from '@/app/shared/utils/markdownPreview';
 
-import { copyToClipboard } from './postDetail.utils';
+import { copyToClipboard } from '@/app/(routes)/(public)/posts/[postId]/utils';
 
-import type { PostDetailActionsParams, PostDetailRefreshParams, PostDetailResponse, PostTocItem } from '@/app/shared/types/post';
+import type { PostDetailActionsParams, PostDetailResponse, PostTocItem } from '@/app/shared/types/post';
 
 /**
  * 게시물 상세 액션 훅
@@ -116,22 +116,4 @@ export const usePostDetailActions = ({ data, postId }: PostDetailActionsParams) 
   }, [accessToken, likePost, postId, showToast, updateDetailCache]);
 
   return { handleShareCopy, handleLikeClick, previewContent, tocItems };
-};
-
-/**
- * 게시물 상세 리프레시 훅
- * @description 토큰 변경 시 상세/댓글 데이터를 갱신
- */
-export const usePostDetailRefresh = ({
-  accessToken,
-  isInitialized,
-  refetchComments,
-  refetchPost,
-}: PostDetailRefreshParams) => {
-  // 토큰 리프레시
-  useEffect(() => {
-    if (!isInitialized || !accessToken) return;
-    refetchPost().catch(() => null);
-    refetchComments().catch(() => null);
-  }, [accessToken, isInitialized, refetchComments, refetchPost]);
 };

@@ -4,15 +4,13 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { commentsApi } from '@/app/api/comments/comments.api';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
-import {
-  useCreateCommentMutation,
-  useDeleteCommentMutation,
-  useUpdateCommentMutation,
-} from '@/app/api/comments/comments.mutations';
 import { usePostCommentsQuery } from '@/app/api/comments/comments.queries';
+import { useDeleteCommentMutation, useUpdateCommentMutation } from '@/app/api/comments/comments.mutations';
 import { followsApi } from '@/app/api/follows/follows.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
+
+import { usePostCommentForm } from '@/app/(routes)/(public)/posts/[postId]/hooks/usePostCommentForm';
 import {
   copyToClipboard,
   ensureMentionSpacing,
@@ -24,7 +22,7 @@ import {
   renderMentionHtml,
   resizeReplyInput,
   setCaretIndex,
-} from './postDetail.utils';
+} from '@/app/(routes)/(public)/posts/[postId]/utils';
 
 import type { ChangeEvent, MouseEvent } from 'react';
 import type { CommentItem, CommentListResponse } from '@/app/shared/types/comment';
@@ -32,41 +30,6 @@ import type { UserRole } from '@/app/shared/types/post';
 
 const MAX_CONTENT_LENGTH = 1000;
 const normalizeNewlines = (value: string) => value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-
-export const usePostCommentForm = (postId: string) => {
-  // 댓글 작성 상태
-  const queryClient = useQueryClient();
-  const [content, setContent] = useState('');
-  const hasLengthError = content.length > MAX_CONTENT_LENGTH;
-  const { mutateAsync, isPending } = useCreateCommentMutation(postId);
-
-  // 댓글 등록 처리
-  const handleSubmit = useCallback(async (overrideContent?: string) => {
-    const currentContent = overrideContent ?? content;
-    if (!postId) return false;
-    const trimmed = currentContent.trim();
-    if (!trimmed) return false;
-    if (trimmed.length > MAX_CONTENT_LENGTH) return false;
-
-    try {
-      await mutateAsync({ content: trimmed });
-      setContent('');
-      await queryClient.invalidateQueries({ queryKey: commentsKeys.list(postId) });
-      await queryClient.invalidateQueries({ queryKey: postsKeys.detail(postId) });
-      return true;
-    } catch {
-      return false;
-    }
-  }, [content, mutateAsync, postId, queryClient]);
-
-  return {
-    content,
-    hasLengthError,
-    isSubmitting: isPending,
-    setContent,
-    handleSubmit,
-  };
-};
 
 type UsePostDetailCommentsParams = {
   accessToken: string | null;

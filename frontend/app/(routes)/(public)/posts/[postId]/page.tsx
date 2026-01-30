@@ -6,9 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import NumberFlow from '@number-flow/react';
 import { FaHeart } from 'react-icons/fa';
 import { FaUser } from 'react-icons/fa6';
+import NumberFlow from '@number-flow/react';
 import {
   FiClock,
   FiEdit2,
@@ -25,22 +25,25 @@ import {
 } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 
-import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
-import { usePostDetailComments } from './postDetail.comments.hooks';
-import { createTocClickHandler } from './postDetail.handlers';
-import { usePostDetailActions, usePostDetailRefresh } from './postDetail.hooks';
+import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
+import {
+  usePostDetailComments,
+  usePostDetailActions,
+  usePostDetailRefresh,
+} from '@/app/(routes)/(public)/posts/[postId]/hooks';
 import {
   formatDate,
   formatDateTime,
   formatRole,
   getMentionHighlightSegments,
   splitCommentMentions,
-} from './postDetail.utils';
+} from '@/app/(routes)/(public)/posts/[postId]/utils';
 
-import markdownStyles from '@/app/shared/styles/markdown.module.css';
-import styles from './PostDetail.module.css';
 import 'react-loading-skeleton/dist/skeleton.css';
+import markdownStyles from '@/app/shared/styles/markdown.module.css';
+import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
 /**
  * 게시물 상세 페이지
@@ -60,13 +63,15 @@ export default function PostDetailPage() {
   const { data, isLoading, isError, refetch } = usePostDetailQuery(postId, { enabled: isQueryEnabled });
 
   // 파생 데이터
-  const likeCount = data?.likeCount ?? 0;
   const viewCount = data?.viewCount ?? 0;
+  const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const commentCount = data?.commentCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const postAuthorId = data?.author?.id ?? null;
   const commentSkeletons = Array.from({ length: 3 });
+
+  // 댓글 상태
   const {
     commentListRef,
     commentMentionQuery,
@@ -128,6 +133,8 @@ export default function PostDetailPage() {
   // 액션 핸들러
   const { handleShareCopy, handleLikeClick, previewContent, tocItems } = usePostDetailActions({ data, postId });
   const handleTocClick = createTocClickHandler();
+
+  // 렌더 유틸
   const renderMentionLabel = (name: string, query: string | null) => {
     const segments = getMentionHighlightSegments(name, query);
 
