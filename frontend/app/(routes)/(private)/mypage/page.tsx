@@ -47,6 +47,10 @@ import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import markdownEditorStyles from '@/app/shared/styles/markdownEditor.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
 
+/**
+ * 마이페이지
+ * @description 내 정보/활동/계정 설정을 관리하는 화면
+ */
 export default function MyPage() {
   // 탭 상태
   const activeTab = useMyPageTab('settings');

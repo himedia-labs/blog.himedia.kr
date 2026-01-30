@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-
 import Skeleton from 'react-loading-skeleton';
 
 import { useDraftsQuery } from '@/app/api/posts/posts.queries';
