@@ -1,43 +1,21 @@
+import type { FormEvent } from 'react';
+
 import type { AxiosError } from 'axios';
 import type { UseMutationResult } from '@tanstack/react-query';
-import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { isValidPassword } from '@/app/shared/utils/password';
 import { REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import type { ApiErrorResponse } from '@/app/shared/types/error';
 import type { RegisterRequest } from '@/app/shared/types/auth';
 
-/**
- * 전화번호 포맷팅
- * @description 입력 숫자를 XXX XXXX XXXX 형식으로 변환
- */
-export const formatPhone = (params: {
-  setPhone: (value: string) => void;
-  phoneError: string;
-  setPhoneError: (value: string) => void;
-}) => {
-  return (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, PHONE_CONFIG.DIGIT_MAX_LENGTH);
-
-    let formatted = digits;
-    if (digits.length > 3 && digits.length <= 7) {
-      formatted = `${digits.slice(0, 3)} ${digits.slice(3)}`;
-    } else if (digits.length > 7) {
-      formatted = `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
-    }
-
-    params.setPhone(formatted);
-    if (params.phoneError) params.setPhoneError('');
-  };
-};
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 /**
- * 회원가입
- * @description 회원가입 폼 제출 핸들러
+ * 회원가입 : 제출 핸들러
+ * @description 회원가입 폼 제출과 에러 처리를 담당
  */
-export const register = (params: {
+export const registerSubmit = (params: {
   name: string;
   email: string;
   password: string;
@@ -61,12 +39,12 @@ export const register = (params: {
   router: AppRouterInstance;
   onSuccessCleanup?: () => void;
 }) => {
-  return (e: React.FormEvent) => {
-    e.preventDefault();
+  return (event: FormEvent) => {
+    event.preventDefault();
 
     if (params.registerMutation.isPending) return;
 
-    // 클라이언트 검증 (체크만, 메시지는 백엔드에서)
+    // 필수 입력 검증
     let hasError = false;
     if (!params.name) {
       params.setNameError(REGISTER_MESSAGES.missingName);

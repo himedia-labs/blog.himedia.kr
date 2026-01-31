@@ -1,24 +1,27 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 import { FaCheck } from 'react-icons/fa';
 import { RxInfoCircled } from 'react-icons/rx';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbExternalLink } from 'react-icons/tb';
 
-import useRegisterForm from './register.hooks';
-import { register } from './register.handlers';
+import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
+import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { COURSE_OPTIONS, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
+import { createNextStepHandler, registerSubmit } from '@/app/(routes)/(public)/register/handlers';
 
-import styles from './register.module.css';
+import styles from '@/app/(routes)/(public)/register/register.module.css';
 
 /**
  * 회원가입 페이지
@@ -80,7 +83,7 @@ export default function RegisterPage() {
   }, [hasCache, restoredFromKeep, showToast]);
 
   // 회원가입 핸들러
-  const handleSubmit = register({
+  const handleSubmit = registerSubmit({
     name,
     email,
     password,
@@ -105,46 +108,22 @@ export default function RegisterPage() {
     onSuccessCleanup: clearFormCache,
   });
 
-  const handleNextStep = () => {
-    let hasError = false;
-    if (!name) {
-      setNameError(REGISTER_MESSAGES.missingName);
-      hasError = true;
-    }
-    if (!email) {
-      setEmailError(REGISTER_MESSAGES.missingEmail);
-      hasError = true;
-    }
-    if (!birthDate) {
-      setBirthDateError(REGISTER_MESSAGES.missingBirthDate);
-      hasError = true;
-    }
-    if (!password) {
-      setPasswordError(REGISTER_MESSAGES.missingPassword);
-      hasError = true;
-    } else if (!isValidPassword(password)) {
-      setPasswordError(REGISTER_MESSAGES.invalidPassword);
-      hasError = true;
-    }
-    if (!passwordConfirm) {
-      setPasswordConfirmError(REGISTER_MESSAGES.missingPasswordConfirm);
-      hasError = true;
-    } else if (password !== passwordConfirm) {
-      setPasswordConfirmError(REGISTER_MESSAGES.passwordMismatch);
-      hasError = true;
-    }
-    if (!phone) {
-      setPhoneError(REGISTER_MESSAGES.missingPhone);
-      hasError = true;
-    }
-
-    if (hasError) {
-      showToast({ message: REGISTER_MESSAGES.missingRequired, type: 'warning' });
-      return;
-    }
-
-    setStep(2);
-  };
+  const handleNextStep = createNextStepHandler({
+    name,
+    email,
+    birthDate,
+    password,
+    passwordConfirm,
+    phone,
+    setNameError,
+    setEmailError,
+    setBirthDateError,
+    setPasswordError,
+    setPasswordConfirmError,
+    setPhoneError,
+    showToast,
+    setStep,
+  });
 
   return (
     <div className={styles.container}>
@@ -390,16 +369,7 @@ export default function RegisterPage() {
                           href="/terms/privacy"
                           className={`${styles.link} ${styles.consentLink}`}
                           onClick={() => {
-                            if (
-                              name ||
-                              email ||
-                              password ||
-                              phone ||
-                              role ||
-                              course ||
-                              passwordConfirm ||
-                              birthDate
-                            ) {
+                            if (name || email || password || phone || role || course || passwordConfirm || birthDate) {
                               markKeepCache();
                               showToast({ message: '입력한 내용이 임시 저장되었습니다.', type: 'info' });
                             }

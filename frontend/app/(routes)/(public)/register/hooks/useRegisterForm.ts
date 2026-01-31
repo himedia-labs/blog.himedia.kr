@@ -1,27 +1,29 @@
 import { useEffect, useState } from 'react';
 
-import { sessionStorage } from '@/app/shared/utils/session-storage';
 import {
   REGISTER_FORM_CACHE_KEY,
   REGISTER_FORM_CACHE_KEEP_KEY,
   REGISTER_FORM_DEFAULT,
 } from '@/app/shared/constants/config/register.config';
+import { sessionStorage } from '@/app/shared/utils/session-storage';
 
-import { formatPhone } from './register.handlers';
+import { formatPhone } from '@/app/(routes)/(public)/register/utils';
 
 import type { RegisterFormCache } from '@/app/shared/types/register';
 
 /**
- * 회원가입 폼 훅
- * @description 폼 상태와 캐시 동기화를 관리
+ * 회원가입 : 폼 상태 훅
+ * @description 폼 입력 상태와 캐시 동기화를 관리
  */
 export const useRegisterForm = () => {
+  // 폼 상태
   const [form, setForm] = useState<RegisterFormCache>(() =>
     sessionStorage.getItem(REGISTER_FORM_CACHE_KEY, REGISTER_FORM_DEFAULT),
   );
   const [hasCache, setHasCache] = useState(() => sessionStorage.hasItem(REGISTER_FORM_CACHE_KEY));
   const [restoredFromKeep] = useState<boolean>(() => sessionStorage.hasItem(REGISTER_FORM_CACHE_KEEP_KEY));
 
+  // 에러 상태
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -32,7 +34,7 @@ export const useRegisterForm = () => {
   const [courseError, setCourseError] = useState('');
   const [privacyError, setPrivacyError] = useState('');
 
-  // 폼 필드 업데이트 헬퍼
+  // 폼 필드 업데이트
   const setFormField = <K extends keyof RegisterFormCache>(key: K, value: RegisterFormCache[K]) =>
     setForm(prev => {
       setHasCache(prevHasCache => (prevHasCache ? prevHasCache : true));
@@ -108,5 +110,3 @@ export const useRegisterForm = () => {
     restoredFromKeep,
   };
 };
-
-export default useRegisterForm;
