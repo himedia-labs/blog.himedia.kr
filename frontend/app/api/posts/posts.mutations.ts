@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { postsApi } from './posts.api';
+import { postsApi } from '@/app/api/posts/posts.api';
+
 import type {
   CreatePostRequest,
   CreatePostResponse,

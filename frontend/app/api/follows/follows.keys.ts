@@ -1,3 +1,4 @@
+// 팔로우 쿼리 키
 export const followsKeys = {
   all: ['follows'] as const,
   followers: () => [...followsKeys.all, 'followers'] as const,

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { commentsApi } from './comments.api';
+import { commentsApi } from '@/app/api/comments/comments.api';
+
 import type {
   CreateCommentRequest,
   CreateCommentResponse,

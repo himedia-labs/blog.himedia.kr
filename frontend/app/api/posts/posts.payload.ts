@@ -1,5 +1,6 @@
 import type { CreatePostRequest, PostPayloadInput, PostPayloadStatus } from '@/app/shared/types/post';
 
+// 게시글 payload 구성
 export const buildPostPayload = (
   input: PostPayloadInput,
   status: PostPayloadStatus,

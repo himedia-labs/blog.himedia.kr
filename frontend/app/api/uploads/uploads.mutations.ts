@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { uploadsApi } from './uploads.api';
+import { uploadsApi } from '@/app/api/uploads/uploads.api';
+
 import type { UploadThumbnailResponse } from '@/app/shared/types/upload';
 
 // 썸네일 업로드 뮤테이션

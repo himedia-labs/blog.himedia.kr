@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
+
 import type { UploadThumbnailResponse } from '@/app/shared/types/upload';
 
 // 썸네일 업로드

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { notificationsApi } from './notifications.api';
+import { notificationsApi } from '@/app/api/notifications/notifications.api';
 
 import type { MarkNotificationReadResponse, MarkNotificationsReadAllResponse } from '@/app/shared/types/notification';
 

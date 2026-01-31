@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { commentsApi } from './comments.api';
-import { commentsKeys } from './comments.keys';
+import { commentsApi } from '@/app/api/comments/comments.api';
+import { commentsKeys } from '@/app/api/comments/comments.keys';
+
 import type { CommentListResponse, MyCommentListResponse } from '@/app/shared/types/comment';
 
 type QueryOptions = {
   enabled?: boolean;
 };
 
+// 게시글 댓글 조회
 export const usePostCommentsQuery = (postId?: string, options?: QueryOptions) => {
   return useQuery<CommentListResponse, Error>({
     queryKey: commentsKeys.list(postId),
@@ -16,6 +18,7 @@ export const usePostCommentsQuery = (postId?: string, options?: QueryOptions) =>
   });
 };
 
+// 내 댓글 조회
 export const useMyCommentsQuery = (options?: QueryOptions) => {
   return useQuery<MyCommentListResponse, Error>({
     queryKey: commentsKeys.myList(),

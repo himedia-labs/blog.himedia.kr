@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/app/shared/network/axios.instance';
+
 import type {
   CreatePostRequest,
   CreatePostResponse,
@@ -13,6 +14,7 @@ import type {
   UpdatePostResponse,
 } from '@/app/shared/types/post';
 
+// 게시물 목록 조회
 const getPosts = async (params?: PostListQuery): Promise<PostListResponse> => {
   const res = await axiosInstance.get<PostListResponse>('/posts', { params });
   return res.data;
