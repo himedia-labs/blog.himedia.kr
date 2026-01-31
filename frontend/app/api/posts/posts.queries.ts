@@ -1,14 +1,12 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
-import { postsApi } from './posts.api';
-import { postsKeys } from './posts.keys';
-import type { PostDetailResponse, PostListQuery, PostListResponse } from '@/app/shared/types/post';
+import { postsApi } from '@/app/api/posts/posts.api';
+import { postsKeys } from '@/app/api/posts/posts.keys';
 
-type QueryOptions = {
-  enabled?: boolean;
-};
+import type { PostDetailResponse, PostListQuery, PostListResponse, PostsQueryOptions } from '@/app/shared/types/post';
 
-export const useInfinitePostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+// 게시글 무한 리스트 조회
+export const useInfinitePostsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
   return useInfiniteQuery<PostListResponse, Error>({
     queryKey: postsKeys.infinite(params),
     queryFn: ({ pageParam }) => postsApi.getPosts({ ...params, page: pageParam as number }),
@@ -19,7 +17,8 @@ export const useInfinitePostsQuery = (params?: PostListQuery, options?: QueryOpt
   });
 };
 
-export const usePostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+// 게시글 목록 조회
+export const usePostsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
   return useQuery<PostListResponse, Error>({
     queryKey: postsKeys.list(params),
     queryFn: () => postsApi.getPosts(params),
@@ -28,7 +27,8 @@ export const usePostsQuery = (params?: PostListQuery, options?: QueryOptions) =>
   });
 };
 
-export const useLikedPostsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+// 좋아요한 게시글 목록 조회
+export const useLikedPostsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
   return useQuery<PostListResponse, Error>({
     queryKey: postsKeys.liked(params),
     queryFn: () => postsApi.getLikedPosts(params),
@@ -37,7 +37,8 @@ export const useLikedPostsQuery = (params?: PostListQuery, options?: QueryOption
   });
 };
 
-export const useDraftsQuery = (params?: PostListQuery, options?: QueryOptions) => {
+// 임시저장 목록 조회
+export const useDraftsQuery = (params?: PostListQuery, options?: PostsQueryOptions) => {
   return useQuery<PostListResponse, Error>({
     queryKey: postsKeys.drafts(params),
     queryFn: () => postsApi.getDrafts(params),
@@ -45,7 +46,8 @@ export const useDraftsQuery = (params?: PostListQuery, options?: QueryOptions) =
   });
 };
 
-export const useDraftDetailQuery = (postId?: string, options?: QueryOptions) => {
+// 임시저장 상세 조회
+export const useDraftDetailQuery = (postId?: string, options?: PostsQueryOptions) => {
   return useQuery<PostDetailResponse, Error>({
     queryKey: postsKeys.draft(postId),
     queryFn: () => postsApi.getDraftDetail(postId ?? ''),
@@ -53,7 +55,8 @@ export const useDraftDetailQuery = (postId?: string, options?: QueryOptions) => 
   });
 };
 
-export const usePostDetailQuery = (postId?: string, options?: QueryOptions) => {
+// 게시글 상세 조회
+export const usePostDetailQuery = (postId?: string, options?: PostsQueryOptions) => {
   return useQuery<PostDetailResponse, Error>({
     queryKey: postsKeys.detail(postId),
     queryFn: () => postsApi.getPostDetail(postId ?? ''),

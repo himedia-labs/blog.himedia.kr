@@ -1,15 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { followsApi } from './follows.api';
-import { followsKeys } from './follows.keys';
+import { followsApi } from '@/app/api/follows/follows.api';
+import { followsKeys } from '@/app/api/follows/follows.keys';
 
-import type { FollowListResponse } from '@/app/shared/types/follow';
+import type { FollowListResponse, FollowsQueryOptions } from '@/app/shared/types/follow';
 
-type QueryOptions = {
-  enabled?: boolean;
-};
-
-export const useFollowersQuery = (options?: QueryOptions) => {
+// 내 팔로워 조회
+export const useFollowersQuery = (options?: FollowsQueryOptions) => {
   return useQuery<FollowListResponse, Error>({
     queryKey: followsKeys.followers(),
     queryFn: () => followsApi.getFollowers(),
@@ -17,7 +14,8 @@ export const useFollowersQuery = (options?: QueryOptions) => {
   });
 };
 
-export const useFollowingsQuery = (options?: QueryOptions) => {
+// 내 팔로잉 조회
+export const useFollowingsQuery = (options?: FollowsQueryOptions) => {
   return useQuery<FollowListResponse, Error>({
     queryKey: followsKeys.followings(),
     queryFn: () => followsApi.getFollowings(),

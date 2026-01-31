@@ -23,3 +23,9 @@ export interface MarkNotificationReadResponse {
 export interface MarkNotificationsReadAllResponse {
   updated: number;
 }
+
+// 알림 쿼리 옵션
+export type NotificationsQueryOptions = {
+  enabled?: boolean;
+  limit?: number;
+};

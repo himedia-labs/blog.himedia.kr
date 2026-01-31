@@ -1,15 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { notificationsApi } from './notifications.api';
-import { notificationsKeys } from './notifications.keys';
+import { notificationsApi } from '@/app/api/notifications/notifications.api';
+import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
 
-import type { NotificationListResponse } from '@/app/shared/types/notification';
+import type { NotificationListResponse, NotificationsQueryOptions } from '@/app/shared/types/notification';
 
-type NotificationsQueryOptions = {
-  enabled?: boolean;
-  limit?: number;
-};
-
+// 알림 목록 조회
 export const useNotificationsQuery = ({ enabled = true, limit = 50 }: NotificationsQueryOptions = {}) => {
   return useQuery<NotificationListResponse>({
     queryKey: notificationsKeys.list(),

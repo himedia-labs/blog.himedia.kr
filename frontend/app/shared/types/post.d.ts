@@ -344,3 +344,8 @@ export type PostPreviewProps = {
   content: ReactNode;
   tags: string[];
 };
+
+// 게시글 쿼리 옵션
+export type PostsQueryOptions = {
+  enabled?: boolean;
+};
