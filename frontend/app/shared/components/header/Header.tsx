@@ -19,7 +19,7 @@ import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
 import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
 import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification.utils';
 
-import { HeaderConfig } from '@/app/shared/components/header/Header.config';
+import { HeaderConfig } from '@/app/shared/constants/config/header.config';
 import { useProfileMenu } from '@/app/shared/components/header/hooks/useProfileMenu';
 import { useScrollProgress } from '@/app/shared/components/header/hooks/useScrollProgress';
 import { usePostDetailPath } from '@/app/shared/components/header/hooks/usePostDetailPath';
