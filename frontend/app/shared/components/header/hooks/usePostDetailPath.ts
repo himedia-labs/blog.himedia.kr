@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { HeaderConfig } from '../Header.config';
+import { HeaderConfig } from '@/app/shared/components/header/Header.config';
 
 /**
  * 게시물 상세 경로

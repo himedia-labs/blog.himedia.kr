@@ -1,255 +1,90 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { useQueryClient } from '@tanstack/react-query';
-import { CiChat1, CiFileOn, CiHeart, CiLogin, CiLogout, CiMenuBurger, CiUser } from 'react-icons/ci';
 import { FaUser } from 'react-icons/fa6';
-import { FiHeart, FiMessageCircle } from 'react-icons/fi';
+import { CiChat1, CiFileOn, CiHeart, CiLogin, CiLogout, CiMenuBurger, CiUser } from 'react-icons/ci';
 
 import { authKeys } from '@/app/api/auth/auth.keys';
-import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
-import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
-import {
-  useMarkNotificationReadMutation,
-  useMarkNotificationsReadAllMutation,
-} from '@/app/api/notifications/notifications.mutations';
-import { useNotificationsQuery } from '@/app/api/notifications/notifications.queries';
-// import { useScroll } from '@/app/shared/hooks/useScroll';
-import { useToast } from '@/app/shared/components/toast/toast';
 import { useLogoutMutation } from '@/app/api/auth/auth.mutations';
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import { HeaderConfig } from './Header.config';
-import { handleLogout as createHandleLogout } from './Header.handlers';
-import { usePostDetailPath } from './hooks/usePostDetailPath';
-import { useScrollProgress } from './hooks/useScrollProgress';
+import { useToast } from '@/app/shared/components/toast/toast';
+import { usePathVisibility } from '@/app/shared/hooks/usePathVisibility';
+import { LayoutVisibilityConfig } from '@/app/shared/constants/config/layout.config';
+import { formatNotificationTime, getNotificationIcon } from '@/app/shared/utils/notification.utils';
 
-import styles from './Header.module.css';
-import type { NotificationListResponse, NotificationType } from '@/app/shared/types/notification';
-import type { HeaderProps } from './Header.types';
+import { HeaderConfig } from '@/app/shared/components/header/Header.config';
+import { useProfileMenu } from '@/app/shared/components/header/hooks/useProfileMenu';
+import { useScrollProgress } from '@/app/shared/components/header/hooks/useScrollProgress';
+import { usePostDetailPath } from '@/app/shared/components/header/hooks/usePostDetailPath';
+import { useNotificationMenu } from '@/app/shared/components/header/hooks/useNotificationMenu';
+import { handleLogout as createHandleLogout } from '@/app/shared/components/header/handlers/logout.handlers';
 
-const getNotificationIcon = (type: NotificationType) => {
-  if (type === 'POST_COMMENT' || type === 'COMMENT_REPLY') return FiMessageCircle;
-  return FiHeart;
-};
+import styles from '@/app/shared/components/header/Header.module.css';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const getNotificationSection = (createdAtMs: number): 'today' | 'week' | 'earlier' => {
-  const now = new Date();
-  const createdAt = new Date(createdAtMs);
-  const isSameDate =
-    now.getFullYear() === createdAt.getFullYear() &&
-    now.getMonth() === createdAt.getMonth() &&
-    now.getDate() === createdAt.getDate();
-
-  if (isSameDate) return 'today';
-  if (Date.now() - createdAtMs < 7 * DAY_MS) return 'week';
-  return 'earlier';
-};
-
-const formatNotificationTime = (createdAtMs: number) => {
-  const diffMs = Math.max(Date.now() - createdAtMs, 0);
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return '방금 전';
-  if (minutes < 60) return `${minutes}분 전`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}일 전`;
-  const date = new Date(createdAtMs);
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getDate()}`.padStart(2, '0');
-  return `${date.getFullYear()}.${month}.${day}`;
-};
+import type { HeaderProps } from '@/app/shared/types/header';
 
 /**
  * 공통 헤더
  * @description 로그인 상태에 따라 메뉴를 표시
  */
 export default function Header({ initialIsLoggedIn }: HeaderProps) {
-  // 라우터 훅
+  // 라우터
   const router = useRouter();
   const pathname = usePathname();
-
-  // UI 상태
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [notificationTab, setNotificationTab] = useState<'today' | 'week' | 'earlier'>('today');
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isProfileVisible, setIsProfileVisible] = useState(false);
-  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
-
-  // UI 참조
-  const notificationRef = useRef<HTMLDivElement | null>(null);
-  const profileRef = useRef<HTMLDivElement | null>(null);
-
-  // 요청 훅
   const queryClient = useQueryClient();
-  const logoutMutation = useLogoutMutation();
-  const markReadMutation = useMarkNotificationReadMutation();
-  const markAllReadMutation = useMarkNotificationsReadAllMutation();
 
   // 인증 상태
   const { accessToken, isInitialized } = useAuthStore();
   const clearAuth = useAuthStore(state => state.clearAuth);
 
-  // 알림 유틸
-  const { showToast } = useToast();
-
-  // 로그인 상태
-  // - initialIsLoggedIn: 서버 쿠키 기반 초기 상태
-  // - accessToken: 클라이언트 토큰 상태
+  // 로그인 상태 (초기화 전: 서버 쿠키 기반, 초기화 후: 클라이언트 토큰 기반)
   const isLoggedIn = isInitialized ? !!accessToken : !!accessToken || initialIsLoggedIn;
-  const canFetchNotifications = isInitialized && !!accessToken;
 
+  // 데이터
   const { data: currentUser } = useCurrentUserQuery();
 
-  const { data: notificationsData } = useNotificationsQuery({ enabled: canFetchNotifications });
-
-  // 파생 상태
+  // 훅
+  const { showToast } = useToast();
+  const logoutMutation = useLogoutMutation();
+  const isVisible = usePathVisibility(LayoutVisibilityConfig);
   const isPostDetail = usePostDetailPath(pathname);
   const scrollProgress = useScrollProgress(isPostDetail, '[data-scroll-progress-end="post-content"]');
 
-  // 알림 상태
-  const notifications = notificationsData?.items ?? [];
-  const unreadCount = notificationsData?.unreadCount ?? 0;
-  const hasUnread = unreadCount > 0;
-  const profileHandle = currentUser?.profileHandle ?? currentUser?.email?.split('@')[0] ?? '';
-  const profileLink = profileHandle ? `/@${profileHandle}` : '/mypage';
-  const filteredNotifications = useMemo(
-    () =>
-      notifications
-        .filter(item => getNotificationSection(item.createdAtMs) === notificationTab)
-        .sort((a, b) => b.createdAtMs - a.createdAtMs),
-    [notificationTab, notifications],
-  );
-  const visibleNotifications = filteredNotifications.slice(0, 3);
-  const hasNotifications = filteredNotifications.length > 0;
-  const notificationTabIndex = notificationTab === 'today' ? 0 : notificationTab === 'week' ? 1 : 2;
+  // 프로필 메뉴
+  const { profileRef, isProfileOpen, isProfileVisible, toggleProfileMenu, closeProfileMenu } =
+    useProfileMenu(isLoggedIn);
 
-  // 알림 핸들러
-  const updateNotificationRead = (id: string) => {
-    queryClient.setQueryData(notificationsKeys.list(), (old: NotificationListResponse | undefined) => {
-      if (!old) return old;
-      const nextItems = old.items.map(item => (item.id === id ? { ...item, isRead: true } : item));
-      const nextUnreadCount = nextItems.filter(item => !item.isRead).length;
-      return { ...old, items: nextItems, unreadCount: nextUnreadCount };
-    });
-  };
-  const handleNotificationClick = (id: string, href: string, isRead: boolean) => {
-    if (isLoggedIn && !isRead) {
-      markReadMutation.mutate(id, { onSuccess: () => updateNotificationRead(id) });
-    }
-    setIsNotificationOpen(false);
-    setTimeout(() => setIsNotificationVisible(false), 160);
-    router.push(href);
-  };
-  const handleMarkAllRead = () => {
-    if (!isLoggedIn) return;
-    markAllReadMutation.mutate(undefined, {
-      onSuccess: () => {
-        queryClient.setQueryData(notificationsKeys.list(), (old: NotificationListResponse | undefined) => {
-          if (!old) return old;
-          return {
-            ...old,
-            unreadCount: 0,
-            items: old.items.map(item => ({ ...item, isRead: true })),
-          };
-        });
-      },
-    });
-  };
-  const openNotificationMenu = () => {
-    setIsNotificationVisible(true);
-    setIsNotificationOpen(true);
-  };
-  const closeNotificationMenu = () => {
-    setIsNotificationOpen(false);
-    setTimeout(() => setIsNotificationVisible(false), 160);
-  };
-  const toggleNotifications = () => {
-    closeProfileMenu();
-    if (isNotificationOpen) {
-      closeNotificationMenu();
-      return;
-    }
-    openNotificationMenu();
-  };
-  const openProfileMenu = () => {
-    setIsProfileVisible(true);
-    setIsProfileOpen(true);
-  };
-  const closeProfileMenu = () => {
-    setIsProfileOpen(false);
-    setTimeout(() => setIsProfileVisible(false), 160);
-  };
-  const toggleProfileMenu = () => {
-    closeNotificationMenu();
-    if (isProfileOpen) {
-      closeProfileMenu();
-      return;
-    }
-    openProfileMenu();
-  };
+  // 알림 메뉴
+  const {
+    notificationRef,
+    isNotificationOpen,
+    isNotificationVisible,
+    notificationTab,
+    setNotificationTab,
+    unreadCount,
+    hasUnread,
+    visibleNotifications,
+    hasNotifications,
+    notificationTabIndex,
+    filteredNotifications,
+    handleNotificationClick,
+    handleMarkAllRead,
+    toggleNotifications,
+  } = useNotificationMenu({ isLoggedIn, router });
 
-  useEffect(() => {
-    if (!isNotificationOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!notificationRef.current || notificationRef.current.contains(event.target as Node)) return;
-      closeNotificationMenu();
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeNotificationMenu();
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isNotificationOpen]);
-
-  useEffect(() => {
-    if (!isProfileOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!profileRef.current || profileRef.current.contains(event.target as Node)) return;
-      closeProfileMenu();
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeProfileMenu();
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isProfileOpen]);
-
-  useEffect(() => {
-    if (isLoggedIn) return;
-    setIsProfileOpen(false);
-    setIsProfileVisible(false);
-  }, [isLoggedIn]);
+  // 메뉴 토글 핸들러
+  const handleToggleNotifications = () => toggleNotifications(closeProfileMenu);
+  const handleToggleProfile = () => toggleProfileMenu(() => {});
 
   // 특정 경로에서는 Header 숨김
-  if (
-    HeaderConfig.hidePaths.includes(pathname) ||
-    HeaderConfig.hidePrefixes.some(prefix => pathname?.startsWith(prefix))
-  ) {
-    return null;
-  }
+  if (!isVisible) return null;
 
   // 로그아웃 핸들러
   const handleLogout = createHandleLogout({
@@ -293,7 +128,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                           aria-expanded={isProfileOpen}
                           aria-haspopup="menu"
                           title={label}
-                          onClick={toggleProfileMenu}
+                          onClick={handleToggleProfile}
                         >
                           {currentUser?.profileImageUrl ? (
                             <img className={styles.profileIconImage} src={currentUser.profileImageUrl} alt="" />
@@ -389,7 +224,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                         aria-expanded={isNotificationOpen}
                         aria-haspopup="menu"
                         title={item.label}
-                        onClick={toggleNotifications}
+                        onClick={handleToggleNotifications}
                       >
                         <IconComponent aria-hidden="true" focusable="false" />
                         {hasUnread ? (
@@ -530,7 +365,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
                       className={`${styles.navLink} ${styles.navButton}`}
                       aria-label={item.label}
                       title={item.label}
-                      onClick={isBellItem ? toggleNotifications : undefined}
+                      onClick={isBellItem ? handleToggleNotifications : undefined}
                     >
                       <IconComponent aria-hidden="true" focusable="false" />
                     </button>

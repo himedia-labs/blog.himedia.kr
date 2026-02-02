@@ -1,6 +1,6 @@
 import { CiBellOn, CiSearch } from 'react-icons/ci';
 
-import type { NavItem } from './Header.types';
+import type { NavItem } from '@/app/shared/types/header';
 
 /**
  * 헤더 설정
@@ -13,10 +13,6 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const HeaderConfig = {
-  // 정확히 일치하는 경로 숨김
-  hidePaths: ['/login', '/register', '/find-password', '/posts/new'],
-  // prefix 기준 숨김
-  hidePrefixes: ['/posts/edit'],
   postDetailExcludeExactPaths: ['/posts/new'],
   postDetailExcludePrefixes: ['/posts/drafts'],
   navItems: NAV_ITEMS,
