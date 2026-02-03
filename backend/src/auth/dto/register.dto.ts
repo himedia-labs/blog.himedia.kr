@@ -15,7 +15,7 @@ import { PHONE_CONFIG } from '@/constants/config/phone.config';
 import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
 import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
 
-import type { UserRole } from '@/auth/entities/user.entity';
+import { UserRole } from '@/auth/entities/user.entity';
 
 // 회원가입
 export class RegisterDto {
@@ -42,7 +42,9 @@ export class RegisterDto {
   @IsDateString({}, { message: AUTH_VALIDATION_MESSAGES.BIRTH_DATE_FORMAT })
   birthDate!: string;
 
-  @IsIn([UserRole.TRAINEE, UserRole.GRADUATE, UserRole.MENTOR, UserRole.INSTRUCTOR], { message: AUTH_VALIDATION_MESSAGES.ROLE_ENUM })
+  @IsIn([UserRole.TRAINEE, UserRole.GRADUATE, UserRole.MENTOR, UserRole.INSTRUCTOR], {
+    message: AUTH_VALIDATION_MESSAGES.ROLE_ENUM,
+  })
   role!: UserRole;
 
   @IsOptional()
