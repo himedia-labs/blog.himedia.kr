@@ -1,5 +1,5 @@
-import type { User } from '../entities/user.entity';
-import type { PasswordReset } from '../entities/passwordReset.entity';
+import type { User } from '@/auth/entities/user.entity';
+import type { PasswordReset } from '@/auth/entities/passwordReset.entity';
 
 export interface PasswordResetValidation {
   user: User;

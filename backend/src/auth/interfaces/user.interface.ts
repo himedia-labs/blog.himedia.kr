@@ -1,4 +1,4 @@
-import type { UserRole } from '../entities/user.entity';
+import type { UserRole } from '@/auth/entities/user.entity';
 
 export interface AuthUserProfile {
   id: string;
