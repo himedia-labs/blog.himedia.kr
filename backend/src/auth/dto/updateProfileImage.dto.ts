@@ -1,6 +1,6 @@
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
 
 // 프로필 이미지 수정
 export class UpdateProfileImageDto {

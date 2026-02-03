@@ -14,39 +14,39 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+
+import { LoginDto } from '@/auth/dto/login.dto';
+import { RegisterDto } from '@/auth/dto/register.dto';
+import { UpdateProfileDto } from '@/auth/dto/updateProfile.dto';
+import { ChangePasswordDto } from '@/auth/dto/changePassword.dto';
+import { ForgotPasswordDto } from '@/auth/dto/forgotPassword.dto';
+import { VerifyResetCodeDto } from '@/auth/dto/verifyResetCode.dto';
+import { UpdateProfileBioDto } from '@/auth/dto/updateProfileBio.dto';
+import { UpdateProfileImageDto } from '@/auth/dto/updateProfileImage.dto';
+import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
+
+import { AuthService } from '@/auth/services/auth.service';
+import { UserService } from '@/auth/services/user.service';
+import { TokenService } from '@/auth/services/token.service';
+import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { PasswordResetService } from '@/auth/services/password-reset.service';
+
+import { JwtGuard } from '@/auth/guards/jwt.guard';
+import { LocalGuard } from '@/auth/guards/local.guard';
+import { LoginRateLimitGuard } from '@/auth/guards/loginRateLimit.guard';
+import { LoginValidationGuard } from '@/auth/guards/loginValidation.guard';
+import { PasswordRateLimitGuard } from '@/auth/guards/passwordRateLimit.guard';
+
+import appConfig from '@/common/config/app.config';
+import { TOKEN_CONFIG } from '@/constants/config/token.config';
+
+import { setCookies, clearCookies } from '@/auth/utils/cookie.util';
+
+import { User } from '@/auth/entities/user.entity';
+
 import type { ConfigType } from '@nestjs/config';
-
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { ChangePasswordDto } from './dto/changePassword.dto';
-import { ForgotPasswordDto } from './dto/forgotPassword.dto';
-import { VerifyResetCodeDto } from './dto/verifyResetCode.dto';
-import { ResetPasswordWithCodeDto } from './dto/resetPasswordWithCode.dto';
-import { UpdateProfileBioDto } from './dto/updateProfileBio.dto';
-import { UpdateProfileImageDto } from './dto/updateProfileImage.dto';
-import { UpdateProfileDto } from './dto/updateProfile.dto';
-
-import { UserService } from './services/user.service';
-import { AuthService } from './services/auth.service';
-import { TokenService } from './services/token.service';
-import { PasswordResetService } from './services/password-reset.service';
-import { PasswordChangeService } from './services/password-change.service';
-
-import { JwtGuard } from './guards/jwt.guard';
-import { LocalGuard } from './guards/local.guard';
-import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
-import { LoginValidationGuard } from './guards/loginValidation.guard';
-
-import appConfig from '../common/config/app.config';
-import { TOKEN_CONFIG } from '../constants/config/token.config';
-
-import { setCookies, clearCookies } from './utils/cookie.util';
-
-import { User } from './entities/user.entity';
-import type { JwtPayload } from './interfaces/jwt.interface';
-
+import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
-import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
 
 /**
  * 인증 컨트롤러

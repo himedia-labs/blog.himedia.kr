@@ -1,6 +1,6 @@
 import { createHash, createHmac } from 'crypto';
 
-import { comparePassword } from './bcrypt.util';
+import { comparePassword } from '@/auth/utils/bcrypt.util';
 
 const HMAC_SHA256_PREFIX = 'hmac-sha256:';
 const SHA256_PREFIX = 'sha256:';

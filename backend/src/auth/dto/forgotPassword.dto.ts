@@ -1,5 +1,6 @@
 import { IsEmail, MaxLength } from 'class-validator';
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
 
 // 비밀번호 찾기
 export class ForgotPasswordDto {

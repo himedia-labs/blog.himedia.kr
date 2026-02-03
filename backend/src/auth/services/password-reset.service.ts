@@ -3,24 +3,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 
-import { UserService } from './user.service';
-import { TokenService } from './token.service';
-import { EmailService } from '../../email/email.service';
+import { ForgotPasswordDto } from '@/auth/dto/forgotPassword.dto';
+import { VerifyResetCodeDto } from '@/auth/dto/verifyResetCode.dto';
+import { ResetPasswordWithCodeDto } from '@/auth/dto/resetPasswordWithCode.dto';
 
-import { User } from '../entities/user.entity';
-import { PasswordReset } from '../entities/passwordReset.entity';
+import { UserService } from '@/auth/services/user.service';
+import { TokenService } from '@/auth/services/token.service';
 
-import { ForgotPasswordDto } from '../dto/forgotPassword.dto';
-import { VerifyResetCodeDto } from '../dto/verifyResetCode.dto';
-import { ResetPasswordWithCodeDto } from '../dto/resetPasswordWithCode.dto';
+import { User } from '@/auth/entities/user.entity';
+import { PasswordReset } from '@/auth/entities/passwordReset.entity';
 
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { SnowflakeService } from '../../common/services/snowflake.service';
-import { PASSWORD_CONFIG } from '../../constants/config/password.config';
-import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
-import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '../../constants/message/password.messages';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { PASSWORD_CONFIG } from '@/constants/config/password.config';
+import { EmailService } from '@/email/email.service';
+import { SnowflakeService } from '@/common/services/snowflake.service';
+import { PASSWORD_ERROR_MESSAGES, PASSWORD_SUCCESS_MESSAGES } from '@/constants/message/password.messages';
 
-import type { PasswordResetValidation } from '../interfaces/password.interface';
+import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
+
+import type { PasswordResetValidation } from '@/auth/interfaces/password.interface';
 
 /**
  * 비밀번호 재설정 서비스

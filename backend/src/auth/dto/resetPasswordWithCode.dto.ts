@@ -1,6 +1,7 @@
 import { IsEmail, IsString, Length, MaxLength, MinLength, Matches } from 'class-validator';
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
-import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
+
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
 
 // 인증번호 확인 후 새 비밀번호로 재설정 요청에 사용
 export class ResetPasswordWithCodeDto {

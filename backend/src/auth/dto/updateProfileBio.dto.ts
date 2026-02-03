@@ -1,6 +1,6 @@
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
 
 // 자기소개 수정
 export class UpdateProfileBioDto {

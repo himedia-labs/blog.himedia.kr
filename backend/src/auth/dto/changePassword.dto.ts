@@ -1,5 +1,6 @@
 import { IsString, MaxLength, MinLength, Matches } from 'class-validator';
-import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
+
+import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
 
 // 로그인 후 비밀번호 변경
 export class ChangePasswordDto {

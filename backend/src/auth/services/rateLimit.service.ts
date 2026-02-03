@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { PASSWORD_ERROR_MESSAGES } from '../../constants/message/password.messages';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { PASSWORD_ERROR_MESSAGES } from '@/constants/message/password.messages';
 
-import type { ErrorCode } from '../../constants/error/error-codes';
-import type { RateLimitEntry, RateLimitKey, RateLimitRule } from '../interfaces/rateLimit.interface';
+import type { ErrorCode } from '@/constants/error/error-codes';
+import type { RateLimitEntry, RateLimitKey, RateLimitRule } from '@/auth/interfaces/rateLimit.interface';
 
 /**
  * 레이트리밋 서비스

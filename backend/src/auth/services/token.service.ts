@@ -1,25 +1,26 @@
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-
 import { randomBytes, randomUUID } from 'crypto';
 import { IsNull, Repository } from 'typeorm';
 
-import { User } from '../entities/user.entity';
-import { RefreshToken } from '../entities/refreshToken.entity';
+import { RefreshTokenDto } from '@/auth/dto/refreshToken.dto';
 
-import appConfig from '../../common/config/app.config';
-import { TOKEN_CONFIG } from '../../constants/config/token.config';
+import { UserService } from '@/auth/services/user.service';
 
-import { UserService } from './user.service';
-import { RefreshTokenDto } from '../dto/refreshToken.dto';
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { TOKEN_ERROR_MESSAGES } from '../../constants/message/token.messages';
-import { hashRefreshTokenSecret, verifyRefreshTokenSecret } from '../utils/token-hash.util';
+import { User } from '@/auth/entities/user.entity';
+import { RefreshToken } from '@/auth/entities/refreshToken.entity';
+
+import appConfig from '@/common/config/app.config';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { TOKEN_CONFIG } from '@/constants/config/token.config';
+import { TOKEN_ERROR_MESSAGES } from '@/constants/message/token.messages';
+
+import { hashRefreshTokenSecret, verifyRefreshTokenSecret } from '@/auth/utils/token-hash.util';
 
 import type { ConfigType } from '@nestjs/config';
-import type { AuthResponse } from '../interfaces/auth.interface';
-import type { AuthTokens, ParsedRefreshToken } from '../interfaces/token.interface';
+import type { AuthResponse } from '@/auth/interfaces/auth.interface';
+import type { AuthTokens, ParsedRefreshToken } from '@/auth/interfaces/token.interface';
 
 /**
  * 토큰 관리 서비스

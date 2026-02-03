@@ -1,13 +1,13 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-
 import { ILike, Repository } from 'typeorm';
 
-import { User } from '../entities/user.entity';
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
+import { User } from '@/auth/entities/user.entity';
 
-import type { AuthUserProfile, PublicUserProfile } from '../interfaces/user.interface';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES, AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+
+import type { AuthUserProfile, PublicUserProfile } from '@/auth/interfaces/user.interface';
 
 /**
  * 사용자 서비스
@@ -133,6 +133,8 @@ export class UserService {
     };
   }
 
+  // --------------------------- 프로필 수정 ---------------------------
+
   /**
    * 프로필 이미지 수정
    * @description 프로필 이미지 URL을 업데이트
@@ -194,10 +196,8 @@ export class UserService {
     return this.buildUserProfile(user);
   }
 
-  // --------------------------- 프로필 수정 ---------------------------
-
   /**
-   * 프로필 수정
+   * 자기소개 수정
    * @description 사용자 자기소개를 업데이트
    */
   async updateProfileBio(userId: string, profileBio?: string | null): Promise<AuthUserProfile> {

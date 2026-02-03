@@ -1,6 +1,7 @@
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
-import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
+
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
 
 // 로그인
 export class LoginDto {

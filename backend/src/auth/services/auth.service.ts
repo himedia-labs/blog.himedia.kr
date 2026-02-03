@@ -1,18 +1,21 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
-
 import { Repository } from 'typeorm';
 
-import { TokenService } from './token.service';
-import { User, UserRole } from '../entities/user.entity';
-import { RegisterDto } from '../dto/register.dto';
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { SnowflakeService } from '../../common/services/snowflake.service';
-import { comparePassword, hashWithAuthRounds } from '../utils/bcrypt.util';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
-import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone.util';
+import { RegisterDto } from '@/auth/dto/register.dto';
 
-import type { AuthResponse } from '../interfaces/auth.interface';
+import { TokenService } from '@/auth/services/token.service';
+
+import { User, UserRole } from '@/auth/entities/user.entity';
+
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { SnowflakeService } from '@/common/services/snowflake.service';
+import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+
+import { formatPhoneNumber, normalizePhoneNumber } from '@/auth/utils/phone.util';
+import { comparePassword, hashWithAuthRounds } from '@/auth/utils/bcrypt.util';
+
+import type { AuthResponse } from '@/auth/interfaces/auth.interface';
 
 /**
  * 인증 서비스

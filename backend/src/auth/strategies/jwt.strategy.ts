@@ -1,15 +1,15 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-
 import { Strategy, ExtractJwt } from 'passport-jwt';
 
-import appConfig from '../../common/config/app.config';
-import { UserService } from '../services/user.service';
-import { ERROR_CODES } from '../../constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '../../constants/message/auth.messages';
+import { UserService } from '@/auth/services/user.service';
+
+import appConfig from '@/common/config/app.config';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
 
 import type { ConfigType } from '@nestjs/config';
-import type { JwtPayload } from '../interfaces/jwt.interface';
+import type { JwtPayload } from '@/auth/interfaces/jwt.interface';
 
 /**
  * JWT 인증

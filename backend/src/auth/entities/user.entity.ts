@@ -1,5 +1,6 @@
 import { Check, Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { RefreshToken } from './refreshToken.entity';
+
+import { RefreshToken } from '@/auth/entities/refreshToken.entity';
 
 // 권한
 export enum UserRole {

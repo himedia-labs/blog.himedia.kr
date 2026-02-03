@@ -4,29 +4,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 
-import { AuthController } from './auth.controller';
+import { AuthController } from '@/auth/auth.controller';
 
-import { UserService } from './services/user.service';
-import { AuthService } from './services/auth.service';
-import { TokenService } from './services/token.service';
-import { PasswordChangeService } from './services/password-change.service';
-import { PasswordResetService } from './services/password-reset.service';
-import { RateLimitService } from './services/rateLimit.service';
+import { AuthService } from '@/auth/services/auth.service';
+import { UserService } from '@/auth/services/user.service';
+import { TokenService } from '@/auth/services/token.service';
+import { RateLimitService } from '@/auth/services/rateLimit.service';
+import { PasswordChangeService } from '@/auth/services/password-change.service';
+import { PasswordResetService } from '@/auth/services/password-reset.service';
 
-import { User } from './entities/user.entity';
-import { RefreshToken } from './entities/refreshToken.entity';
-import { PasswordReset } from './entities/passwordReset.entity';
+import { User } from '@/auth/entities/user.entity';
+import { RefreshToken } from '@/auth/entities/refreshToken.entity';
+import { PasswordReset } from '@/auth/entities/passwordReset.entity';
 
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
+import { LocalStrategy } from '@/auth/strategies/local.strategy';
 
-import { LoginRateLimitGuard } from './guards/loginRateLimit.guard';
-import { LoginValidationGuard } from './guards/loginValidation.guard';
-import { PasswordRateLimitGuard } from './guards/passwordRateLimit.guard';
+import { LoginRateLimitGuard } from '@/auth/guards/loginRateLimit.guard';
+import { LoginValidationGuard } from '@/auth/guards/loginValidation.guard';
+import { PasswordRateLimitGuard } from '@/auth/guards/passwordRateLimit.guard';
 
-import { EmailModule } from '../email/email.module';
-import appConfig from '../common/config/app.config';
-import { SnowflakeService } from '../common/services/snowflake.service';
+import appConfig from '@/common/config/app.config';
+import { EmailModule } from '@/email/email.module';
+import { SnowflakeService } from '@/common/services/snowflake.service';
 
 @Module({
   imports: [

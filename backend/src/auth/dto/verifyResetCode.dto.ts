@@ -1,6 +1,7 @@
 import { IsEmail, IsString, Length, MaxLength } from 'class-validator';
-import { AUTH_VALIDATION_MESSAGES } from '../../constants/message/auth.messages';
-import { PASSWORD_VALIDATION_MESSAGES } from '../../constants/message/password.messages';
+
+import { AUTH_VALIDATION_MESSAGES } from '@/constants/message/auth.messages';
+import { PASSWORD_VALIDATION_MESSAGES } from '@/constants/message/password.messages';
 
 // 이메일로 받은 인증번호 검증
 export class VerifyResetCodeDto {

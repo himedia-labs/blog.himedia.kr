@@ -1,7 +1,7 @@
 import { IsString, Length } from 'class-validator';
 
-import { TOKEN_CONFIG } from '../../constants/config/token.config';
-import { TOKEN_VALIDATION_MESSAGES } from '../../constants/message/token.messages';
+import { TOKEN_CONFIG } from '@/constants/config/token.config';
+import { TOKEN_VALIDATION_MESSAGES } from '@/constants/message/token.messages';
 
 // 토큰 갱신
 export class RefreshTokenDto {
