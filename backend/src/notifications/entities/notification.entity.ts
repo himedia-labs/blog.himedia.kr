@@ -1,17 +1,8 @@
-import {
-  Check,
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { User } from '../../auth/entities/user.entity';
-import { Comment } from '../../comments/entities/comment.entity';
-import { Post } from '../../posts/entities/post.entity';
+import { User } from '@/auth/entities/user.entity';
+import { Post } from '@/posts/entities/post.entity';
+import { Comment } from '@/comments/entities/comment.entity';
 
 export enum NotificationType {
   POST_LIKE = 'POST_LIKE',
