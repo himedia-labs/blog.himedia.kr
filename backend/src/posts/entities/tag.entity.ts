@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
-import { PostTag } from './postTag.entity';
+import { PostTag } from '@/posts/entities/postTag.entity';
 
 @Entity({ name: 'tags' })
 export class Tag {

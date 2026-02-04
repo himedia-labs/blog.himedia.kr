@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { TAG_VALIDATION_MESSAGES } from '../../constants/message/tag.messages';
+import { TAG_VALIDATION_MESSAGES } from '@/constants/message/tag.messages';
 
 // 태그 자동완성 쿼리
 export class TagSuggestQueryDto {

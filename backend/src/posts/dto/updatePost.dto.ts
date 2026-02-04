@@ -1,7 +1,7 @@
 import { ArrayMaxSize, IsArray, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
-import { POST_VALIDATION_MESSAGES } from '../../constants/message/post.messages';
-import { PostStatus } from '../entities/post.entity';
+import { PostStatus } from '@/posts/entities/post.entity';
+import { POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
 
 // 게시글 수정
 export class UpdatePostDto {

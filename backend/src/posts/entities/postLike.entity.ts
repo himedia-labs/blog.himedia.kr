@@ -1,7 +1,7 @@
 import { CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { User } from '../../auth/entities/user.entity';
-import { Post } from './post.entity';
+import { Post } from '@/posts/entities/post.entity';
+import { User } from '@/auth/entities/user.entity';
 
 @Entity({ name: 'post_likes' })
 @Index(['userId'])

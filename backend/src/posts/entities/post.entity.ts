@@ -1,24 +1,24 @@
 import {
+  Index,
   Check,
   Column,
-  CreateDateColumn,
   Entity,
-  Index,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
-  UpdateDateColumn,
+  JoinColumn,
   BeforeInsert,
   BeforeUpdate,
+  PrimaryColumn,
+  UpdateDateColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
-import { User } from '../../auth/entities/user.entity';
-import { Comment } from '../../comments/entities/comment.entity';
-import { Category } from './category.entity';
-import { PostLike } from './postLike.entity';
-import { PostTag } from './postTag.entity';
-import { PostImage } from './postImage.entity';
+import { User } from '@/auth/entities/user.entity';
+import { PostTag } from '@/posts/entities/postTag.entity';
+import { Category } from '@/posts/entities/category.entity';
+import { PostLike } from '@/posts/entities/postLike.entity';
+import { Comment } from '@/comments/entities/comment.entity';
+import { PostImage } from '@/posts/entities/postImage.entity';
 
 // 게시글 상태
 export enum PostStatus {

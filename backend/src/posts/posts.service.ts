@@ -2,26 +2,35 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, MoreThan, Repository } from 'typeorm';
 
-import { Post, PostStatus } from './entities/post.entity';
-import { Tag } from './entities/tag.entity';
-import { PostTag } from './entities/postTag.entity';
-import { PostImage, PostImageType } from './entities/postImage.entity';
-import { PostLike } from './entities/postLike.entity';
-import { PostShareLog } from './entities/postShareLog.entity';
-import { PostViewLog } from './entities/postViewLog.entity';
-import { Comment } from '../comments/entities/comment.entity';
-import { ERROR_CODES } from '../constants/error/error-codes';
-import { AUTH_ERROR_MESSAGES } from '../constants/message/auth.messages';
-import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '../constants/message/post.messages';
-import { ListPostsQueryDto, PostSortOption, SortOrder } from './dto/listPostsQuery.dto';
-import { CreatePostDto } from './dto/createPost.dto';
-import { UpdatePostDto } from './dto/updatePost.dto';
-import { SnowflakeService } from '../common/services/snowflake.service';
-import { Follow } from '../follows/entities/follow.entity';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/entities/notification.entity';
+import { SnowflakeService } from '@/common/services/snowflake.service';
 
-import type { ErrorCode } from '../constants/error/error-codes';
+import { ERROR_CODES } from '@/constants/error/error-codes';
+import { AUTH_ERROR_MESSAGES } from '@/constants/message/auth.messages';
+import { POST_ERROR_MESSAGES, POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
+
+import { Follow } from '@/follows/entities/follow.entity';
+import { Comment } from '@/comments/entities/comment.entity';
+import { NotificationsService } from '@/notifications/notifications.service';
+import { NotificationType } from '@/notifications/entities/notification.entity';
+
+import { CreatePostDto } from '@/posts/dto/createPost.dto';
+import { UpdatePostDto } from '@/posts/dto/updatePost.dto';
+import { ListPostsQueryDto, PostSortOption, SortOrder } from '@/posts/dto/listPostsQuery.dto';
+
+import { Tag } from '@/posts/entities/tag.entity';
+import { PostTag } from '@/posts/entities/postTag.entity';
+import { PostLike } from '@/posts/entities/postLike.entity';
+import { Post, PostStatus } from '@/posts/entities/post.entity';
+import { PostViewLog } from '@/posts/entities/postViewLog.entity';
+import { PostShareLog } from '@/posts/entities/postShareLog.entity';
+import { PostImage, PostImageType } from '@/posts/entities/postImage.entity';
+
+import type { ErrorCode } from '@/constants/error/error-codes';
+
+/**
+ * 게시글 발행 검증
+ * @description 발행 필수 필드를 확인
+ */
 const ensurePublishFields = (fields: {
   title?: string | null;
   content?: string | null;
@@ -44,8 +53,17 @@ const VIEW_WINDOW_HOURS = 24;
 const SHARE_WINDOW_MINUTES = 10;
 const IMAGE_URL_MAX_LENGTH = 500;
 
+/**
+ * 이미지 URL 추출
+ * @description 콘텐츠에서 이미지 URL을 추출
+ */
 const extractImageUrls = (content: string) => {
   const urls = new Set<string>();
+
+  /**
+   * URL 추가
+   * @description 유효한 URL만 수집
+   */
   const addUrl = (value?: string) => {
     const url = value?.trim();
     if (url && url.length <= IMAGE_URL_MAX_LENGTH) {
@@ -69,6 +87,10 @@ const extractImageUrls = (content: string) => {
 
 @Injectable()
 export class PostsService {
+  /**
+   * 게시글 서비스
+   * @description 게시글 도메인 로직을 처리
+   */
   constructor(
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
@@ -84,11 +106,18 @@ export class PostsService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+  /**
+   * 게시글 이미지 구성
+   * @description 썸네일과 본문 이미지 목록을 생성
+   */
   private buildPostImages(post: Post, postImageRepository: Repository<PostImage>) {
+    // 기본/준비
     const images: PostImage[] = [];
-    const contentUrls = extractImageUrls(post.content ?? '');
-    const thumbnailUrl = post.thumbnailUrl?.trim();
     const usedUrls = new Set<string>();
+
+    // URL/추출
+    const thumbnailUrl = post.thumbnailUrl?.trim();
+    const contentUrls = extractImageUrls(post.content ?? '');
 
     if (thumbnailUrl) {
       usedUrls.add(thumbnailUrl);
@@ -118,14 +147,22 @@ export class PostsService {
     return images;
   }
 
+  /**
+   * 게시글 목록
+   * @description 게시글 목록을 조회
+   */
   async getPosts(query: ListPostsQueryDto, userId?: string | null) {
-    const feed = query.feed ?? null;
+    // 페이징/정렬
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const order = query.order ?? SortOrder.DESC;
     const sort = query.sort ?? PostSortOption.CREATED_AT;
 
+    // 필터/상태
+    const feed = query.feed ?? null;
     const status = query.status ?? PostStatus.PUBLISHED;
+
+    // 목록/쿼리
     const queryBuilder = this.postsRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.category', 'category')
@@ -138,7 +175,7 @@ export class PostsService {
       .where('post.status = :status', { status })
       .distinct(true);
 
-    // 피드 조건
+    // 피드/조건
     if (feed === 'following') {
       const safeUserId = userId?.trim();
       if (!safeUserId) {
@@ -154,6 +191,7 @@ export class PostsService {
       );
     }
 
+    // 필터/조건
     if (query.categoryId) {
       queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
     }
@@ -162,29 +200,16 @@ export class PostsService {
       queryBuilder.andWhere('post.authorId = :authorId', { authorId: query.authorId });
     }
 
+    // 목록/조회
     const [posts, total] = await queryBuilder
       .orderBy(`post.${sort}`, order)
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
 
+    // 응답/반환
     return {
-      items: posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        thumbnailUrl: post.thumbnailUrl,
-        status: post.status,
-        viewCount: post.viewCount,
-        likeCount: post.likeCount,
-        shareCount: post.shareCount,
-        commentCount: post.commentCount ?? 0,
-        createdAt: post.createdAt,
-        publishedAt: post.publishedAt,
-        category: post.category ? { id: post.category.id, name: post.category.name } : null,
-        tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
-        author: post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null,
-      })),
+      items: posts.map(post => this.buildPostListItem(post)),
       page,
       limit,
       total,
@@ -192,12 +217,18 @@ export class PostsService {
     };
   }
 
+  /**
+   * 좋아요 목록
+   * @description 사용자가 좋아요한 게시글을 조회
+   */
   async getLikedPosts(query: ListPostsQueryDto, userId: string) {
+    // 페이징/정렬
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const order = query.order ?? SortOrder.DESC;
     const sort = query.sort ?? PostSortOption.CREATED_AT;
 
+    // 목록/쿼리
     const queryBuilder = this.postsRepository
       .createQueryBuilder('post')
       .innerJoin(PostLike, 'postLike', 'postLike.postId = post.id AND postLike.userId = :userId', { userId })
@@ -211,6 +242,7 @@ export class PostsService {
       .where('post.status = :status', { status: PostStatus.PUBLISHED })
       .distinct(true);
 
+    // 필터/조건
     if (query.categoryId) {
       queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
     }
@@ -219,29 +251,16 @@ export class PostsService {
       queryBuilder.andWhere('post.authorId = :authorId', { authorId: query.authorId });
     }
 
+    // 목록/조회
     const [posts, total] = await queryBuilder
       .orderBy(`post.${sort}`, order)
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
 
+    // 응답/반환
     return {
-      items: posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        thumbnailUrl: post.thumbnailUrl,
-        status: post.status,
-        viewCount: post.viewCount,
-        likeCount: post.likeCount,
-        shareCount: post.shareCount,
-        commentCount: post.commentCount ?? 0,
-        createdAt: post.createdAt,
-        publishedAt: post.publishedAt,
-        category: post.category ? { id: post.category.id, name: post.category.name } : null,
-        tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
-        author: post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null,
-      })),
+      items: posts.map(post => this.buildPostListItem(post)),
       page,
       limit,
       total,
@@ -249,45 +268,39 @@ export class PostsService {
     };
   }
 
-  // 임시저장 목록 조회
+  /**
+   * 임시저장 목록
+   * @description 작성자의 임시저장 목록을 조회
+   */
   async getDrafts(query: ListPostsQueryDto, authorId: string) {
+    // 페이징/정렬
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
-    const sort = query.sort ?? PostSortOption.CREATED_AT;
     const order = query.order ?? SortOrder.DESC;
+    const sort = query.sort ?? PostSortOption.CREATED_AT;
 
+    // 목록/쿼리
     const queryBuilder = this.postsRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.category', 'category')
       .where('post.status = :status', { status: PostStatus.DRAFT })
       .andWhere('post.authorId = :authorId', { authorId });
 
+    // 필터/조건
     if (query.categoryId) {
       queryBuilder.andWhere('post.categoryId = :categoryId', { categoryId: query.categoryId });
     }
 
+    // 목록/조회
     const [posts, total] = await queryBuilder
       .orderBy(`post.${sort}`, order)
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
 
+    // 응답/반환
     return {
-      items: posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        thumbnailUrl: post.thumbnailUrl,
-        status: post.status,
-        viewCount: post.viewCount,
-        likeCount: post.likeCount,
-        shareCount: post.shareCount,
-        commentCount: 0,
-        createdAt: post.createdAt,
-        publishedAt: post.publishedAt,
-        category: post.category ? { id: post.category.id, name: post.category.name } : null,
-        author: null,
-      })),
+      items: posts.map(post => this.buildDraftListItem(post)),
       page,
       limit,
       total,
@@ -295,8 +308,12 @@ export class PostsService {
     };
   }
 
-  // 임시저장 상세 조회
+  /**
+   * 임시저장 상세
+   * @description 특정 임시저장 게시글을 조회
+   */
   async getDraft(postId: string, authorId: string) {
+    // 대상/조회
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.DRAFT, authorId },
       relations: {
@@ -308,6 +325,7 @@ export class PostsService {
       },
     });
 
+    // 예외/처리
     if (!post) {
       const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
       throw new NotFoundException({
@@ -316,6 +334,7 @@ export class PostsService {
       });
     }
 
+    // 응답/반환
     return {
       id: post.id,
       title: post.title,
@@ -334,10 +353,17 @@ export class PostsService {
     };
   }
 
-  // 게시글 생성
+  /**
+   * 게시글 생성
+   * @description 게시글을 생성
+   */
   async createPost(payload: CreatePostDto, authorId: string) {
-    const categoryId = payload.categoryId?.trim() || null;
+    // 입력/정규화
+    const rawTags = payload.tags ?? [];
     const status = payload.status ?? PostStatus.DRAFT;
+    const categoryId = payload.categoryId?.trim() || null;
+    const normalizedTags = this.normalizeTagNames(rawTags);
+
     if (status === PostStatus.PUBLISHED) {
       ensurePublishFields({
         title: payload.title,
@@ -345,15 +371,15 @@ export class PostsService {
         categoryId,
       });
     }
-    const rawTags = payload.tags ?? [];
-    const normalizedTags = rawTags.map(tag => tag.trim().replace(/^#+/, '')).filter(Boolean);
 
     return this.postsRepository.manager.transaction(async manager => {
-      const postRepository = manager.getRepository(Post);
+      // 레포/확보
       const tagRepository = manager.getRepository(Tag);
+      const postRepository = manager.getRepository(Post);
       const postTagRepository = manager.getRepository(PostTag);
       const postImageRepository = manager.getRepository(PostImage);
 
+      // 게시글/생성
       const post = postRepository.create({
         id: this.snowflakeService.generate(),
         authorId,
@@ -365,48 +391,16 @@ export class PostsService {
         thumbnailUrl: payload.thumbnailUrl ?? null,
       });
 
+      // 게시글/저장
       const savedPost = await postRepository.save(post);
 
+      // 태그/처리
       if (normalizedTags.length) {
-        const existingTags = await tagRepository.find({
-          where: { name: In(normalizedTags) },
-        });
-        const tagMap = new Map(existingTags.map(tag => [tag.name, tag]));
-
-        for (const name of normalizedTags) {
-          if (tagMap.has(name)) continue;
-          const newTag = tagRepository.create({
-            id: this.snowflakeService.generate(),
-            name,
-          });
-
-          try {
-            const savedTag = await tagRepository.save(newTag);
-            tagMap.set(name, savedTag);
-          } catch (error) {
-            if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
-              const fallbackTag = await tagRepository.findOne({ where: { name } });
-              if (fallbackTag) {
-                tagMap.set(name, fallbackTag);
-                continue;
-              }
-            }
-            throw error;
-          }
-        }
-
-        const postTags = Array.from(tagMap.values()).map(tag =>
-          postTagRepository.create({
-            postId: savedPost.id,
-            tagId: tag.id,
-          }),
-        );
-
-        if (postTags.length) {
-          await postTagRepository.save(postTags);
-        }
+        const tagMap = await this.upsertTags(tagRepository, normalizedTags);
+        await this.savePostTags(postTagRepository, savedPost.id, Array.from(tagMap.values()));
       }
 
+      // 이미지/처리
       await postImageRepository.delete({ postId: savedPost.id });
       const postImages = this.buildPostImages(savedPost, postImageRepository);
       if (postImages.length) {
@@ -417,14 +411,19 @@ export class PostsService {
     });
   }
 
-  // 게시글 수정
+  /**
+   * 게시글 수정
+   * @description 게시글을 수정
+   */
   async updatePost(postId: string, payload: UpdatePostDto, authorId: string) {
     return this.postsRepository.manager.transaction(async manager => {
-      const postRepository = manager.getRepository(Post);
+      // 레포/확보
       const tagRepository = manager.getRepository(Tag);
+      const postRepository = manager.getRepository(Post);
       const postTagRepository = manager.getRepository(PostTag);
       const postImageRepository = manager.getRepository(PostImage);
 
+      // 대상/조회
       const post = await postRepository.findOne({
         where: { id: postId, authorId },
         relations: {
@@ -434,6 +433,7 @@ export class PostsService {
         },
       });
 
+      // 예외/처리
       if (!post) {
         const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
         throw new NotFoundException({
@@ -442,10 +442,12 @@ export class PostsService {
         });
       }
 
-      const nextStatus = payload.status ?? post.status;
+      // 다음값/계산
       const nextTitle = payload.title ?? post.title;
+      const nextStatus = payload.status ?? post.status;
       const nextContent = payload.content ?? post.content;
       const nextCategoryId = payload.categoryId !== undefined ? payload.categoryId : post.categoryId;
+
       if (nextStatus === PostStatus.PUBLISHED) {
         ensurePublishFields({
           title: nextTitle,
@@ -454,6 +456,7 @@ export class PostsService {
         });
       }
 
+      // 값/반영
       if (payload.title !== undefined) post.title = payload.title;
       if (payload.content !== undefined) post.content = payload.content;
       if (payload.categoryId !== undefined) post.categoryId = payload.categoryId;
@@ -467,54 +470,21 @@ export class PostsService {
         }
       }
 
+      // 저장/처리
       const savedPost = await postRepository.save(post);
 
+      // 태그/처리
       if (payload.tags !== undefined) {
         await postTagRepository.delete({ postId: savedPost.id });
 
-        const normalizedTags = payload.tags.map(tag => tag.trim().replace(/^#+/, '')).filter(Boolean);
-
+        const normalizedTags = this.normalizeTagNames(payload.tags);
         if (normalizedTags.length) {
-          const existingTags = await tagRepository.find({
-            where: { name: In(normalizedTags) },
-          });
-          const tagMap = new Map(existingTags.map(tag => [tag.name, tag]));
-
-          for (const name of normalizedTags) {
-            if (tagMap.has(name)) continue;
-            const newTag = tagRepository.create({
-              id: this.snowflakeService.generate(),
-              name,
-            });
-
-            try {
-              const savedTag = await tagRepository.save(newTag);
-              tagMap.set(name, savedTag);
-            } catch (error) {
-              if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
-                const fallbackTag = await tagRepository.findOne({ where: { name } });
-                if (fallbackTag) {
-                  tagMap.set(name, fallbackTag);
-                  continue;
-                }
-              }
-              throw error;
-            }
-          }
-
-          const postTags = Array.from(tagMap.values()).map(tag =>
-            postTagRepository.create({
-              postId: savedPost.id,
-              tagId: tag.id,
-            }),
-          );
-
-          if (postTags.length) {
-            await postTagRepository.save(postTags);
-          }
+          const tagMap = await this.upsertTags(tagRepository, normalizedTags);
+          await this.savePostTags(postTagRepository, savedPost.id, Array.from(tagMap.values()));
         }
       }
 
+      // 이미지/처리
       await postImageRepository.delete({ postId: savedPost.id });
       const postImages = this.buildPostImages(savedPost, postImageRepository);
       if (postImages.length) {
@@ -525,12 +495,18 @@ export class PostsService {
     });
   }
 
+  /**
+   * 게시글 삭제
+   * @description 게시글을 삭제
+   */
   async deletePost(postId: string, authorId: string) {
+    // 대상/조회
     const post = await this.postsRepository.findOne({
       where: { id: postId, authorId },
       select: { id: true },
     });
 
+    // 예외/처리
     if (!post) {
       const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
       throw new NotFoundException({
@@ -539,11 +515,17 @@ export class PostsService {
       });
     }
 
+    // 삭제/처리
     await this.postsRepository.delete({ id: postId, authorId });
     return { id: postId };
   }
 
+  /**
+   * 게시글 상세
+   * @description 게시글 상세 정보를 조회
+   */
   async getPostDetail(postId: string, userId?: string | null) {
+    // 대상/조회
     const post = await this.postsRepository.findOne({
       where: { id: postId, status: PostStatus.PUBLISHED },
       relations: {
@@ -555,6 +537,7 @@ export class PostsService {
       },
     });
 
+    // 예외/처리
     if (!post) {
       const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
       throw new NotFoundException({
@@ -563,11 +546,13 @@ export class PostsService {
       });
     }
 
+    // 보조/데이터
     const liked = userId ? Boolean(await this.postLikeRepository.findOne({ where: { postId, userId } })) : false;
     const commentCount = await this.commentsRepository.count({
       where: { postId: post.id, deletedAt: IsNull() },
     });
 
+    // 응답/반환
     return {
       id: post.id,
       title: post.title,
@@ -588,19 +573,26 @@ export class PostsService {
     };
   }
 
-  // 공유 카운트 증가
+  /**
+   * 공유 카운트 증가
+   * @description 공유 로그를 기반으로 공유 수를 증가
+   */
   async incrementShareCount(
     postId: string,
     ip: string,
     userAgent: string,
     userId?: string | null,
   ): Promise<{ shareCount: number }> {
+    // 시간/윈도우
     const now = Date.now();
     const windowStart = new Date(now - SHARE_WINDOW_MINUTES * 60 * 1000);
-    const safeIp = ip?.trim() || 'unknown';
-    const safeUserAgent = userAgent?.trim() || 'unknown';
-    const safeUserId = userId?.trim() || null;
 
+    // 입력/정규화
+    const safeIp = ip?.trim() || 'unknown';
+    const safeUserId = userId?.trim() || null;
+    const safeUserAgent = userAgent?.trim() || 'unknown';
+
+    // 로그/확인
     const existingLog = safeUserId
       ? await this.postShareLogRepository.findOne({
           where: { postId, userId: safeUserId, createdAt: MoreThan(windowStart) },
@@ -610,12 +602,14 @@ export class PostsService {
         });
 
     if (!existingLog) {
+      // 카운트/증가
       const result = await this.postsRepository.increment(
         { id: postId, status: PostStatus.PUBLISHED },
         'shareCount',
         1,
       );
 
+      // 예외/처리
       if (!result.affected) {
         const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
         throw new NotFoundException({
@@ -624,6 +618,7 @@ export class PostsService {
         });
       }
 
+      // 로그/저장
       const log = this.postShareLogRepository.create({
         id: this.snowflakeService.generate(),
         postId,
@@ -633,6 +628,7 @@ export class PostsService {
       });
       await this.postShareLogRepository.save(log);
     } else {
+      // 대상/확인
       const postExists = await this.postsRepository.findOne({
         where: { id: postId, status: PostStatus.PUBLISHED },
         select: { id: true },
@@ -647,6 +643,7 @@ export class PostsService {
       }
     }
 
+    // 결과/조회
     const post = await this.postsRepository.findOne({
       where: { id: postId },
       select: { id: true, shareCount: true },
@@ -657,19 +654,26 @@ export class PostsService {
     };
   }
 
-  // 좋아요 토글
+  /**
+   * 좋아요 토글
+   * @description 좋아요 상태를 토글
+   */
   async toggleLikeCount(postId: string, userId: string): Promise<{ likeCount: number; liked: boolean }> {
+    // 입력/정규화
     const safeUserId = userId.trim();
 
     return this.postsRepository.manager.transaction(async manager => {
+      // 레포/확보
       const postRepository = manager.getRepository(Post);
       const likeRepository = manager.getRepository(PostLike);
 
+      // 대상/조회
       const post = await postRepository.findOne({
         where: { id: postId, status: PostStatus.PUBLISHED },
         select: { id: true, likeCount: true, authorId: true },
       });
 
+      // 예외/처리
       if (!post) {
         const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
         throw new NotFoundException({
@@ -678,9 +682,11 @@ export class PostsService {
         });
       }
 
+      // 기존/확인
       const existing = await likeRepository.findOne({ where: { postId, userId: safeUserId } });
       let liked = false;
 
+      // 토글/처리
       if (existing) {
         await likeRepository.delete({ postId, userId: safeUserId });
         await postRepository.decrement({ id: postId }, 'likeCount', 1);
@@ -691,6 +697,7 @@ export class PostsService {
         liked = true;
       }
 
+      // 알림/처리
       if (liked && post.authorId) {
         await this.notificationsService.createNotification({
           actorUserId: safeUserId,
@@ -700,6 +707,7 @@ export class PostsService {
         });
       }
 
+      // 결과/조회
       const updated = await postRepository.findOne({
         where: { id: postId },
         select: { id: true, likeCount: true },
@@ -712,19 +720,26 @@ export class PostsService {
     });
   }
 
-  // 조회수 증가
+  /**
+   * 조회수 증가
+   * @description 조회 로그를 기반으로 조회수를 증가
+   */
   async incrementViewCount(
     postId: string,
     ip: string,
     userAgent: string,
     anonymousId: string,
   ): Promise<{ viewCount: number }> {
+    // 시간/윈도우
     const now = Date.now();
     const windowStart = new Date(now - VIEW_WINDOW_HOURS * 60 * 60 * 1000);
+
+    // 입력/정규화
     const safeIp = ip?.trim() || 'unknown';
     const safeUserAgent = userAgent?.trim() || 'unknown';
     const safeAnonymousId = anonymousId?.trim() || 'unknown';
 
+    // 로그/확인
     const existingLog = await this.postViewLogRepository.findOne({
       where: {
         postId,
@@ -736,8 +751,10 @@ export class PostsService {
     });
 
     if (!existingLog) {
+      // 카운트/증가
       const result = await this.postsRepository.increment({ id: postId, status: PostStatus.PUBLISHED }, 'viewCount', 1);
 
+      // 예외/처리
       if (!result.affected) {
         const code = ERROR_CODES.POST_NOT_FOUND as ErrorCode;
         throw new NotFoundException({
@@ -746,6 +763,7 @@ export class PostsService {
         });
       }
 
+      // 로그/저장
       const log = this.postViewLogRepository.create({
         id: this.snowflakeService.generate(),
         postId,
@@ -755,6 +773,7 @@ export class PostsService {
       });
       await this.postViewLogRepository.save(log);
     } else {
+      // 대상/확인
       const postExists = await this.postsRepository.findOne({
         where: { id: postId, status: PostStatus.PUBLISHED },
         select: { id: true },
@@ -769,6 +788,7 @@ export class PostsService {
       }
     }
 
+    // 결과/조회
     const post = await this.postsRepository.findOne({
       where: { id: postId },
       select: { id: true, viewCount: true },
@@ -777,5 +797,129 @@ export class PostsService {
     return {
       viewCount: post?.viewCount ?? 0,
     };
+  }
+
+  /**
+   * 게시글 목록 아이템
+   * @description 목록용 게시글 정보를 반환
+   */
+  private buildPostListItem(post: Post) {
+    // 기본/정보
+    const commentCount = post.commentCount ?? 0;
+    const category = post.category ? { id: post.category.id, name: post.category.name } : null;
+    const tags = post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [];
+    const author = post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null;
+
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      thumbnailUrl: post.thumbnailUrl,
+      status: post.status,
+      viewCount: post.viewCount,
+      likeCount: post.likeCount,
+      shareCount: post.shareCount,
+      commentCount,
+      createdAt: post.createdAt,
+      publishedAt: post.publishedAt,
+      category,
+      tags,
+      author,
+    };
+  }
+
+  /**
+   * 임시저장 아이템
+   * @description 임시저장 목록용 데이터를 반환
+   */
+  private buildDraftListItem(post: Post) {
+    // 기본/정보
+    const category = post.category ? { id: post.category.id, name: post.category.name } : null;
+
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      thumbnailUrl: post.thumbnailUrl,
+      status: post.status,
+      viewCount: post.viewCount,
+      likeCount: post.likeCount,
+      shareCount: post.shareCount,
+      commentCount: 0,
+      createdAt: post.createdAt,
+      publishedAt: post.publishedAt,
+      category,
+      author: null,
+    };
+  }
+
+  /**
+   * 태그 정규화
+   * @description 태그 문자열을 정리
+   */
+  private normalizeTagNames(tags: string[]) {
+    return tags.map(tag => tag.trim().replace(/^#+/, '')).filter(Boolean);
+  }
+
+  /**
+   * 태그 업서트
+   * @description 기존 태그를 보존하고 필요한 태그를 생성
+   */
+  private async upsertTags(tagRepository: Repository<Tag>, names: string[]) {
+    // 빠른/종료
+    if (!names.length) return new Map<string, Tag>();
+
+    // 기존/조회
+    const existingTags = await tagRepository.find({
+      where: { name: In(names) },
+    });
+    const tagMap = new Map(existingTags.map(tag => [tag.name, tag]));
+
+    // 신규/생성
+    for (const name of names) {
+      if (tagMap.has(name)) continue;
+      const newTag = tagRepository.create({
+        id: this.snowflakeService.generate(),
+        name,
+      });
+
+      try {
+        const savedTag = await tagRepository.save(newTag);
+        tagMap.set(name, savedTag);
+      } catch (error) {
+        if (error instanceof Error && 'code' in error && (error as { code?: string }).code === '23505') {
+          const fallbackTag = await tagRepository.findOne({ where: { name } });
+          if (fallbackTag) {
+            tagMap.set(name, fallbackTag);
+            continue;
+          }
+        }
+        throw error;
+      }
+    }
+
+    return tagMap;
+  }
+
+  /**
+   * 태그 저장
+   * @description 게시글 태그 관계를 저장
+   */
+  private async savePostTags(postTagRepository: Repository<PostTag>, postId: string, tags: Tag[]) {
+    // 빠른/종료
+    if (!tags.length) return;
+
+    // 관계/생성
+    const postTags = tags.map(tag =>
+      postTagRepository.create({
+        postId,
+        tagId: tag.id,
+      }),
+    );
+
+    // 관계/저장
+    if (postTags.length) {
+      await postTagRepository.save(postTags);
+    }
   }
 }

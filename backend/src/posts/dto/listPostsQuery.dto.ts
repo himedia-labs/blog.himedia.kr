@@ -1,8 +1,8 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { POST_VALIDATION_MESSAGES } from '../../constants/message/post.messages';
-import { PostStatus } from '../entities/post.entity';
+import { PostStatus } from '@/posts/entities/post.entity';
+import { POST_VALIDATION_MESSAGES } from '@/constants/message/post.messages';
 
 export enum PostSortOption {
   CREATED_AT = 'createdAt',

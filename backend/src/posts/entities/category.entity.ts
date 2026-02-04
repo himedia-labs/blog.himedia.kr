@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
-import { Post } from './post.entity';
+import { Post } from '@/posts/entities/post.entity';
 
 @Entity({ name: 'categories' })
 export class Category {
