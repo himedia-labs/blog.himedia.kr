@@ -1,26 +1,18 @@
-/**
- * HTTP 예외 필터 구현
- * @description 모든 HttpException을 잡아 표준 형식으로 응답하고, 에러 로그를 출력합니다.
- *
- * @example
- * - statusCode: HTTP 상태 코드
- * - path: 요청 경로
- * - timestamp: 발생 시각
- */
-
 import { Catch, ArgumentsHost, HttpException, ExceptionFilter, Logger, INestApplication } from '@nestjs/common';
 
 import type { Request, Response } from 'express';
-import type { FieldErrors, StandardErrorResponse } from './httpException.types';
+import type { FieldErrors, StandardErrorResponse } from '@/common/exception/httpException.types';
 
 /**
- * 요청 데이터를 로그용 문자열로 변환
+ * 요청 데이터 변환
+ * @description 로그용 문자열로 변환
  */
 const formatSection = (label: string, data: Record<string, unknown>) =>
   data && Object.keys(data).length ? ` \n ${label}: ${JSON.stringify(data, null, 2)}` : '';
 
 /**
- * HttpException에서 에러 메시지 추출
+ * 필드 에러 검사
+ * @description 필드별 에러 객체 여부를 확인
  */
 const isFieldErrors = (value: unknown): value is FieldErrors => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -30,7 +22,8 @@ const isFieldErrors = (value: unknown): value is FieldErrors => {
 };
 
 /**
- * HttpException에서 메시지, 코드, 필드별 에러 추출
+ * 예외 메시지 추출
+ * @description 메시지/코드/필드별 에러를 구성
  */
 const extractErrorMessage = (exception: HttpException): { message: string; code?: string; errors?: FieldErrors } => {
   const exceptionResponse = exception.getResponse();
@@ -55,14 +48,14 @@ const extractErrorMessage = (exception: HttpException): { message: string; code?
   return { message: exception.message };
 };
 
-/**
- * HTTP 예외 필터
- * @description 모든 HttpException을 잡아 표준 형식으로 응답
- */
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
+  /**
+   * 예외 처리
+   * @description 표준 응답으로 변환 후 반환
+   */
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -100,7 +93,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 }
 
 /**
- * 전역 예외 필터 설정
+ * 예외 필터 설정
+ * @description 전역 예외 필터를 등록
  */
 export const setupFilters = (app: INestApplication) => {
   app.useGlobalFilters(new HttpExceptionFilter());

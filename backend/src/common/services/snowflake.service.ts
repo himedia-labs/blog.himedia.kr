@@ -16,6 +16,7 @@ export class SnowflakeService {
 
   /**
    * Snowflake ID 생성
+   * @description 고유 ID를 문자열로 반환
    */
   generate(): string {
     return this.snowflake.generate().toString();
