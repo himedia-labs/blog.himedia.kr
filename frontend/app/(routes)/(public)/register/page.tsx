@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { FaCheck } from 'react-icons/fa';
@@ -11,15 +11,25 @@ import { RxInfoCircled } from 'react-icons/rx';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbExternalLink } from 'react-icons/tb';
 
-import { useRegisterMutation } from '@/app/api/auth/auth.mutations';
+import {
+  useRegisterMutation,
+  useSendEmailVerificationCodeMutation,
+  useVerifyEmailVerificationCodeMutation,
+} from '@/app/api/auth/auth.mutations';
 
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
 import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
-import { COURSE_OPTIONS, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
-import { createNextStepHandler, registerSubmit } from '@/app/(routes)/(public)/register/handlers';
+import {
+  BIRTH_DATE_CONFIG,
+  COURSE_OPTIONS,
+  EMAIL_VERIFICATION_CODE_LENGTH,
+  PHONE_CONFIG,
+} from '@/app/shared/constants/config/register.config';
+
+import { useEmailVerificationAutoVerify, useRegisterForm } from '@/app/(routes)/(public)/register/hooks';
+import { createNextStepHandler, registerSubmit, sendEmailCode, verifyEmailCode } from '@/app/(routes)/(public)/register/handlers';
 
 import styles from '@/app/(routes)/(public)/register/register.module.css';
 
@@ -30,7 +40,9 @@ import styles from '@/app/(routes)/(public)/register/register.module.css';
 export default function RegisterPage() {
   const router = useRouter();
   const registerMutation = useRegisterMutation();
+  const sendCodeMutation = useSendEmailVerificationCodeMutation();
   const { showToast } = useToast();
+  const verifyCodeMutation = useVerifyEmailVerificationCodeMutation();
   const restoredToastShownRef = useRef(false);
 
   // 폼 상태/핸들러(캐시 로드 및 저장, 전화번호 포맷 등 포함)
@@ -39,7 +51,7 @@ export default function RegisterPage() {
     setFormField,
     errors,
     setErrors,
-    handlers: { handlePhoneChange, clearFormCache, markKeepCache },
+    handlers: { handleBirthDateChange, handlePhoneChange, clearFormCache, markKeepCache },
     hasCache,
     restoredFromKeep,
   } = useRegisterForm();
@@ -73,6 +85,11 @@ export default function RegisterPage() {
 
   // 스텝 상태
   const [step, setStep] = useState<1 | 2>(1);
+  // 이메일 인증 상태
+  const [emailCode, setEmailCode] = useState('');
+  const [emailCodeError, setEmailCodeError] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isEmailCodeSent, setIsEmailCodeSent] = useState(false);
 
   // 약관 페이지에서 돌아왔을 때 캐시 로드 안내 토스트
   useEffect(() => {
@@ -115,6 +132,7 @@ export default function RegisterPage() {
     password,
     passwordConfirm,
     phone,
+    isEmailVerified,
     setNameError,
     setEmailError,
     setBirthDateError,
@@ -123,6 +141,35 @@ export default function RegisterPage() {
     setPhoneError,
     showToast,
     setStep,
+  });
+
+  const handleSendEmailCode = sendEmailCode({
+    email,
+    setEmailError,
+    setCodeError: setEmailCodeError,
+    setEmailCode,
+    setIsEmailCodeSent,
+    sendCodeMutation,
+    showToast,
+  });
+
+  const handleVerifyEmailCode = verifyEmailCode({
+    code: emailCode,
+    email,
+    setEmailError,
+    setCodeError: setEmailCodeError,
+    setIsEmailVerified,
+    showToast,
+    verifyCodeMutation,
+  });
+
+  useEmailVerificationAutoVerify({
+    emailCode,
+    codeLength: EMAIL_VERIFICATION_CODE_LENGTH,
+    isEmailCodeSent,
+    isEmailVerified,
+    isVerifying: verifyCodeMutation.isPending,
+    onVerify: handleVerifyEmailCode,
   });
 
   return (
@@ -166,7 +213,11 @@ export default function RegisterPage() {
                 <div className={styles.formGroup}>
                   <label htmlFor="email" className={styles.label}>
                     <span className={styles.labelText}>이메일 주소</span>
-                    <span className={styles.labelHint}>(인증 전)</span>
+                    <span
+                      className={isEmailVerified ? `${styles.labelHint} ${styles.labelHintVerified}` : styles.labelHint}
+                    >
+                      ({isEmailVerified ? '인증 완료' : '미인증'})
+                    </span>
                   </label>
                   <input
                     type="email"
@@ -175,6 +226,12 @@ export default function RegisterPage() {
                     onChange={e => {
                       const next = e.target.value;
                       setFormField('email', next);
+                      if (isEmailVerified || isEmailCodeSent || emailCode) {
+                        setIsEmailVerified(false);
+                        setIsEmailCodeSent(false);
+                        setEmailCode('');
+                        setEmailCodeError('');
+                      }
                       if (!EMAIL_REGEX.test(next)) {
                         setEmailError(EMAIL_MESSAGES.invalid);
                       } else if (emailError) {
@@ -183,23 +240,47 @@ export default function RegisterPage() {
                     }}
                     className={emailError ? `${styles.input} ${styles.error}` : styles.input}
                     autoComplete="username"
+                    disabled={isEmailVerified}
                   />
                   {emailError && <p className={styles.errorMessage}>{emailError}</p>}
                 </div>
+
+                {isEmailCodeSent && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="emailCode" className={styles.label}>
+                      <span className={styles.labelText}>인증번호</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="emailCode"
+                      value={emailCode}
+                      onChange={e => {
+                        setEmailCode(e.target.value);
+                        if (emailCodeError) setEmailCodeError('');
+                      }}
+                      className={emailCodeError ? `${styles.input} ${styles.error}` : styles.input}
+                      placeholder="8자리 인증번호"
+                      maxLength={EMAIL_VERIFICATION_CODE_LENGTH}
+                      autoComplete="one-time-code"
+                      disabled={isEmailVerified}
+                    />
+                    {emailCodeError && <p className={styles.errorMessage}>{emailCodeError}</p>}
+                  </div>
+                )}
 
                 <div className={styles.formGroup}>
                   <label htmlFor="birthDate" className={styles.label}>
                     <span className={styles.labelText}>생년월일</span>
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     id="birthDate"
                     value={birthDate}
-                    onChange={e => {
-                      setFormField('birthDate', e.target.value);
-                      if (birthDateError) setBirthDateError('');
-                    }}
+                    onChange={handleBirthDateChange}
                     className={birthDateError ? `${styles.input} ${styles.error}` : styles.input}
+                    placeholder="YYYY-MM-DD"
+                    inputMode="numeric"
+                    maxLength={BIRTH_DATE_CONFIG.FORMATTED_MAX_LENGTH}
                     autoComplete="bday"
                   />
                   {birthDateError && <p className={styles.errorMessage}>{birthDateError}</p>}
@@ -290,9 +371,37 @@ export default function RegisterPage() {
                     <Link href="/login" className={styles.link}>
                       이미 계정이 있으신가요?
                     </Link>
+                    {isEmailCodeSent && !isEmailVerified && (
+                      <>
+                        <span className={styles.separator}>|</span>
+                        <button
+                          type="button"
+                          className={`${styles.link} ${styles.linkButton}`}
+                          disabled={sendCodeMutation.isPending || verifyCodeMutation.isPending}
+                          onClick={() => {
+                            handleSendEmailCode();
+                          }}
+                        >
+                          재전송
+                        </button>
+                      </>
+                    )}
                   </div>
-                  <button type="button" className={styles.submitButton} onClick={handleNextStep}>
-                    다음
+                  <button
+                    type="button"
+                    className={styles.submitButton}
+                    disabled={
+                      sendCodeMutation.isPending ||
+                      verifyCodeMutation.isPending ||
+                      (isEmailCodeSent && !isEmailVerified)
+                    }
+                    onClick={isEmailVerified ? handleNextStep : handleSendEmailCode}
+                  >
+                    {sendCodeMutation.isPending
+                      ? '발송 중...'
+                      : isEmailVerified || isEmailCodeSent
+                        ? '다음'
+                        : '인증번호 발송'}
                   </button>
                 </div>
               </>

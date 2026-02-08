@@ -7,23 +7,41 @@ import type {
   LoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
-  ResetPasswordResponse,
   SendResetCodeRequest,
+  UpdateProfileRequest,
+  ResetPasswordResponse,
+  UpdateProfileResponse,
   SendResetCodeResponse,
+  VerifyResetCodeRequest,
   UpdateProfileBioRequest,
+  VerifyResetCodeResponse,
   UpdateProfileBioResponse,
   UpdateProfileImageRequest,
   UpdateProfileImageResponse,
-  UpdateProfileRequest,
-  UpdateProfileResponse,
-  VerifyResetCodeRequest,
-  VerifyResetCodeResponse,
+  SendEmailVerificationCodeRequest,
+  SendEmailVerificationCodeResponse,
+  VerifyEmailVerificationCodeRequest,
+  VerifyEmailVerificationCodeResponse,
 } from '@/app/shared/types/auth';
 
 // 회원가입
 export const useRegisterMutation = () => {
   return useMutation<void, Error, RegisterRequest>({
     mutationFn: authApi.register,
+  });
+};
+
+// 회원가입 이메일 인증: 코드 발송
+export const useSendEmailVerificationCodeMutation = () => {
+  return useMutation<SendEmailVerificationCodeResponse, Error, SendEmailVerificationCodeRequest>({
+    mutationFn: authApi.sendEmailVerificationCode,
+  });
+};
+
+// 회원가입 이메일 인증: 코드 검증
+export const useVerifyEmailVerificationCodeMutation = () => {
+  return useMutation<VerifyEmailVerificationCodeResponse, Error, VerifyEmailVerificationCodeRequest>({
+    mutationFn: authApi.verifyEmailVerificationCode,
   });
 };
 

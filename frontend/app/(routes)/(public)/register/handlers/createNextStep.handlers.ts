@@ -12,6 +12,7 @@ export const createNextStepHandler = (params: {
   password: string;
   passwordConfirm: string;
   phone: string;
+  isEmailVerified: boolean;
   setNameError: (value: string) => void;
   setEmailError: (value: string) => void;
   setBirthDateError: (value: string) => void;
@@ -56,6 +57,11 @@ export const createNextStepHandler = (params: {
 
     if (hasError) {
       params.showToast({ message: REGISTER_MESSAGES.missingRequired, type: 'warning' });
+      return;
+    }
+
+    if (!params.isEmailVerified) {
+      params.showToast({ message: REGISTER_MESSAGES.missingEmailVerification, type: 'warning' });
       return;
     }
 

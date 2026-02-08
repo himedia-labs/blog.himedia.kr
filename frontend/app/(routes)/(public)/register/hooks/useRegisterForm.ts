@@ -7,7 +7,7 @@ import {
 } from '@/app/shared/constants/config/register.config';
 import { sessionStorage } from '@/app/shared/utils/session-storage';
 
-import { formatPhone } from '@/app/(routes)/(public)/register/utils';
+import { formatBirthDate, formatPhone } from '@/app/(routes)/(public)/register/utils';
 
 import type { RegisterFormCache } from '@/app/shared/types/register';
 
@@ -75,6 +75,13 @@ export const useRegisterForm = () => {
     setPhoneError,
   });
 
+  // 생년월일 포맷 핸들러
+  const handleBirthDateChange = formatBirthDate({
+    setBirthDate: value => setFormField('birthDate', value),
+    birthDateError,
+    setBirthDateError,
+  });
+
   return {
     form,
     setFormField,
@@ -101,6 +108,7 @@ export const useRegisterForm = () => {
       setPrivacyError,
     },
     handlers: {
+      handleBirthDateChange,
       handlePhoneChange,
       clearFormCache,
       // 약관 페이지 이동 시 캐시 보존 플래그 설정
