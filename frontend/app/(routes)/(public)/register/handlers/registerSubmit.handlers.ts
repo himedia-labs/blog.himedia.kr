@@ -80,7 +80,8 @@ export const registerSubmit = (params: {
       params.setRoleError(REGISTER_MESSAGES.missingRole);
       hasError = true;
     }
-    if (!params.course) {
+    const requiresCourse = params.role === 'trainee' || params.role === 'graduate';
+    if (requiresCourse && !params.course) {
       params.setCourseError(REGISTER_MESSAGES.missingCourse);
       hasError = true;
     }
@@ -98,7 +99,7 @@ export const registerSubmit = (params: {
     const phoneNumber = params.phone.replace(/\s/g, '');
 
     // role을 대문자로 변환
-    const upperRole = params.role.toUpperCase() as 'TRAINEE' | 'MENTOR' | 'INSTRUCTOR';
+    const upperRole = params.role.toUpperCase() as 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
 
     params.registerMutation.mutate(
       {
@@ -108,7 +109,7 @@ export const registerSubmit = (params: {
         phone: phoneNumber,
         birthDate: params.birthDate,
         role: upperRole,
-        course: params.course || undefined,
+        course: requiresCourse ? params.course || undefined : undefined,
         privacyConsent: params.privacyConsent,
       },
       {

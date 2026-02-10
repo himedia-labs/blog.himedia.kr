@@ -58,6 +58,7 @@ export default function RegisterPage() {
 
   // 폼 입력값 상태
   const { name, email, birthDate, password, passwordConfirm, phone, role, course, privacyConsent } = form;
+  const isCourseDisabled = role === 'instructor' || role === 'mentor';
   // 폼 에러 상태
   const {
     nameError,
@@ -416,8 +417,15 @@ export default function RegisterPage() {
                       id="role"
                       value={role}
                       onChange={e => {
-                        setFormField('role', e.target.value);
+                        const nextRole = e.target.value;
+                        const shouldDisableCourse = nextRole === 'instructor' || nextRole === 'mentor';
+
+                        setFormField('role', nextRole);
+                        if (shouldDisableCourse) {
+                          setFormField('course', '');
+                        }
                         if (roleError) setRoleError('');
+                        if (courseError) setCourseError('');
                       }}
                       className={roleError ? `${styles.select} ${styles.error}` : styles.select}
                     >
@@ -445,6 +453,7 @@ export default function RegisterPage() {
                         if (courseError) setCourseError('');
                       }}
                       className={courseError ? `${styles.select} ${styles.error}` : styles.select}
+                      disabled={isCourseDisabled}
                     >
                       <option value="">선택해주세요</option>
                       {COURSE_OPTIONS.map(option => (

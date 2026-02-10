@@ -195,6 +195,12 @@
   border-color: #aaa;
 }
 
+.select:disabled {
+  background: #f5f5f5;
+  color: #9a9a9a;
+  cursor: not-allowed;
+}
+
 .errorMessage {
   margin: 0;
   font-size: 0.875rem;
