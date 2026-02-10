@@ -64,6 +64,7 @@ export default function MyPage() {
     likedPosts,
     myComments,
     myPosts,
+    userBirthDate,
     userEmail,
     userPhone,
     profileHandle,
@@ -659,7 +660,7 @@ export default function MyPage() {
                     </div>
                     <div className={styles.settingsItem}>
                       <div className={styles.settingsItemLabel}>생년월일</div>
-                      <div className={styles.settingsItemValue}>미등록</div>
+                      <div className={styles.settingsItemValue}>{userBirthDate || '미등록'}</div>
                       <button type="button" className={styles.settingsButton}>
                         설정
                       </button>
