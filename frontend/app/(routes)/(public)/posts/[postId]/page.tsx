@@ -27,6 +27,7 @@ import Skeleton from 'react-loading-skeleton';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -182,7 +183,7 @@ export default function PostDetailPage() {
     const replyState = getReplyState(rootCommentId);
     const replyMentionList = getReplyMentionSuggestions(replyState.mentionQuery);
     const isReplyMentionOpen = replyMentionList.length > 0 && replyState.mentionQuery !== null;
-    const hasReplyLengthError = replyState.content.length > 1000;
+    const hasReplyLengthError = isCommentContentTooLong(replyState.content);
     return (
       <div
         key={comment.id}

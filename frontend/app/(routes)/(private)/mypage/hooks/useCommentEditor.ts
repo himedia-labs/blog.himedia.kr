@@ -4,6 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { commentsApi } from '@/app/api/comments/comments.api';
 import { commentsKeys } from '@/app/api/comments/comments.keys';
+import {
+  isCommentContentTooLong,
+  MAX_COMMENT_CONTENT_LENGTH,
+  normalizeCommentContent,
+  sanitizeCommentContent,
+} from '@/app/shared/utils/comment.utils';
 
 import type { ChangeEvent } from 'react';
 
@@ -32,7 +38,7 @@ export const useCommentEditor = () => {
   });
 
   // 댓글 길이 체크
-  const hasEditingLengthError = editingContent.length > 1000;
+  const hasEditingLengthError = isCommentContentTooLong(editingContent);
 
   // 댓글 메뉴 토글
   const handleCommentMenuToggle = (commentId: string) =>
@@ -57,8 +63,13 @@ export const useCommentEditor = () => {
   // 댓글 편집 저장
   const handleEditSubmit = async (postId: string, commentId: string) => {
     if (!postId) return;
-    const trimmed = editingContent.trim();
-    if (!trimmed || hasEditingLengthError) return;
+    const normalized = normalizeCommentContent(editingContent);
+    if (normalized !== editingContent) {
+      setEditingContent(normalized);
+    }
+    const trimmed = sanitizeCommentContent(normalized);
+    if (!trimmed) return;
+    if (trimmed.length > MAX_COMMENT_CONTENT_LENGTH) return;
     await updateMyComment({ postId, commentId, content: trimmed });
     handleEditCancel();
     await queryClient.invalidateQueries({ queryKey: commentsKeys.myList() });

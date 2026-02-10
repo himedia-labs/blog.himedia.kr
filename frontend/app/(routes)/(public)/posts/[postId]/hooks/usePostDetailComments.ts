@@ -9,6 +9,12 @@ import { useDeleteCommentMutation, useUpdateCommentMutation } from '@/app/api/co
 import { followsApi } from '@/app/api/follows/follows.api';
 import { postsKeys } from '@/app/api/posts/posts.keys';
 import { useToast } from '@/app/shared/components/toast/toast';
+import {
+  isCommentContentTooLong,
+  MAX_COMMENT_CONTENT_LENGTH,
+  normalizeCommentContent,
+  sanitizeCommentContent,
+} from '@/app/shared/utils/comment.utils';
 
 import { usePostCommentForm } from '@/app/(routes)/(public)/posts/[postId]/hooks/usePostCommentForm';
 import {
@@ -27,9 +33,6 @@ import {
 import type { ChangeEvent, MouseEvent } from 'react';
 import type { CommentItem, CommentListResponse } from '@/app/shared/types/comment';
 import type { UserRole } from '@/app/shared/types/post';
-
-const MAX_CONTENT_LENGTH = 1000;
-const normalizeNewlines = (value: string) => value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
 
 type UsePostDetailCommentsParams = {
   accessToken: string | null;
@@ -85,7 +88,7 @@ export const usePostDetailComments = ({
     Record<string, { content: string; parentId: string | null; mentionQuery: string | null }>
   >({});
   const [commentMentionQuery, setCommentMentionQuery] = useState<string | null>(null);
-  const hasEditingLengthError = editingContent.length > MAX_CONTENT_LENGTH;
+  const hasEditingLengthError = isCommentContentTooLong(editingContent);
 
   // 멘션 후보
   const mentionCandidates = useMemo(() => {
@@ -266,7 +269,7 @@ export const usePostDetailComments = ({
 
   // 댓글 등록
   const handleCommentSubmit = async () => {
-    const normalized = normalizeNewlines(content);
+    const normalized = normalizeCommentContent(content);
     if (normalized !== content) {
       setContent(normalized);
     }
@@ -325,11 +328,11 @@ export const usePostDetailComments = ({
       showToast({ message: '로그인 후 이용해주세요.', type: 'warning' });
       return;
     }
-    const normalized = normalizeNewlines(editingContent);
+    const normalized = normalizeCommentContent(editingContent);
     if (normalized !== editingContent) {
       setEditingContent(normalized);
     }
-    const trimmed = normalized.trim();
+    const trimmed = sanitizeCommentContent(normalized);
     if (!trimmed) {
       showToast({ message: '댓글을 입력해주세요.', type: 'warning' });
       return;
@@ -529,13 +532,12 @@ export const usePostDetailComments = ({
     }
     const replyState = getReplyState(rootId);
     const parentId = replyState.parentId ?? rootId;
-    const normalized = normalizeNewlines(replyState.content.replace(/\u00a0/g, ' '));
-    const trimmed = normalized.trim();
+    const trimmed = sanitizeCommentContent(replyState.content);
     if (!trimmed) {
       showToast({ message: '댓글을 입력해주세요.', type: 'warning' });
       return;
     }
-    if (trimmed.length > MAX_CONTENT_LENGTH) {
+    if (trimmed.length > MAX_COMMENT_CONTENT_LENGTH) {
       showToast({ message: '1,000자까지 입력 가능해요.', type: 'warning' });
       return;
     }

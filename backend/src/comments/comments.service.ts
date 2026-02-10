@@ -18,6 +18,8 @@ import { COMMENT_ERROR_MESSAGES, COMMENT_VALIDATION_MESSAGES } from '@/constants
 
 import { NotificationsService } from '@/notifications/notifications.service';
 
+import { sanitizeCommentContent } from '@/comments/utils/comment-content.util';
+
 import { ERROR_CODES } from '@/constants/error/error-codes';
 import type { ErrorCode } from '@/constants/error/error-codes';
 
@@ -347,7 +349,7 @@ export class CommentsService {
    * @description 댓글 내용을 검증하고 반환
    */
   private ensureContent(content?: string) {
-    const trimmed = content?.trim();
+    const trimmed = sanitizeCommentContent(content ?? '');
     if (trimmed) {
       return trimmed;
     }
