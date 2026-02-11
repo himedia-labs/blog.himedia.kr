@@ -43,35 +43,37 @@ export const useProfileEditor = (initialName?: string, initialHandle?: string) =
   };
 
   // 프로필 저장
-  const handleProfileSave = async () => {
+  const handleProfileSave = async (): Promise<boolean> => {
     const nextName = profileName.trim();
     const nextHandle = profileHandle.trim().replace(/^@/, '');
     if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(nextHandle)) {
       showToast({ message: '프로필 아이디는 영문/숫자만 입력할 수 있어요.', type: 'error' });
-      return;
+      return false;
     }
     if (!nextHandle) {
       showToast({ message: '프로필 아이디를 입력해주세요.', type: 'error' });
-      return;
+      return false;
     }
     try {
       await updateProfile({ name: nextName, profileHandle: nextHandle });
       await queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
       showToast({ message: '프로필이 저장되었습니다.', type: 'success' });
-      setIsProfileEditing(false);
+      return true;
     } catch (error) {
       showToast({ message: '프로필 저장에 실패했습니다.', type: 'error' });
+      return false;
     }
   };
 
-  // 편집 토글
-  const handleProfileEditToggle = () => {
-    if (!isProfileEditing) {
-      setIsProfileEditing(true);
-      return;
-    }
+  // 편집 시작
+  const handleProfileEditStart = () => {
     if (isProfileSaving) return;
-    handleProfileSave();
+    setIsProfileEditing(true);
+  };
+
+  // 편집 완료
+  const handleProfileEditComplete = () => {
+    setIsProfileEditing(false);
   };
 
   // 편집 취소
@@ -86,7 +88,9 @@ export const useProfileEditor = (initialName?: string, initialHandle?: string) =
     profileName,
     profileHandle,
     handlers: {
-      handleProfileEditToggle,
+      handleProfileSave,
+      handleProfileEditStart,
+      handleProfileEditComplete,
       handleProfileHandleChange,
       handleProfileCancel,
     },

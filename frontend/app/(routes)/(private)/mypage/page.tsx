@@ -101,15 +101,23 @@ export default function MyPage() {
   // 프로필 편집
   const {
     isProfileEditing,
+    isProfileSaving,
     profileHandle: editingHandle,
-    handlers: { handleProfileEditToggle, handleProfileHandleChange, handleProfileCancel },
+    handlers: {
+      handleProfileSave,
+      handleProfileEditStart,
+      handleProfileEditComplete,
+      handleProfileHandleChange,
+      handleProfileCancel,
+    },
   } = useProfileEditor(displayName, profileHandle);
 
   // 프로필 이미지
   const {
+    isProfileUpdating,
     profileImageUrl: profileAvatarUrl,
     refs: { avatarInputRef },
-    handlers: { handleAvatarClick, handleAvatarChange },
+    handlers: { handleAvatarClick, handleAvatarChange, handleAvatarRemove, handleAvatarSave, handleAvatarCancel },
   } = useProfileImageEditor(profileImageUrl, isProfileEditing);
 
   // 게시글 메뉴
@@ -227,6 +235,38 @@ export default function MyPage() {
   const accountBirthDateValue = isUserInfoLoading ? <Skeleton width={120} height={18} /> : userBirthDate || '미등록';
   const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={22} /> : displayName || '사용자';
   const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={16} /> : `@${profileHandle}`;
+  const isProfileActionPending = isProfileSaving || isProfileUpdating;
+
+  const handleProfileAction = () => {
+    if (isProfileActionPending) return;
+
+    if (!isProfileEditing) {
+      handleProfileEditStart();
+      return;
+    }
+
+    void handleProfileSaveAll();
+  };
+
+  const handleProfileSaveAll = async () => {
+    if (isProfileActionPending) return;
+
+    const isProfileSaved = await handleProfileSave();
+    if (!isProfileSaved) return;
+
+    const isAvatarSaved = await handleAvatarSave();
+    if (!isAvatarSaved) return;
+
+    handleProfileEditComplete();
+  };
+
+  const handleProfileCancelAll = () => {
+    if (isProfileActionPending) return;
+
+    handleAvatarCancel();
+    handleProfileCancel();
+  };
+
   const closeWithdrawModal = () => {
     if (isWithdrawing) return;
 
@@ -387,11 +427,34 @@ export default function MyPage() {
                 </div>
                 <div className={styles.profileActions}>
                   {isProfileEditing ? (
-                    <button type="button" className={styles.profileCancelButton} onClick={handleProfileCancel}>
-                      취소
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className={styles.profileDeleteButton}
+                        disabled={isProfileActionPending}
+                        onClick={handleAvatarRemove}
+                      >
+                        프로필 삭제
+                      </button>
+                      <span className={styles.profileActionDivider} aria-hidden="true">
+                        |
+                      </span>
+                      <button
+                        type="button"
+                        className={styles.profileCancelButton}
+                        disabled={isProfileActionPending}
+                        onClick={handleProfileCancelAll}
+                      >
+                        취소
+                      </button>
+                    </>
                   ) : null}
-                  <button type="button" className={styles.profileEditButton} onClick={handleProfileEditToggle}>
+                  <button
+                    type="button"
+                    className={styles.profileEditButton}
+                    disabled={isProfileActionPending}
+                    onClick={handleProfileAction}
+                  >
                     {isProfileEditing ? '저장' : '프로필 수정'}
                   </button>
                 </div>
