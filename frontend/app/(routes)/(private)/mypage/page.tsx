@@ -750,9 +750,7 @@ export default function MyPage() {
                               >
                                 {isEmailCodeSent ? '재전송' : '인증번호 발송'}
                               </button>
-                              <span className={styles.settingsEmailActionDivider} aria-hidden="true">
-                                |
-                              </span>
+                              <span className={styles.settingsDivider} aria-hidden="true" />
                               <div className={`${styles.settingsInlineActions} ${styles.settingsInlineActionsInline}`}>
                                 <button
                                   type="button"
