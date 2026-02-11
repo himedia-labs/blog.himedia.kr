@@ -23,7 +23,7 @@ export const REGISTER_MESSAGES = {
   missingEmailCode: '인증번호를 입력해주세요.',
   missingBirthDate: '생년월일을 입력해주세요.',
   missingPassword: '비밀번호를 입력해주세요.',
-  invalidPassword: '비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.',
+  invalidPassword: '8~32자, 공백 없이 영문/숫자/특수문자 중 2가지 이상이며 연속 3자 동일 문자는 사용할 수 없습니다.',
   missingPasswordConfirm: '비밀번호 확인을 입력해주세요.',
   passwordMismatch: '비밀번호가 일치하지 않습니다.',
   missingPhone: '전화번호를 입력해주세요.',

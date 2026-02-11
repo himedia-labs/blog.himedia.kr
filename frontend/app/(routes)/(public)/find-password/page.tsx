@@ -12,7 +12,7 @@ import {
   useVerifyResetCodeMutation,
 } from '@/app/api/auth/auth.mutations';
 import { useToast } from '@/app/shared/components/toast/toast';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { EMAIL_REGEX, RESET_CODE_EXPIRY_SECONDS } from '@/app/shared/constants/config/auth.config';
 
 import { formatCode, formatRemainingTime, isValidPassword } from '@/app/(routes)/(public)/find-password/utils';
@@ -258,7 +258,7 @@ export default function ForgotPasswordPage() {
                     const value = e.target.value;
                     setNewPassword(value);
                     if (value && !isValidPassword(value)) {
-                      setNewPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+                      setNewPasswordError(REGISTER_MESSAGES.invalidPassword);
                     } else {
                       setNewPasswordError('');
                     }
@@ -269,7 +269,7 @@ export default function ForgotPasswordPage() {
                       : `${styles.input} ${styles.passwordInput}`
                   }
                   disabled={isResetting}
-                  placeholder="최소 8자 이상"
+                  placeholder="8~32자, 공백 없이 입력"
                   autoComplete="new-password"
                 />
                 {newPasswordError && <p className={styles.errorMessage}>{newPasswordError}</p>}

@@ -29,10 +29,13 @@ export class RegisterDto {
 
   @IsString({ message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_STRING })
   @MinLength(8, { message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH })
-  @MaxLength(255, { message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_MAX_LENGTH })
-  @Matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_PATTERN,
-  })
+  @MaxLength(32, { message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_MAX_LENGTH })
+  @Matches(
+    /^(?!.*\s)(?!.*(.)\1\1)(?=.{8,32}$)(?:(?=.*[A-Za-z])(?=.*\d)|(?=.*[A-Za-z])(?=.*[@$!%*?&])|(?=.*\d)(?=.*[@$!%*?&]))[A-Za-z\d@$!%*?&]+$/,
+    {
+      message: PASSWORD_VALIDATION_MESSAGES.PASSWORD_PATTERN,
+    },
+  )
   password!: string;
 
   @IsString({ message: AUTH_VALIDATION_MESSAGES.PHONE_STRING })

@@ -20,7 +20,7 @@ import {
 import { isValidPassword } from '@/app/shared/utils/password';
 import { useToast } from '@/app/shared/components/toast/toast';
 import { EMAIL_REGEX } from '@/app/shared/constants/config/auth.config';
-import { EMAIL_MESSAGES } from '@/app/shared/constants/messages/auth.message';
+import { EMAIL_MESSAGES, REGISTER_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import {
   BIRTH_DATE_CONFIG,
   COURSE_OPTIONS,
@@ -299,7 +299,7 @@ export default function RegisterPage() {
                       const value = e.target.value;
                       setFormField('password', value);
                       if (value && !isValidPassword(value)) {
-                        setPasswordError('최소 8자의 영문, 숫자, 특수문자를 입력해주세요.');
+                        setPasswordError(REGISTER_MESSAGES.invalidPassword);
                       } else {
                         setPasswordError('');
                       }

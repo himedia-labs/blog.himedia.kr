@@ -1,5 +1,4 @@
-// 비밀번호 유효성 검사 (최소 8자, 영문+숫자+특수문자)
-const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+import { PASSWORD_PATTERN } from '@/app/shared/constants/config/auth.config';
 
 /**
  * 비밀번호 검증
