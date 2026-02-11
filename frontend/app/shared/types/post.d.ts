@@ -264,11 +264,6 @@ export type AutoSaveParams = {
   saveDraft: (options?: { silent?: boolean }) => Promise<void>;
 };
 
-// 컴포넌트 Props
-export type DraftNoticeModalProps = {
-  onClose: () => void;
-};
-
 export type PostDetailsFormCategory = {
   categoryId: string;
   categories: Array<{ id: string; name: string }> | undefined;
