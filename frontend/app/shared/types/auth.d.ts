@@ -115,6 +115,7 @@ export interface ResetPasswordResponse {
 // Email Verification - Send Code
 export interface SendEmailVerificationCodeRequest {
   email: string;
+  purpose?: 'register' | 'account-change';
 }
 
 export interface SendEmailVerificationCodeResponse {

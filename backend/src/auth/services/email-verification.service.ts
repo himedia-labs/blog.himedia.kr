@@ -43,6 +43,8 @@ export class EmailVerificationService {
    * @description 회원가입 이메일 인증번호를 발송
    */
   async sendEmailVerificationCode(dto: SendEmailVerificationCodeDto): Promise<{ success: true; message: string }> {
+    const purpose = dto.purpose === 'account-change' ? 'account-change' : 'register';
+
     // 사용자/검증
     const existingUser = await this.userService.findUserByEmail(dto.email);
     if (existingUser) {
@@ -80,7 +82,7 @@ export class EmailVerificationService {
 
     // 이메일/발송
     try {
-      await this.emailService.sendEmailVerificationCode(dto.email, code);
+      await this.emailService.sendEmailVerificationCode(dto.email, code, purpose);
     } catch {
       throw new InternalServerErrorException({
         message: EMAIL_VERIFICATION_ERROR_MESSAGES.EMAIL_SEND_FAILED,

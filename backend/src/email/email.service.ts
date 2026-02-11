@@ -46,19 +46,28 @@ export class EmailService {
   }
 
   /**
-   * 회원가입 이메일 인증 코드 전송
-   * @description 회원가입을 위한 이메일 인증번호를 발송
+   * 이메일 인증 코드 전송
+   * @description 회원가입/이메일 변경 인증번호 메일을 발송
    */
-  async sendEmailVerificationCode(to: string, code: string) {
+  async sendEmailVerificationCode(to: string, code: string, purpose: 'register' | 'account-change' = 'register') {
+    const isAccountChangePurpose = purpose === 'account-change';
+    const subject = isAccountChangePurpose
+      ? '[하이미디어] 이메일 변경 인증번호를 확인해주세요.'
+      : '[하이미디어] 회원가입 이메일 인증번호를 확인해주세요.';
+    const title = isAccountChangePurpose ? '이메일 변경 인증번호' : '회원가입 이메일 인증번호';
+    const description = isAccountChangePurpose
+      ? '이메일 변경을 위한 인증번호가 발급되었습니다.'
+      : '회원가입을 위한 이메일 인증번호가 발급되었습니다.';
+
     await this.transporter.sendMail({
       from: this.config.email.user,
       to,
-      subject: '[하이미디어] 회원가입 이메일 인증번호를 확인해주세요.',
+      subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">회원가입 이메일 인증번호</h2>
+          <h2 style="color: #333;">${title}</h2>
           <p>안녕하세요,</p>
-          <p>회원가입을 위한 이메일 인증번호가 발급되었습니다.</p>
+          <p>${description}</p>
           <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; font-size: 14px; color: #666;">인증번호</p>
             <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; color: #2ecc71; letter-spacing: 8px;">${code}</p>
