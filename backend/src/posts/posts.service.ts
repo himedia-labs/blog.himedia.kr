@@ -566,7 +566,14 @@ export class PostsService {
       updatedAt: post.updatedAt,
       publishedAt: post.publishedAt,
       category: post.category ? { id: post.category.id, name: post.category.name } : null,
-      author: post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null,
+      author: post.author
+        ? {
+            id: post.author.id,
+            name: post.author.name,
+            role: post.author.role,
+            profileImageUrl: post.author.profileImageUrl ?? null,
+          }
+        : null,
       tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],
     };
   }
@@ -806,7 +813,14 @@ export class PostsService {
     const commentCount = post.commentCount ?? 0;
     const category = post.category ? { id: post.category.id, name: post.category.name } : null;
     const tags = post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [];
-    const author = post.author ? { id: post.author.id, name: post.author.name, role: post.author.role } : null;
+    const author = post.author
+      ? {
+          id: post.author.id,
+          name: post.author.name,
+          role: post.author.role,
+          profileImageUrl: post.author.profileImageUrl ?? null,
+        }
+      : null;
 
     return {
       id: post.id,
