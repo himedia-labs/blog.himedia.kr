@@ -280,9 +280,9 @@ export default function PostListSection() {
                 ))
               : filteredPosts.map(post => {
                   const hasThumbnail = Boolean(post.imageUrl);
-                  const cardTitle = truncateWithEllipsis(post.title, hasThumbnail ? 50 : 78);
+                  const cardTitle = truncateWithEllipsis(post.title, hasThumbnail ? 54 : 84);
                   const sourceSummary = hasThumbnail ? post.summary : post.cardSummary;
-                  const cardSummary = truncateWithEllipsis(sourceSummary, hasThumbnail ? 118 : 260);
+                  const cardSummary = truncateWithEllipsis(sourceSummary, hasThumbnail ? 122 : 295);
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
                   return (
                     <li key={post.id}>
@@ -299,13 +299,7 @@ export default function PostListSection() {
                               <p className={styles.summary}>{cardSummary}</p>
                             </div>
                           </div>
-                          <div
-                            className={
-                              hasThumbnail
-                                ? `${styles.cardFooter} ${styles.cardFooterWithThumb}`
-                                : `${styles.cardFooter} ${styles.cardFooterNoThumb}`
-                            }
-                          >
+                          <div className={`${styles.cardFooter} ${styles.cardFooterWithThumb}`}>
                             <div className={styles.cardDateRow}>
                               <span>{post.date}</span>
                               <span>·</span>
@@ -321,7 +315,7 @@ export default function PostListSection() {
                                   {post.authorProfileImageUrl ? (
                                     <img className={styles.cardAuthorImage} src={post.authorProfileImageUrl} alt="" loading="lazy" />
                                   ) : (
-                                    <FaUser className={styles.cardAuthorFallbackIcon} />
+                                    <FaUser />
                                   )}
                                 </div>
                                 <span className={styles.cardAuthorName}>{post.authorName}</span>

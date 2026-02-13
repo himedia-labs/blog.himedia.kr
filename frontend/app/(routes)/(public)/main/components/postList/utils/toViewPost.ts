@@ -15,7 +15,7 @@ export const toViewPost = (item: PostListItem): Post => {
     id: item.id,
     title: item.title,
     summary: buildSummary(item.content),
-    cardSummary: buildSummary(item.content, { maxLength: 320, previewLength: 280 }),
+    cardSummary: buildSummary(item.content, { maxLength: 390, previewLength: 350 }),
     imageUrl,
     authorId: item.author?.id ?? '',
     category: item.category?.name ?? 'ALL',
