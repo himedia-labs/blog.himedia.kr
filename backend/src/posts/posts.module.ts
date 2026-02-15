@@ -21,10 +21,22 @@ import { PostLike } from '@/posts/entities/postLike.entity';
 import { PostImage } from '@/posts/entities/postImage.entity';
 import { PostViewLog } from '@/posts/entities/postViewLog.entity';
 import { PostShareLog } from '@/posts/entities/postShareLog.entity';
+import { Follow } from '@/follows/entities/follow.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, Category, Tag, PostTag, PostLike, PostImage, PostShareLog, PostViewLog, Comment]),
+    TypeOrmModule.forFeature([
+      Post,
+      Category,
+      Tag,
+      PostTag,
+      PostLike,
+      PostImage,
+      PostShareLog,
+      PostViewLog,
+      Comment,
+      Follow,
+    ]),
     NotificationsModule,
   ],
   controllers: [PostsController, CategoriesController, TagsController],

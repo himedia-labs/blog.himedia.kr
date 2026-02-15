@@ -94,6 +94,8 @@ export class PostsService {
     private readonly postsRepository: Repository<Post>,
     @InjectRepository(PostLike)
     private readonly postLikeRepository: Repository<PostLike>,
+    @InjectRepository(Follow)
+    private readonly followsRepository: Repository<Follow>,
     @InjectRepository(PostShareLog)
     private readonly postShareLogRepository: Repository<PostShareLog>,
     @InjectRepository(PostViewLog)
@@ -546,10 +548,18 @@ export class PostsService {
     }
 
     // 보조/데이터
-    const liked = userId ? Boolean(await this.postLikeRepository.findOne({ where: { postId, userId } })) : false;
-    const commentCount = await this.commentsRepository.count({
-      where: { postId: post.id, deletedAt: IsNull() },
-    });
+    const normalizedUserId = userId?.trim() || null;
+    const authorId = post.author?.id ?? null;
+    const isAuthorFollowLookupEnabled = Boolean(normalizedUserId && authorId && normalizedUserId !== authorId);
+
+    const [liked, commentCount, followerCount, isFollowing] = await Promise.all([
+      normalizedUserId ? this.postLikeRepository.exist({ where: { postId, userId: normalizedUserId } }) : false,
+      this.commentsRepository.count({ where: { postId: post.id, deletedAt: IsNull() } }),
+      authorId ? this.followsRepository.count({ where: { followingId: authorId } }) : 0,
+      isAuthorFollowLookupEnabled
+        ? this.followsRepository.exist({ where: { followerId: normalizedUserId!, followingId: authorId } })
+        : false,
+    ]);
 
     // 응답/반환
     return {
@@ -573,6 +583,10 @@ export class PostsService {
             name: post.author.name,
             role: post.author.role,
             profileImageUrl: post.author.profileImageUrl ?? null,
+            profileHandle: post.author.profileHandle ?? null,
+            profileBio: post.author.profileBio ?? null,
+            followerCount,
+            isFollowing,
           }
         : null,
       tags: post.postTags?.map(postTag => ({ id: postTag.tag.id, name: postTag.tag.name })) ?? [],

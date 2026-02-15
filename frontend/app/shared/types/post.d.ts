@@ -83,6 +83,10 @@ export interface PostAuthorRef {
   name: string;
   role: UserRole;
   profileImageUrl?: string | null;
+  profileHandle?: string | null;
+  profileBio?: string | null;
+  followerCount?: number;
+  isFollowing?: boolean;
 }
 
 export interface PostListItem {
