@@ -441,7 +441,7 @@ export default function MyPage() {
                         disabled={isProfileActionPending}
                         onClick={handleAvatarRemove}
                       >
-                        프로필 삭제
+                        사진 지우기
                       </button>
                       <span className={styles.profileActionDivider} aria-hidden="true">
                         |
@@ -583,7 +583,9 @@ export default function MyPage() {
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
-                          <span className={styles.tagFilterLabel}>{selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}</span>
+                          <span className={styles.tagFilterLabel}>
+                            {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
+                          </span>
                           <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
                         </button>
                         {isTagOpen ? (
@@ -593,7 +595,9 @@ export default function MyPage() {
                                 key={tag.id}
                                 type="button"
                                 className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id ? `${styles.filterItemActive} ${styles.tagFilterItemActive}` : ''
+                                  selectedTagId === tag.id
+                                    ? `${styles.filterItemActive} ${styles.tagFilterItemActive}`
+                                    : ''
                                 }`}
                                 onClick={() => handleTagSelect(tag.id)}
                               >
@@ -635,7 +639,9 @@ export default function MyPage() {
                             <li>
                               <Link className={styles.postLink} href={`/posts/${post.id}`}>
                                 <article
-                                  className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
+                                  className={
+                                    hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`
+                                  }
                                 >
                                   <div className={styles.listBody}>
                                     <div className={styles.listHeaderRow}>
@@ -773,7 +779,9 @@ export default function MyPage() {
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
-                          <span className={styles.tagFilterLabel}>{selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}</span>
+                          <span className={styles.tagFilterLabel}>
+                            {selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}
+                          </span>
                           <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
                         </button>
                         {isTagOpen ? (
@@ -783,7 +791,9 @@ export default function MyPage() {
                                 key={tag.id}
                                 type="button"
                                 className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id ? `${styles.filterItemActive} ${styles.tagFilterItemActive}` : ''
+                                  selectedTagId === tag.id
+                                    ? `${styles.filterItemActive} ${styles.tagFilterItemActive}`
+                                    : ''
                                 }`}
                                 onClick={() => handleTagSelect(tag.id)}
                               >
@@ -1598,7 +1608,9 @@ export default function MyPage() {
                           <li>
                             <Link className={styles.postLink} href={`/posts/${post.id}`}>
                               <article
-                                className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
+                                className={
+                                  hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`
+                                }
                               >
                                 <div className={styles.listBody}>
                                   <div className={styles.listHeaderRow}>
