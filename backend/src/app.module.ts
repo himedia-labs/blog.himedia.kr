@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { AuthModule } from './auth/auth.module';
 import { FollowsModule } from './follows/follows.module';
+import { HealthModule } from './health/health.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadsModule } from './uploads/uploads.module';
@@ -22,6 +23,7 @@ import appConfig from './common/config/app.config';
     EmailModule,
     AuthModule,
     FollowsModule,
+    HealthModule,
     PostsModule,
     CommentsModule,
     UploadsModule,
