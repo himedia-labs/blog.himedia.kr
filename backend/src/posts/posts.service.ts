@@ -444,7 +444,8 @@ export class PostsService {
       const nextTitle = payload.title ?? post.title;
       const nextStatus = payload.status ?? post.status;
       const nextContent = payload.content ?? post.content;
-      const nextCategoryId = payload.categoryId !== undefined ? payload.categoryId : post.categoryId;
+      const normalizedCategoryId = payload.categoryId !== undefined ? payload.categoryId?.trim() || null : undefined;
+      const nextCategoryId = normalizedCategoryId !== undefined ? normalizedCategoryId : post.categoryId;
 
       if (nextStatus === PostStatus.PUBLISHED) {
         ensurePublishFields({
@@ -457,7 +458,7 @@ export class PostsService {
       // 값/반영
       if (payload.title !== undefined) post.title = payload.title;
       if (payload.content !== undefined) post.content = payload.content;
-      if (payload.categoryId !== undefined) post.categoryId = payload.categoryId;
+      if (normalizedCategoryId !== undefined) post.categoryId = normalizedCategoryId;
       if (payload.thumbnailUrl !== undefined) {
         post.thumbnailUrl = payload.thumbnailUrl.trim() ? payload.thumbnailUrl : null;
       }
