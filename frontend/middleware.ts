@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PRIVATE_PATHS = ['/mypage', '/posts/new', '/posts/drafts'];
 
-export const proxy = (request: NextRequest) => {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPrivateRoute = PRIVATE_PATHS.some(path => pathname.startsWith(path));
 
@@ -21,7 +21,7 @@ export const proxy = (request: NextRequest) => {
   loginUrl.searchParams.set('redirect', `${pathname}${request.nextUrl.search}`);
 
   return NextResponse.redirect(loginUrl);
-};
+}
 
 export const config = {
   matcher: ['/mypage/:path*', '/posts/new/:path*', '/posts/drafts/:path*'],
