@@ -621,101 +621,106 @@ export default function MyPage() {
                   </div>
                   {filteredPosts.length ? (
                     <ul className={styles.listView}>
-                      {filteredPosts.map((post, index) => (
-                        <Fragment key={post.id}>
-                          <li>
-                            <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                              <article className={styles.listItem}>
-                                <div className={styles.listBody}>
-                                  <div className={styles.listHeaderRow}>
-                                    <h3>{post.title || '제목 없음'}</h3>
-                                    <div className={styles.listMenuWrapper}>
-                                      <button
-                                        type="button"
-                                        className={styles.listMenuButton}
-                                        aria-label="게시글 옵션"
-                                        onClick={event => {
-                                          stopMenuPropagation(event);
-                                          handlePostMenuToggle(post.id);
-                                        }}
-                                      >
-                                        <FiMoreHorizontal aria-hidden="true" />
-                                      </button>
-                                      {openPostMenuId === post.id ? (
-                                        <div className={styles.listMenu} role="menu" onClick={stopMenuPropagation}>
-                                          <button
-                                            type="button"
-                                            className={styles.listMenuItem}
-                                            role="menuitem"
-                                            onClick={event => {
-                                              stopMenuPropagation(event);
-                                              handlePostEdit(post.id);
-                                            }}
-                                          >
-                                            <FiEdit2 aria-hidden="true" />
-                                            수정
-                                          </button>
-                                          <button
-                                            type="button"
-                                            className={styles.listMenuItem}
-                                            role="menuitem"
-                                            disabled={isPostDeleting}
-                                            onClick={event => {
-                                              stopMenuPropagation(event);
-                                              handlePostDelete(post.id);
-                                            }}
-                                          >
-                                            <FiTrash2 aria-hidden="true" />
-                                            삭제
-                                          </button>
-                                        </div>
-                                      ) : null}
+                      {filteredPosts.map((post, index) => {
+                        const hasThumbnail = Boolean(post.thumbnailUrl);
+                        return (
+                          <Fragment key={post.id}>
+                            <li>
+                              <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                                <article
+                                  className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
+                                >
+                                  <div className={styles.listBody}>
+                                    <div className={styles.listHeaderRow}>
+                                      <h3>{post.title || '제목 없음'}</h3>
+                                      <div className={styles.listMenuWrapper}>
+                                        <button
+                                          type="button"
+                                          className={styles.listMenuButton}
+                                          aria-label="게시글 옵션"
+                                          onClick={event => {
+                                            stopMenuPropagation(event);
+                                            handlePostMenuToggle(post.id);
+                                          }}
+                                        >
+                                          <FiMoreHorizontal aria-hidden="true" />
+                                        </button>
+                                        {openPostMenuId === post.id ? (
+                                          <div className={styles.listMenu} role="menu" onClick={stopMenuPropagation}>
+                                            <button
+                                              type="button"
+                                              className={styles.listMenuItem}
+                                              role="menuitem"
+                                              onClick={event => {
+                                                stopMenuPropagation(event);
+                                                handlePostEdit(post.id);
+                                              }}
+                                            >
+                                              <FiEdit2 aria-hidden="true" />
+                                              수정
+                                            </button>
+                                            <button
+                                              type="button"
+                                              className={styles.listMenuItem}
+                                              role="menuitem"
+                                              disabled={isPostDeleting}
+                                              onClick={event => {
+                                                stopMenuPropagation(event);
+                                                handlePostDelete(post.id);
+                                              }}
+                                            >
+                                              <FiTrash2 aria-hidden="true" />
+                                              삭제
+                                            </button>
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    </div>
+                                    <p className={styles.summary}>{formatSummary(post.content)}</p>
+                                    <div className={styles.meta}>
+                                      <span className={styles.metaGroup}>
+                                        <span className={styles.metaItem}>
+                                          <CiCalendar aria-hidden="true" />{' '}
+                                          {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                        </span>
+                                      </span>
+                                      <span className={styles.metaGroup}>
+                                        <span className={styles.metaItem}>
+                                          <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
+                                        </span>
+                                        <span className={styles.separator} aria-hidden="true">
+                                          |
+                                        </span>
+                                        <span className={styles.metaItem}>
+                                          <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                                        </span>
+                                        <span className={styles.separator} aria-hidden="true">
+                                          |
+                                        </span>
+                                        <span className={styles.metaItem}>
+                                          <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                                        </span>
+                                      </span>
                                     </div>
                                   </div>
-                                  <p className={styles.summary}>{formatSummary(post.content)}</p>
-                                  <div className={styles.meta}>
-                                    <span className={styles.metaGroup}>
-                                      <span className={styles.metaItem}>
-                                        <CiCalendar aria-hidden="true" />{' '}
-                                        {formatDateLabel(post.publishedAt ?? post.createdAt)}
-                                      </span>
-                                    </span>
-                                    <span className={styles.metaGroup}>
-                                      <span className={styles.metaItem}>
-                                        <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
-                                      </span>
-                                      <span className={styles.separator} aria-hidden="true">
-                                        |
-                                      </span>
-                                      <span className={styles.metaItem}>
-                                        <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                                      </span>
-                                      <span className={styles.separator} aria-hidden="true">
-                                        |
-                                      </span>
-                                      <span className={styles.metaItem}>
-                                        <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                                {post.thumbnailUrl ? (
-                                  <div
-                                    className={styles.listThumb}
-                                    style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
-                                    aria-hidden="true"
-                                  />
-                                ) : null}
-                              </article>
-                            </Link>
-                          </li>
-                          {index < filteredPosts.length - 1 ? (
-                            <li className={styles.listDividerItem} aria-hidden="true">
-                              <div className={styles.listDivider} />
+                                  {hasThumbnail ? (
+                                    <div
+                                      className={styles.listThumb}
+                                      style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
+                                      aria-hidden="true"
+                                    />
+                                  ) : null}
+                                </article>
+                              </Link>
                             </li>
-                          ) : null}
-                        </Fragment>
-                      ))}
+                            {index < filteredPosts.length - 1 ? (
+                              <li className={styles.listDividerItem} aria-hidden="true">
+                                <div className={styles.listDivider} />
+                              </li>
+                            ) : null}
+                          </Fragment>
+                        );
+                      })}
                     </ul>
                   ) : (
                     <div className={styles.empty}>조건에 맞는 게시물이 없습니다.</div>
@@ -1578,59 +1583,64 @@ export default function MyPage() {
                 </div>
                 {sortedLikedPosts.length ? (
                   <ul className={styles.listView}>
-                    {sortedLikedPosts.map((post, index) => (
-                      <Fragment key={post.id}>
-                        <li>
-                          <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                            <article className={styles.listItem}>
-                              <div className={styles.listBody}>
-                                <div className={styles.listHeaderRow}>
-                                  <h3>{post.title || '제목 없음'}</h3>
+                    {sortedLikedPosts.map((post, index) => {
+                      const hasThumbnail = Boolean(post.thumbnailUrl);
+                      return (
+                        <Fragment key={post.id}>
+                          <li>
+                            <Link className={styles.postLink} href={`/posts/${post.id}`}>
+                              <article
+                                className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
+                              >
+                                <div className={styles.listBody}>
+                                  <div className={styles.listHeaderRow}>
+                                    <h3>{post.title || '제목 없음'}</h3>
+                                  </div>
+                                  <p className={styles.summary}>{formatSummary(post.content)}</p>
+                                  <div className={styles.meta}>
+                                    <span className={styles.metaGroup}>
+                                      <span className={styles.metaItem}>
+                                        <CiCalendar aria-hidden="true" />{' '}
+                                        {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                      </span>
+                                    </span>
+                                    <span className={styles.metaGroup}>
+                                      <span className={styles.metaItem}>
+                                        <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
+                                      </span>
+                                      <span className={styles.separator} aria-hidden="true">
+                                        |
+                                      </span>
+                                      <span className={styles.metaItem}>
+                                        <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
+                                      </span>
+                                      <span className={styles.separator} aria-hidden="true">
+                                        |
+                                      </span>
+                                      <span className={styles.metaItem}>
+                                        <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
+                                      </span>
+                                    </span>
+                                  </div>
                                 </div>
-                                <p className={styles.summary}>{formatSummary(post.content)}</p>
-                                <div className={styles.meta}>
-                                  <span className={styles.metaGroup}>
-                                    <span className={styles.metaItem}>
-                                      <CiCalendar aria-hidden="true" />{' '}
-                                      {formatDateLabel(post.publishedAt ?? post.createdAt)}
-                                    </span>
-                                  </span>
-                                  <span className={styles.metaGroup}>
-                                    <span className={styles.metaItem}>
-                                      <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
-                                    </span>
-                                    <span className={styles.separator} aria-hidden="true">
-                                      |
-                                    </span>
-                                    <span className={styles.metaItem}>
-                                      <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                                    </span>
-                                    <span className={styles.separator} aria-hidden="true">
-                                      |
-                                    </span>
-                                    <span className={styles.metaItem}>
-                                      <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                                    </span>
-                                  </span>
-                                </div>
-                              </div>
-                              {post.thumbnailUrl ? (
-                                <div
-                                  className={styles.listThumb}
-                                  style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
-                                  aria-hidden="true"
-                                />
-                              ) : null}
-                            </article>
-                          </Link>
-                        </li>
-                        {index < sortedLikedPosts.length - 1 ? (
-                          <li className={styles.listDividerItem} aria-hidden="true">
-                            <div className={styles.listDivider} />
+                                {hasThumbnail ? (
+                                  <div
+                                    className={styles.listThumb}
+                                    style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
+                              </article>
+                            </Link>
                           </li>
-                        ) : null}
-                      </Fragment>
-                    ))}
+                          {index < sortedLikedPosts.length - 1 ? (
+                            <li className={styles.listDividerItem} aria-hidden="true">
+                              <div className={styles.listDivider} />
+                            </li>
+                          ) : null}
+                        </Fragment>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className={styles.empty}>아직 좋아요한 게시물이 없습니다.</div>
