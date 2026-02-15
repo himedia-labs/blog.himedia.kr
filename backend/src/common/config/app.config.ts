@@ -18,7 +18,7 @@ export default registerAs('app', () => ({
   cors: {
     origins: process.env
       .CORS_ORIGINS!.split(',')
-      .map(origin => origin.trim())
+      .map(origin => origin.trim().replace(/\/+$/, ''))
       .filter(Boolean),
   },
 
