@@ -26,9 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
-    "@opennextjs/cloudflare": "^1.8.2",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "wrangler": "^4.0.0"
+    "typescript": "^5"
   }
 }
