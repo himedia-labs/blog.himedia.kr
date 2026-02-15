@@ -39,6 +39,12 @@ export const useMyPageData = () => {
   const myComments = myCommentsData ?? [];
   const likedPosts = likedPostsData?.items ?? [];
   const userBio = currentUser?.profileBio ?? '';
+  const profileContactEmail = currentUser?.profileContactEmail ?? '';
+  const profileGithubUrl = currentUser?.profileGithubUrl ?? '';
+  const profileLinkedinUrl = currentUser?.profileLinkedinUrl ?? '';
+  const profileTwitterUrl = currentUser?.profileTwitterUrl ?? '';
+  const profileFacebookUrl = currentUser?.profileFacebookUrl ?? '';
+  const profileWebsiteUrl = currentUser?.profileWebsiteUrl ?? '';
   const profileImageUrl = currentUser?.profileImageUrl ?? '';
   const displayName = currentUser?.name ?? '';
   const userEmail = currentUser?.email ?? '';
@@ -71,6 +77,12 @@ export const useMyPageData = () => {
     myPosts,
     profileImageUrl,
     profileHandle,
+    profileContactEmail,
+    profileGithubUrl,
+    profileLinkedinUrl,
+    profileTwitterUrl,
+    profileFacebookUrl,
+    profileWebsiteUrl,
     userBio,
   };
 };

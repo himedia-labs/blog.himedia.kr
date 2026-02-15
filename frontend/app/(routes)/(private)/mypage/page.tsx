@@ -9,6 +9,7 @@ import Skeleton from 'react-loading-skeleton';
 
 import { CiCalendar } from 'react-icons/ci';
 import { FaUser, FaUserEdit } from 'react-icons/fa';
+import { FaFacebookF, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6';
 import {
   FiAlertCircle,
   FiChevronDown,
@@ -17,7 +18,10 @@ import {
   FiEdit2,
   FiEye,
   FiEyeOff,
+  FiGlobe,
+  FiGithub,
   FiHeart,
+  FiMail,
   FiMessageCircle,
   FiMoreHorizontal,
   FiTrash2,
@@ -89,6 +93,12 @@ export default function MyPage() {
     userEmail,
     userPhone,
     profileHandle,
+    profileContactEmail,
+    profileGithubUrl,
+    profileLinkedinUrl,
+    profileTwitterUrl,
+    profileFacebookUrl,
+    profileWebsiteUrl,
     profileImageUrl,
     userBio,
   } = useMyPageData();
@@ -104,14 +114,35 @@ export default function MyPage() {
     isProfileEditing,
     isProfileSaving,
     profileHandle: editingHandle,
+    profileContactEmail: editingContactEmail,
+    profileGithubUrl: editingGithubUrl,
+    profileLinkedinUrl: editingLinkedinUrl,
+    profileTwitterUrl: editingTwitterUrl,
+    profileFacebookUrl: editingFacebookUrl,
+    profileWebsiteUrl: editingWebsiteUrl,
     handlers: {
+      setProfileContactEmail,
+      setProfileGithubUrl,
+      setProfileLinkedinUrl,
+      setProfileTwitterUrl,
+      setProfileFacebookUrl,
+      setProfileWebsiteUrl,
       handleProfileSave,
       handleProfileEditStart,
       handleProfileEditComplete,
       handleProfileHandleChange,
       handleProfileCancel,
     },
-  } = useProfileEditor(displayName, profileHandle);
+  } = useProfileEditor({
+    name: displayName,
+    handle: profileHandle,
+    contactEmail: profileContactEmail,
+    githubUrl: profileGithubUrl,
+    linkedinUrl: profileLinkedinUrl,
+    twitterUrl: profileTwitterUrl,
+    facebookUrl: profileFacebookUrl,
+    websiteUrl: profileWebsiteUrl,
+  });
 
   // 프로필 이미지
   const {
@@ -243,6 +274,14 @@ export default function MyPage() {
   const profileNameValue = isUserInfoLoading ? <Skeleton width={96} height={22} /> : displayName || '사용자';
   const profileHandleValue = isUserInfoLoading ? <Skeleton width={86} height={16} /> : `@${profileHandle}`;
   const isProfileActionPending = isProfileSaving || isProfileUpdating;
+  const profileSocialLinks = [
+    { href: profileContactEmail ? `mailto:${profileContactEmail}` : '', label: '이메일', icon: FiMail },
+    { href: profileGithubUrl, label: '깃허브', icon: FiGithub, external: true },
+    { href: profileLinkedinUrl, label: '링크드인', icon: FaLinkedinIn, external: true },
+    { href: profileTwitterUrl, label: 'X', icon: FaXTwitter, external: true },
+    { href: profileFacebookUrl, label: '페이스북', icon: FaFacebookF, external: true },
+    { href: profileWebsiteUrl, label: '홈페이지', icon: FiGlobe, external: true },
+  ].filter(item => Boolean(item.href));
 
   const handleProfileAction = () => {
     if (isProfileActionPending) return;
@@ -418,18 +457,36 @@ export default function MyPage() {
                       <span className={styles.profileHandle}>{profileHandleValue}</span>
                     </div>
                   )}
-                  <div className={styles.profileStats}>
-                    <span className={styles.profileStat}>
-                      글 <strong>{myPosts.length}</strong>
-                    </span>
-                    <span className={styles.profileDivider}>·</span>
-                    <span className={styles.profileStat}>
-                      팔로워 <strong>{followerCount}</strong>
-                    </span>
-                    <span className={styles.profileDivider}>·</span>
-                    <span className={styles.profileStat}>
-                      팔로잉 <strong>{followingCount}</strong>
-                    </span>
+                  <div className={styles.profileStatsRow}>
+                    <div className={styles.profileStats}>
+                      <span className={styles.profileStat}>
+                        글 <strong>{myPosts.length}</strong>
+                      </span>
+                      <span className={styles.profileDivider}>·</span>
+                      <span className={styles.profileStat}>
+                        팔로워 <strong>{followerCount}</strong>
+                      </span>
+                      <span className={styles.profileDivider}>·</span>
+                      <span className={styles.profileStat}>
+                        팔로잉 <strong>{followingCount}</strong>
+                      </span>
+                    </div>
+                    {profileSocialLinks.length ? (
+                      <div className={styles.profileSocialRow} aria-label="소셜 링크">
+                        {profileSocialLinks.map(({ href, label, icon: Icon, external }) => (
+                          <a
+                            key={label}
+                            className={styles.profileSocialLink}
+                            href={href}
+                            aria-label={label}
+                            target={external ? '_blank' : undefined}
+                            rel={external ? 'noreferrer' : undefined}
+                          >
+                            <Icon aria-hidden="true" />
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className={styles.profileActions}>
@@ -466,6 +523,94 @@ export default function MyPage() {
                   </button>
                 </div>
               </div>
+              {isProfileEditing ? (
+                <div className={styles.profileSocialEditor}>
+                  <div className={styles.profileSocialEditorGrid}>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>이메일</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <input
+                          type="email"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="example@email.com"
+                          value={editingContactEmail}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileContactEmail(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>깃허브</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <span className={styles.profileSocialEditorPrefix}>https://github.com/</span>
+                        <input
+                          type="text"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="username"
+                          value={editingGithubUrl}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileGithubUrl(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>링크드인</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <span className={styles.profileSocialEditorPrefix}>https://www.linkedin.com/in/</span>
+                        <input
+                          type="text"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="username"
+                          value={editingLinkedinUrl}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileLinkedinUrl(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>X (Twitter)</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <span className={styles.profileSocialEditorPrefix}>https://x.com/</span>
+                        <input
+                          type="text"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="username"
+                          value={editingTwitterUrl}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileTwitterUrl(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>페이스북</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <span className={styles.profileSocialEditorPrefix}>https://www.facebook.com/</span>
+                        <input
+                          type="text"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="username"
+                          value={editingFacebookUrl}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileFacebookUrl(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                    <label className={styles.profileSocialEditorField}>
+                      <span className={styles.profileSocialEditorLabel}>홈페이지</span>
+                      <div className={styles.profileSocialEditorInputRow}>
+                        <input
+                          type="text"
+                          className={styles.profileSocialEditorInput}
+                          placeholder="https://example.com"
+                          value={editingWebsiteUrl}
+                          disabled={isProfileActionPending}
+                          onChange={event => setProfileWebsiteUrl(event.target.value)}
+                        />
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </header>
           <div className={styles.headerDivider} aria-hidden="true" />

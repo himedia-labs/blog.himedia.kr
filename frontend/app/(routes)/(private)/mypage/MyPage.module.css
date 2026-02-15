@@ -96,6 +96,130 @@
   background: #e5e8eb;
 }
 
+/* 소셜 아이콘 */
+.profileStatsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  width: 100%;
+}
+
+.profileSocialRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 8px;
+
+  margin-left: auto;
+}
+
+.profileSocialLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: #7d8794;
+  text-decoration: none;
+}
+
+.profileSocialLink:hover {
+  border-color: #d6dbe2;
+
+  color: #4e5968;
+}
+
+.profileSocialLink :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.profileSocialLinkDisabled {
+  opacity: 0.45;
+
+  pointer-events: none;
+}
+
+.profileSocialEditor {
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 10px;
+
+  border-top: 1px solid #f2f4f6;
+}
+
+.profileSocialEditorGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.profileSocialEditorField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.profileSocialEditorLabel {
+  font-size: 0.82rem;
+  color: #8b95a1;
+}
+
+.profileSocialEditorInput {
+  flex: 1;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 36px;
+
+  padding: 0 10px 0 0;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-size: 0.88rem;
+  color: #1f1f1f;
+}
+
+.profileSocialEditorInputRow {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  background: #fff;
+  gap: 3px;
+}
+
+.profileSocialEditorInputRow:focus-within {
+  border-color: #000;
+}
+
+.profileSocialEditorPrefix {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  color: #8b95a1;
+}
+
+@media (max-width: 820px) {
+  .profileSocialEditorGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .content {
   display: flex;
   flex-direction: column;
@@ -109,9 +233,10 @@
 
 .profileCard {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: flex-start;
-  gap: 1rem;
+  gap: 14px;
 
   width: 100%;
 
@@ -651,7 +776,7 @@
   display: flex;
   justify-content: flex-end;
 
-  padding-top: 8px;
+  padding-top: 1rem;
 }
 
 .withdrawButton {
