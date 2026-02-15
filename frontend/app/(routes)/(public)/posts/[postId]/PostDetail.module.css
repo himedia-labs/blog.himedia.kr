@@ -19,6 +19,78 @@
   text-transform: uppercase;
 }
 
+.categoryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.postMoreWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.postMoreButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #8a8a8a;
+  cursor: pointer;
+}
+
+.postMoreButton:hover {
+  color: #6b7280;
+}
+
+.postMoreButton :global(svg) {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.postMoreMenu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 5;
+  min-width: 4rem;
+  padding: 0.35rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.postMoreItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.85rem;
+  color: #4e5968;
+  text-align: left;
+  cursor: pointer;
+}
+
+.postMoreItem:hover {
+  background: #f3f4f6;
+}
+
+.postMoreItem :global(svg) {
+  width: 14px;
+  height: 14px;
+}
+
 .title {
   margin: 0;
   font-size: 2.4rem;
@@ -37,6 +109,34 @@
 
 .metaDivider {
   color: #c2c2c2;
+}
+
+.metaTagRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: #98a6bb;
+}
+
+.metaTagIcon {
+  flex-shrink: 0;
+  font-size: 1.05rem;
+  color: #8ea3c7;
+}
+
+.metaTagList {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.metaTagItem {
+  color: #7f8b9e;
+  font-size: 0.9rem;
+  line-height: 1.35;
 }
 
 .headerDivider {
@@ -151,6 +251,143 @@
   background: #f6f6f6;
 }
 
+.authorProfileCard {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2.1rem;
+  margin-top: 3rem;
+  padding: 1.95rem 2.2rem;
+  border: 1px solid #ebeff5;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  position: relative;
+}
+
+.authorProfileCardWithFollow {
+  padding-right: 9rem;
+}
+
+.authorProfileMain {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  min-width: 0;
+}
+
+.authorProfileAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 104px;
+  height: 104px;
+  border: 1px solid #dce6f4;
+  border-radius: 50%;
+  background: #f3f6fb;
+  color: #6b7280;
+  overflow: hidden;
+}
+
+.authorProfileAvatar :global(svg) {
+  width: 34px;
+  height: 34px;
+}
+
+.authorProfileAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.authorProfileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.authorProfileNameRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.authorProfileName,
+.authorProfileNameLink {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.authorProfileNameLink {
+  text-decoration: none;
+}
+
+.authorProfileNameLink:hover {
+  text-decoration: underline;
+}
+
+.authorProfileRole {
+  font-size: 1.06rem;
+  color: #8291a8;
+}
+
+.authorProfileBio {
+  display: block;
+  margin: 0;
+  font-size: 1.16rem;
+  color: #5f6c80;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.authorProfileMeta {
+  font-size: 1rem;
+  color: #8793a3;
+}
+
+.authorFollowButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 1.95rem;
+  right: 2.2rem;
+  min-width: 78px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #99bcff;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2469e7;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.authorFollowButton:hover {
+  border-color: #86abf4;
+  background: #e9f2ff;
+}
+
+.authorFollowButtonActive {
+  border-color: #d3d9e3;
+  color: #525f72;
+}
+
+.authorFollowButtonActive:hover:not(:disabled) {
+  border-color: #f0b4b4;
+  background: #fff1f1;
+  color: #cf2f2f;
+}
+
+.authorFollowButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .commentDivider {
   height: 1px;
   margin: 3rem 0;
@@ -254,7 +491,7 @@
 
 .commentTextarea {
   width: 100%;
-  min-height: 40px;
+  min-height: 55px;
   max-height: 234px;
   height: 120px;
   padding: 1rem;
@@ -972,6 +1209,19 @@
 
   .actionButton {
     width: 72px;
+  }
+
+  .authorProfileCard {
+    padding-right: 1.2rem;
+  }
+
+  .authorFollowButton {
+    top: 1rem;
+    right: 1rem;
+    min-width: 72px;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 0.82rem;
   }
 
   .commentActions {

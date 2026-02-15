@@ -1,11 +1,12 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
+import { CiShoppingTag } from 'react-icons/ci';
 import { FaHeart } from 'react-icons/fa';
 import { FaUser } from 'react-icons/fa6';
 import NumberFlow from '@number-flow/react';
@@ -26,8 +27,13 @@ import {
 import Skeleton from 'react-loading-skeleton';
 
 import { useAuthStore } from '@/app/shared/store/authStore';
+import { followsApi } from '@/app/api/follows/follows.api';
+import { postsApi } from '@/app/api/posts/posts.api';
+import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
+import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
+import { truncateWithEllipsis } from '@/app/shared/utils/truncateWithEllipsis.utils';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -45,12 +51,18 @@ import {
 import 'react-loading-skeleton/dist/skeleton.css';
 import markdownStyles from '@/app/shared/styles/markdown.module.css';
 import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
+import { useToast } from '@/app/shared/components/toast/toast';
 
 /**
  * 게시물 상세 페이지
  * @description 게시물 상세 내용과 반응 정보를 표시
  */
 export default function PostDetailPage() {
+  // 소개글 길이 설정
+  const AUTHOR_PROFILE_BIO_LIMIT_DESKTOP = 36;
+  const AUTHOR_PROFILE_BIO_LIMIT_TABLET = 20;
+  const AUTHOR_PROFILE_BIO_LIMIT_MOBILE = 15;
+
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
@@ -58,6 +70,15 @@ export default function PostDetailPage() {
   // 인증 상태
   const accessToken = useAuthStore(state => state.accessToken);
   const isInitialized = useAuthStore(state => state.isInitialized);
+  const { showToast } = useToast();
+  const { data: currentUser } = useCurrentUserQuery();
+  const [isPostDeleting, setIsPostDeleting] = useState(false);
+  const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
+  const [authorBioLimit, setAuthorBioLimit] = useState(AUTHOR_PROFILE_BIO_LIMIT_DESKTOP);
+  const [isAuthorFollowing, setIsAuthorFollowing] = useState(false);
+  const [isAuthorFollowHover, setIsAuthorFollowHover] = useState(false);
+  const [isAuthorFollowLoading, setIsAuthorFollowLoading] = useState(false);
+  const [authorFollowerCount, setAuthorFollowerCount] = useState(0);
 
   // 요청 훅
   const isQueryEnabled = Boolean(postId) && isInitialized;
@@ -70,7 +91,83 @@ export default function PostDetailPage() {
   const commentCount = data?.commentCount ?? 0;
   const thumbnailUrl = data?.thumbnailUrl ?? null;
   const postAuthorId = data?.author?.id ?? null;
+  const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
+  const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
+  const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
+  const authorProfileBioPreview = truncateWithEllipsis(authorProfileBio, authorBioLimit);
   const commentSkeletons = Array.from({ length: 3 });
+
+  // 소개글 말줄임 기준 동기화
+  useEffect(() => {
+    const syncAuthorBioLimit = () => {
+      if (window.innerWidth <= 480) {
+        setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_MOBILE);
+        return;
+      }
+      if (window.innerWidth <= 768) {
+        setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_TABLET);
+        return;
+      }
+      setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_DESKTOP);
+    };
+
+    syncAuthorBioLimit();
+    window.addEventListener('resize', syncAuthorBioLimit);
+    return () => window.removeEventListener('resize', syncAuthorBioLimit);
+  }, [AUTHOR_PROFILE_BIO_LIMIT_DESKTOP, AUTHOR_PROFILE_BIO_LIMIT_MOBILE, AUTHOR_PROFILE_BIO_LIMIT_TABLET]);
+
+  // 작성자 프로필 상태 동기화
+  useEffect(() => {
+    setIsAuthorFollowing(Boolean(data?.author?.isFollowing));
+    setAuthorFollowerCount(data?.author?.followerCount ?? 0);
+  }, [data?.author?.followerCount, data?.author?.id, data?.author?.isFollowing]);
+
+  // 게시글 메뉴
+  const handlePostMenuToggle = () => setIsPostMenuOpen(prev => !prev);
+  const handlePostEdit = () => {
+    if (!postId) return;
+    window.location.href = `/posts/edit/${postId}`;
+  };
+  const handlePostDelete = async () => {
+    if (!postId || isPostDeleting) return;
+    const confirmed = window.confirm('게시글을 삭제할까요?');
+    if (!confirmed) return;
+
+    try {
+      setIsPostDeleting(true);
+      await postsApi.deletePost(postId);
+      window.location.href = '/';
+    } catch {
+      showToast({ message: '게시글 삭제에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsPostDeleting(false);
+      setIsPostMenuOpen(false);
+    }
+  };
+
+  // 작성자 팔로우
+  const handleAuthorFollowToggle = async () => {
+    if (!postAuthorId || isMyPost || isAuthorFollowLoading) return;
+    if (!accessToken) {
+      showToast({ message: LOGIN_MESSAGES.requireAuth, type: 'warning' });
+      return;
+    }
+
+    try {
+      setIsAuthorFollowLoading(true);
+      const result = isAuthorFollowing
+        ? await followsApi.unfollowUser(postAuthorId)
+        : await followsApi.followUser(postAuthorId);
+
+      setIsAuthorFollowing(result.following);
+      setAuthorFollowerCount(prev => (result.following ? prev + 1 : Math.max(0, prev - 1)));
+    } catch {
+      showToast({ message: '팔로우 처리에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsAuthorFollowLoading(false);
+      setIsAuthorFollowHover(false);
+    }
+  };
 
   // 댓글 상태
   const {
@@ -543,18 +640,62 @@ export default function PostDetailPage() {
   return (
     <section className={styles.container} aria-label="게시물 상세">
       <div className={styles.header}>
-        <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
-        <h1 className={styles.title}>{data.title}</h1>
-        <div className={styles.metaRow}>
-          <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
-          <span className={styles.metaDivider} aria-hidden="true">
-            ·
-          </span>
-          <span className={styles.metaItem}>
-            {data.author?.name ?? '익명'} {data.author?.role && `${formatRole(data.author.role)}`}
-          </span>
+          <div className={styles.categoryRow}>
+            <div className={styles.category}>{data.category?.name ?? 'ALL'}</div>
+            {isMyPost ? (
+              <div className={styles.postMoreWrapper}>
+                <button
+                  type="button"
+                  className={styles.postMoreButton}
+                  aria-label="게시글 옵션"
+                  onClick={handlePostMenuToggle}
+                >
+                  <FiMoreHorizontal aria-hidden="true" />
+                </button>
+                {isPostMenuOpen ? (
+                  <div className={styles.postMoreMenu} role="menu">
+                    <button type="button" className={styles.postMoreItem} role="menuitem" onClick={handlePostEdit}>
+                      <FiEdit2 aria-hidden="true" />
+                      수정
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.postMoreItem}
+                      role="menuitem"
+                      disabled={isPostDeleting}
+                      onClick={handlePostDelete}
+                    >
+                      <FiTrash2 aria-hidden="true" />
+                      삭제
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+          <h1 className={styles.title}>{data.title}</h1>
+          <div className={styles.metaRow}>
+            <span className={styles.metaItem}>{formatDate(data.publishedAt ?? data.createdAt)}</span>
+            <span className={styles.metaDivider} aria-hidden="true">
+              ·
+            </span>
+            <span className={styles.metaItem}>
+              {data.author?.name ?? '익명'} {data.author?.role && `${formatRole(data.author.role)}`}
+            </span>
+          </div>
+          {data.tags.length ? (
+            <div className={styles.metaTagRow}>
+              <CiShoppingTag className={styles.metaTagIcon} aria-hidden="true" />
+              <div className={styles.metaTagList}>
+                {data.tags.map(tag => (
+                  <span key={tag.id} className={styles.metaTagItem}>
+                    #{tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
-      </div>
       <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.body}>
@@ -626,6 +767,52 @@ export default function PostDetailPage() {
           <article className={markdownStyles.markdown} data-scroll-progress-end="post-content">
             {previewContent}
           </article>
+
+          {data.author ? (
+            <section
+              className={`${styles.authorProfileCard} ${canShowAuthorFollowButton ? styles.authorProfileCardWithFollow : ''}`}
+              aria-label="작성자 프로필"
+            >
+              <div className={styles.authorProfileMain}>
+                <div className={styles.authorProfileAvatar} aria-hidden="true">
+                  {data.author.profileImageUrl ? (
+                    <img className={styles.authorProfileAvatarImage} src={data.author.profileImageUrl} alt="" />
+                  ) : (
+                    <FaUser />
+                  )}
+                </div>
+                <div className={styles.authorProfileInfo}>
+                  <div className={styles.authorProfileNameRow}>
+                    {data.author.profileHandle ? (
+                      <Link
+                        className={styles.authorProfileNameLink}
+                        href={`/@${data.author.profileHandle.replace(/^@/, '')}`}
+                      >
+                        {data.author.name}
+                      </Link>
+                    ) : (
+                      <span className={styles.authorProfileName}>{data.author.name}</span>
+                    )}
+                    <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
+                  </div>
+                  {authorProfileBioPreview ? <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p> : null}
+                  <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
+                </div>
+              </div>
+              {canShowAuthorFollowButton ? (
+                <button
+                  type="button"
+                  className={`${styles.authorFollowButton} ${isAuthorFollowing ? styles.authorFollowButtonActive : ''}`}
+                  disabled={isAuthorFollowLoading || !postAuthorId}
+                  onMouseEnter={() => setIsAuthorFollowHover(true)}
+                  onMouseLeave={() => setIsAuthorFollowHover(false)}
+                  onClick={handleAuthorFollowToggle}
+                >
+                  {isAuthorFollowing ? (isAuthorFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
+                </button>
+              ) : null}
+            </section>
+          ) : null}
 
           <div className={styles.commentDivider} aria-hidden="true" />
           <section aria-label="댓글 작성">
