@@ -8,14 +8,17 @@ import { useParams } from 'next/navigation';
 
 import { CiShoppingTag } from 'react-icons/ci';
 import { FaHeart } from 'react-icons/fa';
-import { FaUser } from 'react-icons/fa6';
+import { FaFacebookF, FaLinkedinIn, FaUser, FaXTwitter } from 'react-icons/fa6';
 import NumberFlow from '@number-flow/react';
 import {
   FiClock,
   FiEdit2,
   FiEye,
   FiFlag,
+  FiGithub,
+  FiGlobe,
   FiHeart,
+  FiMail,
   FiShare2,
   FiSlash,
   FiTrash2,
@@ -95,6 +98,44 @@ export default function PostDetailPage() {
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
   const authorProfileBioPreview = truncateWithEllipsis(authorProfileBio, authorBioLimit);
+  const authorSocialLinks = [
+    {
+      href: data?.author?.profileContactEmail?.trim() ? `mailto:${data.author.profileContactEmail.trim()}` : '',
+      label: '이메일',
+      icon: FiMail,
+      external: false,
+    },
+    {
+      href: data?.author?.profileGithubUrl?.trim() ?? '',
+      label: '깃허브',
+      icon: FiGithub,
+      external: true,
+    },
+    {
+      href: data?.author?.profileLinkedinUrl?.trim() ?? '',
+      label: '링크드인',
+      icon: FaLinkedinIn,
+      external: true,
+    },
+    {
+      href: data?.author?.profileTwitterUrl?.trim() ?? '',
+      label: 'X',
+      icon: FaXTwitter,
+      external: true,
+    },
+    {
+      href: data?.author?.profileFacebookUrl?.trim() ?? '',
+      label: '페이스북',
+      icon: FaFacebookF,
+      external: true,
+    },
+    {
+      href: data?.author?.profileWebsiteUrl?.trim() ?? '',
+      label: '홈페이지',
+      icon: FiGlobe,
+      external: true,
+    },
+  ].filter(item => Boolean(item.href));
   const commentSkeletons = Array.from({ length: 3 });
 
   // 소개글 말줄임 기준 동기화
@@ -810,6 +851,25 @@ export default function PostDetailPage() {
                 >
                   {isAuthorFollowing ? (isAuthorFollowHover ? '언팔로우' : '팔로잉') : '팔로우'}
                 </button>
+              ) : null}
+              {authorSocialLinks.length ? (
+                <>
+                  <div className={styles.authorProfileSocialDivider} aria-hidden="true" />
+                  <div className={styles.authorProfileSocialRow} aria-label="작성자 소셜 링크">
+                    {authorSocialLinks.map(({ href, label, icon: Icon, external }) => (
+                      <a
+                        key={label}
+                        className={styles.authorProfileSocialLink}
+                        href={href}
+                        aria-label={label}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noreferrer' : undefined}
+                      >
+                        <Icon aria-hidden="true" />
+                      </a>
+                    ))}
+                  </div>
+                </>
               ) : null}
             </section>
           ) : null}

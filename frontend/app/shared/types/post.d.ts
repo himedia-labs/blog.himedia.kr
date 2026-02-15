@@ -85,6 +85,12 @@ export interface PostAuthorRef {
   profileImageUrl?: string | null;
   profileHandle?: string | null;
   profileBio?: string | null;
+  profileContactEmail?: string | null;
+  profileGithubUrl?: string | null;
+  profileLinkedinUrl?: string | null;
+  profileTwitterUrl?: string | null;
+  profileFacebookUrl?: string | null;
+  profileWebsiteUrl?: string | null;
   followerCount?: number;
   isFollowing?: boolean;
 }

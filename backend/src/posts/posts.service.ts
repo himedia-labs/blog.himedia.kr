@@ -585,6 +585,12 @@ export class PostsService {
             profileImageUrl: post.author.profileImageUrl ?? null,
             profileHandle: post.author.profileHandle ?? null,
             profileBio: post.author.profileBio ?? null,
+            profileContactEmail: post.author.profileContactEmail ?? null,
+            profileGithubUrl: post.author.profileGithubUrl ?? null,
+            profileLinkedinUrl: post.author.profileLinkedinUrl ?? null,
+            profileTwitterUrl: post.author.profileTwitterUrl ?? null,
+            profileFacebookUrl: post.author.profileFacebookUrl ?? null,
+            profileWebsiteUrl: post.author.profileWebsiteUrl ?? null,
             followerCount,
             isFollowing,
           }
