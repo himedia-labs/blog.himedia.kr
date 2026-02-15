@@ -77,6 +77,7 @@ export default function MyPage() {
 
   // 데이터 상태
   const {
+    currentUserId,
     displayName,
     followerCount,
     followingCount,
@@ -207,8 +208,14 @@ export default function MyPage() {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-  const toggleCategory = () => setIsCategoryOpen(prev => !prev);
-  const toggleTag = () => setIsTagOpen(prev => !prev);
+  const toggleCategory = () => {
+    setIsTagOpen(false);
+    setIsCategoryOpen(prev => !prev);
+  };
+  const toggleTag = () => {
+    setIsCategoryOpen(false);
+    setIsTagOpen(prev => !prev);
+  };
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategoryId(prev => (prev === categoryId ? null : categoryId));
     setIsCategoryOpen(false);
@@ -572,25 +579,25 @@ export default function MyPage() {
                       <div className={styles.filterDropdown}>
                         <button
                           type="button"
-                          className={styles.filterButton}
+                          className={`${styles.filterButton} ${styles.tagFilterButton}`}
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
-                          {selectedTagLabel ?? '태그'}
+                          <span className={styles.tagFilterLabel}>{selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}</span>
                           <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
                         </button>
                         {isTagOpen ? (
-                          <div className={styles.filterMenu}>
+                          <div className={`${styles.filterMenu} ${styles.tagFilterMenu}`}>
                             {postTags.map(tag => (
                               <button
                                 key={tag.id}
                                 type="button"
                                 className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id ? styles.filterItemActive : ''
+                                  selectedTagId === tag.id ? `${styles.filterItemActive} ${styles.tagFilterItemActive}` : ''
                                 }`}
                                 onClick={() => handleTagSelect(tag.id)}
                               >
-                                <span>{tag.name}</span>
+                                <span className={styles.tagFilterName}>#{tag.name}</span>
                                 <span className={styles.filterCount}>{tag.count}</span>
                               </button>
                             ))}
@@ -762,25 +769,25 @@ export default function MyPage() {
                       <div className={styles.filterDropdown}>
                         <button
                           type="button"
-                          className={styles.filterButton}
+                          className={`${styles.filterButton} ${styles.tagFilterButton}`}
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
-                          {selectedTagLabel ?? '태그'}
+                          <span className={styles.tagFilterLabel}>{selectedTagLabel ? `#${selectedTagLabel}` : '#태그'}</span>
                           <FiChevronDown className={styles.filterChevron} aria-hidden="true" />
                         </button>
                         {isTagOpen ? (
-                          <div className={styles.filterMenu}>
+                          <div className={`${styles.filterMenu} ${styles.tagFilterMenu}`}>
                             {postTags.map(tag => (
                               <button
                                 key={tag.id}
                                 type="button"
                                 className={`${styles.filterItem} ${
-                                  selectedTagId === tag.id ? styles.filterItemActive : ''
+                                  selectedTagId === tag.id ? `${styles.filterItemActive} ${styles.tagFilterItemActive}` : ''
                                 }`}
                                 onClick={() => handleTagSelect(tag.id)}
                               >
-                                <span>{tag.name}</span>
+                                <span className={styles.tagFilterName}>#{tag.name}</span>
                                 <span className={styles.filterCount}>{tag.count}</span>
                               </button>
                             ))}
@@ -1584,6 +1591,7 @@ export default function MyPage() {
                 {sortedLikedPosts.length ? (
                   <ul className={styles.listView}>
                     {sortedLikedPosts.map((post, index) => {
+                      const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                       const hasThumbnail = Boolean(post.thumbnailUrl);
                       return (
                         <Fragment key={post.id}>
@@ -1595,6 +1603,50 @@ export default function MyPage() {
                                 <div className={styles.listBody}>
                                   <div className={styles.listHeaderRow}>
                                     <h3>{post.title || '제목 없음'}</h3>
+                                    {isMyPost ? (
+                                      <div className={styles.listMenuWrapper}>
+                                        <button
+                                          type="button"
+                                          className={styles.listMenuButton}
+                                          aria-label="게시글 옵션"
+                                          onClick={event => {
+                                            stopMenuPropagation(event);
+                                            handlePostMenuToggle(post.id);
+                                          }}
+                                        >
+                                          <FiMoreHorizontal aria-hidden="true" />
+                                        </button>
+                                        {openPostMenuId === post.id ? (
+                                          <div className={styles.listMenu} role="menu" onClick={stopMenuPropagation}>
+                                            <button
+                                              type="button"
+                                              className={styles.listMenuItem}
+                                              role="menuitem"
+                                              onClick={event => {
+                                                stopMenuPropagation(event);
+                                                handlePostEdit(post.id);
+                                              }}
+                                            >
+                                              <FiEdit2 aria-hidden="true" />
+                                              수정
+                                            </button>
+                                            <button
+                                              type="button"
+                                              className={styles.listMenuItem}
+                                              role="menuitem"
+                                              disabled={isPostDeleting}
+                                              onClick={event => {
+                                                stopMenuPropagation(event);
+                                                handlePostDelete(post.id);
+                                              }}
+                                            >
+                                              <FiTrash2 aria-hidden="true" />
+                                              삭제
+                                            </button>
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
                                   </div>
                                   <p className={styles.summary}>{formatSummary(post.content)}</p>
                                   <div className={styles.meta}>

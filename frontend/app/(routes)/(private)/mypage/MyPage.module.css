@@ -458,6 +458,18 @@
   cursor: not-allowed;
 }
 
+.tagFilterButton {
+  min-width: 120px;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tagFilterLabel {
+  min-width: 0;
+  white-space: nowrap;
+  word-break: normal;
+}
+
 .filterChevron {
   font-size: 0.9rem;
 }
@@ -485,6 +497,17 @@
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
+.tagFilterMenu {
+  min-width: 260px;
+  width: max-content;
+  max-width: min(90vw, 560px);
+  max-height: 260px;
+  padding: 8px;
+  gap: 4px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
 .filterItem {
   display: flex;
   align-items: center;
@@ -507,6 +530,22 @@
   cursor: pointer;
 }
 
+.tagFilterItem {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 12px;
+  border: 1px solid transparent;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.tagFilterItem:hover {
+  border-color: #e5e8eb;
+  background: #f8fafc;
+}
+
 .filterItem:hover {
   background: #f2f4f6;
 
@@ -519,10 +558,25 @@
   color: #1f1f1f;
 }
 
+.tagFilterItemActive {
+  border-color: #dbeafe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.tagFilterName {
+  min-width: fit-content;
+  padding-right: 7px;
+  white-space: nowrap;
+  word-break: normal;
+}
+
 .filterCount {
+  flex-shrink: 0;
   font-size: 0.85rem;
   color: #9aa4b2;
 }
+
 .settingsLabel {
   border-bottom: 0.125rem solid #000;
 
@@ -1284,7 +1338,7 @@
   align-items: center;
   gap: 10px;
 
-  margin-top: 10px;
+  padding-top: 1rem;
 
   font-size: 0.85rem;
   color: #7a7a7a;

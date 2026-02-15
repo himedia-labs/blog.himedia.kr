@@ -58,6 +58,7 @@ export const useMyPageData = () => {
 
   return {
     accessToken,
+    currentUserId,
     displayName,
     followerCount,
     followingCount,
