@@ -579,7 +579,7 @@ export default function MyPage() {
                       <div className={styles.filterDropdown}>
                         <button
                           type="button"
-                          className={`${styles.filterButton} ${styles.tagFilterButton}`}
+                          className={styles.filterButton}
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
@@ -775,7 +775,7 @@ export default function MyPage() {
                       <div className={styles.filterDropdown}>
                         <button
                           type="button"
-                          className={`${styles.filterButton} ${styles.tagFilterButton}`}
+                          className={styles.filterButton}
                           onClick={toggleTag}
                           disabled={!postTags.length}
                         >
