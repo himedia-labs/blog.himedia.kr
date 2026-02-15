@@ -17,6 +17,12 @@ CREATE TABLE users (
     profile_handle VARCHAR(50) UNIQUE,
     profile_image_url VARCHAR(500),
     profile_bio TEXT,
+    profile_contact_email VARCHAR(255),
+    profile_github_url VARCHAR(500),
+    profile_linkedin_url VARCHAR(500),
+    profile_twitter_url VARCHAR(500),
+    profile_facebook_url VARCHAR(500),
+    profile_website_url VARCHAR(500),
     privacy_consent BOOLEAN NOT NULL DEFAULT false,
     approved BOOLEAN NOT NULL DEFAULT false,
     withdrawn BOOLEAN NOT NULL DEFAULT false,
@@ -258,6 +264,12 @@ COMMENT ON COLUMN users.birth_date IS '생년월일';
 COMMENT ON COLUMN users.profile_bio IS '자기소개';
 COMMENT ON COLUMN users.profile_handle IS '프로필 핸들';
 COMMENT ON COLUMN users.profile_image_url IS '프로필 이미지 URL';
+COMMENT ON COLUMN users.profile_contact_email IS '프로필 연락용 이메일';
+COMMENT ON COLUMN users.profile_github_url IS '프로필 GitHub URL';
+COMMENT ON COLUMN users.profile_linkedin_url IS '프로필 LinkedIn URL';
+COMMENT ON COLUMN users.profile_twitter_url IS '프로필 X(Twitter) URL';
+COMMENT ON COLUMN users.profile_facebook_url IS '프로필 Facebook URL';
+COMMENT ON COLUMN users.profile_website_url IS '프로필 홈페이지 URL';
 COMMENT ON COLUMN users.privacy_consent IS '개인정보 수집 및 이용 동의 여부';
 COMMENT ON COLUMN users.approved IS '관리자 승인 여부';
 COMMENT ON COLUMN users.withdrawn IS '회원탈퇴 여부';

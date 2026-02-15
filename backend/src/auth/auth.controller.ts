@@ -226,7 +226,17 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Patch('me/profile')
   updateProfile(@Body() body: UpdateProfileDto, @Request() req: ExpressRequest & { user: JwtPayload }) {
-    return this.userService.updateProfile(req.user.sub, body.name, body.profileHandle);
+    return this.userService.updateProfile(
+      req.user.sub,
+      body.name,
+      body.profileHandle,
+      body.profileContactEmail,
+      body.profileGithubUrl,
+      body.profileLinkedinUrl,
+      body.profileTwitterUrl,
+      body.profileFacebookUrl,
+      body.profileWebsiteUrl,
+    );
   }
 
   /**

@@ -10,6 +10,12 @@ export interface User {
   profileHandle?: string | null;
   profileImageUrl?: string | null;
   profileBio?: string | null;
+  profileContactEmail?: string | null;
+  profileGithubUrl?: string | null;
+  profileLinkedinUrl?: string | null;
+  profileTwitterUrl?: string | null;
+  profileFacebookUrl?: string | null;
+  profileWebsiteUrl?: string | null;
 }
 
 export interface PublicProfile {
@@ -18,6 +24,12 @@ export interface PublicProfile {
   profileHandle?: string | null;
   profileImageUrl?: string | null;
   profileBio?: string | null;
+  profileContactEmail?: string | null;
+  profileGithubUrl?: string | null;
+  profileLinkedinUrl?: string | null;
+  profileTwitterUrl?: string | null;
+  profileFacebookUrl?: string | null;
+  profileWebsiteUrl?: string | null;
 }
 
 export interface UpdateProfileImageRequest {
@@ -29,6 +41,12 @@ export type UpdateProfileImageResponse = User;
 export interface UpdateProfileRequest {
   name?: string | null;
   profileHandle?: string | null;
+  profileContactEmail?: string | null;
+  profileGithubUrl?: string | null;
+  profileLinkedinUrl?: string | null;
+  profileTwitterUrl?: string | null;
+  profileFacebookUrl?: string | null;
+  profileWebsiteUrl?: string | null;
 }
 
 export type UpdateProfileResponse = User;

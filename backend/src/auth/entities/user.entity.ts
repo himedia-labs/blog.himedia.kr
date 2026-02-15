@@ -58,6 +58,24 @@ export class User {
   @Column({ type: 'text', name: 'profile_bio', nullable: true })
   profileBio!: string | null;
 
+  @Column({ type: 'varchar', length: 255, name: 'profile_contact_email', nullable: true })
+  profileContactEmail!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_github_url', nullable: true })
+  profileGithubUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_linkedin_url', nullable: true })
+  profileLinkedinUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_twitter_url', nullable: true })
+  profileTwitterUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_facebook_url', nullable: true })
+  profileFacebookUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 500, name: 'profile_website_url', nullable: true })
+  profileWebsiteUrl!: string | null;
+
   @Column({ type: 'boolean', name: 'privacy_consent', default: false })
   privacyConsent!: boolean;
 

@@ -104,6 +104,12 @@ export class UserService {
       profileHandle: user.profileHandle ?? null,
       profileImageUrl: user.profileImageUrl ?? null,
       profileBio: user.profileBio ?? null,
+      profileContactEmail: user.profileContactEmail ?? null,
+      profileGithubUrl: user.profileGithubUrl ?? null,
+      profileLinkedinUrl: user.profileLinkedinUrl ?? null,
+      profileTwitterUrl: user.profileTwitterUrl ?? null,
+      profileFacebookUrl: user.profileFacebookUrl ?? null,
+      profileWebsiteUrl: user.profileWebsiteUrl ?? null,
     };
   }
 
@@ -115,7 +121,19 @@ export class UserService {
     const normalized = profileHandle.trim();
     const user = await this.usersRepository.findOne({
       where: [{ profileHandle: ILike(normalized) }, { email: ILike(`${normalized}@%`) }],
-      select: ['id', 'name', 'profileHandle', 'profileImageUrl', 'profileBio'],
+      select: [
+        'id',
+        'name',
+        'profileHandle',
+        'profileImageUrl',
+        'profileBio',
+        'profileContactEmail',
+        'profileGithubUrl',
+        'profileLinkedinUrl',
+        'profileTwitterUrl',
+        'profileFacebookUrl',
+        'profileWebsiteUrl',
+      ],
     });
 
     if (!user) {
@@ -131,6 +149,12 @@ export class UserService {
       profileHandle: user.profileHandle ?? null,
       profileImageUrl: user.profileImageUrl ?? null,
       profileBio: user.profileBio ?? null,
+      profileContactEmail: user.profileContactEmail ?? null,
+      profileGithubUrl: user.profileGithubUrl ?? null,
+      profileLinkedinUrl: user.profileLinkedinUrl ?? null,
+      profileTwitterUrl: user.profileTwitterUrl ?? null,
+      profileFacebookUrl: user.profileFacebookUrl ?? null,
+      profileWebsiteUrl: user.profileWebsiteUrl ?? null,
     };
   }
 
@@ -155,13 +179,24 @@ export class UserService {
 
   /**
    * 프로필 수정
-   * @description 이름/프로필 아이디를 업데이트
+   * @description 이름/프로필 아이디/소셜 링크를 업데이트
    */
-  async updateProfile(userId: string, name?: string | null, profileHandle?: string | null): Promise<AuthUserProfile> {
+  async updateProfile(
+    userId: string,
+    name?: string | null,
+    profileHandle?: string | null,
+    profileContactEmail?: string | null,
+    profileGithubUrl?: string | null,
+    profileLinkedinUrl?: string | null,
+    profileTwitterUrl?: string | null,
+    profileFacebookUrl?: string | null,
+    profileWebsiteUrl?: string | null,
+  ): Promise<AuthUserProfile> {
     const user = await this.getUserByIdOrThrow(userId);
     const nextName = name?.trim();
     const nextHandleRaw = profileHandle?.trim();
     const nextHandle = nextHandleRaw?.startsWith('@') ? nextHandleRaw.slice(1) : nextHandleRaw;
+    const nextProfileContactEmail = profileContactEmail?.trim().toLowerCase() ?? '';
 
     if (typeof name !== 'undefined') {
       if (!nextName) {
@@ -193,8 +228,41 @@ export class UserService {
       }
     }
 
+    if (typeof profileContactEmail !== 'undefined') {
+      user.profileContactEmail = nextProfileContactEmail || null;
+    }
+
+    if (typeof profileGithubUrl !== 'undefined') {
+      user.profileGithubUrl = this.normalizeProfileUrl(profileGithubUrl);
+    }
+
+    if (typeof profileLinkedinUrl !== 'undefined') {
+      user.profileLinkedinUrl = this.normalizeProfileUrl(profileLinkedinUrl);
+    }
+
+    if (typeof profileTwitterUrl !== 'undefined') {
+      user.profileTwitterUrl = this.normalizeProfileUrl(profileTwitterUrl);
+    }
+
+    if (typeof profileFacebookUrl !== 'undefined') {
+      user.profileFacebookUrl = this.normalizeProfileUrl(profileFacebookUrl);
+    }
+
+    if (typeof profileWebsiteUrl !== 'undefined') {
+      user.profileWebsiteUrl = this.normalizeProfileUrl(profileWebsiteUrl);
+    }
+
     await this.usersRepository.save(user);
     return this.buildUserProfile(user);
+  }
+
+  /**
+   * 프로필 URL 정규화
+   * @description 공백 제거 후 비어있으면 null 반환
+   */
+  private normalizeProfileUrl(value?: string | null): string | null {
+    const trimmed = value?.trim() ?? '';
+    return trimmed ? trimmed : null;
   }
 
   /**
