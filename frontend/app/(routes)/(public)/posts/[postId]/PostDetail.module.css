@@ -526,7 +526,7 @@
 .commentProfile {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 1rem;
 }
 
 .commentAvatarGroup {
@@ -570,8 +570,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  margin-left: 0.9rem;
-  margin-bottom: 0.7rem;
 }
 
 .commentAuthor {
@@ -805,7 +803,7 @@
 
 .commentContent {
   position: relative;
-  padding-left: calc(30px + 1rem);
+  padding: 1rem 0 0 3rem;
 }
 
 .commentFooter {
