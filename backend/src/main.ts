@@ -11,6 +11,7 @@ import { setupSwagger } from './common/swagger/swagger';
 import { setupFilters } from './common/exception/httpException';
 import { setupValidation } from './common/validation/validation';
 import { setupInterceptors } from './common/logging/logging';
+import { faviconMiddleware } from './common/middleware/favicon.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,7 @@ async function bootstrap() {
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.use(cookieParser());
+  app.use(faviconMiddleware);
   setupCors(app);
   setupFilters(app);
   setupValidation(app);
