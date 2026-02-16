@@ -20,11 +20,12 @@ import { join } from 'path';
           database: configService.get<string>('DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: !isProduction,
-          // Vercel Serverless 환경: 최소 커넥션으로 설정
+          poolSize: isProduction ? 1 : 10,
           extra: {
-            max: isProduction ? 2 : 10,
-            connectionTimeoutMillis: 5000,
-            idleTimeoutMillis: 30000,
+            max: isProduction ? 1 : 10,
+            min: isProduction ? 0 : 2,
+            connectionTimeoutMillis: 3000,
+            idleTimeoutMillis: 10000,
           },
         };
       },
