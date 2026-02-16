@@ -9,15 +9,13 @@ import type { ConfigType } from '@nestjs/config';
  * @description 환경에 따른 보안 쿠키 설정
  */
 const getCookieOptions = (env?: string) => {
-  // 배포(production): 프론트/백엔드가 다른 도메인이므로 SameSite=None + Secure 필수
-  // 로컬(development): http 환경이므로 SameSite=Lax 유지
+  // 프록시 사용으로 Same-Origin이 되므로 모든 환경에서 SameSite=Lax 사용
   const isProduction = env === 'production';
-  const sameSite = isProduction ? ('none' as const) : ('lax' as const);
 
   return {
     httpOnly: true,
     secure: isProduction,
-    sameSite,
+    sameSite: 'lax' as const,
     path: '/',
   };
 };
