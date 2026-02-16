@@ -20,13 +20,7 @@ import { join } from 'path';
           database: configService.get<string>('DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: !isProduction,
-          poolSize: isProduction ? 1 : 10,
-          extra: {
-            max: isProduction ? 1 : 10,
-            min: isProduction ? 0 : 2,
-            connectionTimeoutMillis: 3000,
-            idleTimeoutMillis: 10000,
-          },
+          ssl: isProduction ? { rejectUnauthorized: false } : false,
         };
       },
     }),
