@@ -4,6 +4,7 @@ import Footer from '@/app/shared/components/footer/Footer';
 import Header from '@/app/shared/components/header/Header';
 import ToastProvider from '@/app/shared/components/toast/ToastProvider';
 import ScrollTopButton from '@/app/shared/components/scroll-top/ScrollTopButton';
+import { notoSansKr } from '@/app/shared/styles/fonts';
 
 import QueryProvider from '@/app/provider/ReactQuery/QueryProvider';
 import AuthInitializer from '@/app/provider/AuthProvider/AuthInitializer';
@@ -25,7 +26,7 @@ export default async function RootLayout({
 
   return (
     <html lang="ko">
-      <body>
+      <body className={notoSansKr.variable}>
         <QueryProvider>
           <AuthInitializer />
           <ToastProvider>
