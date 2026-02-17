@@ -337,12 +337,40 @@
 }
 
 .authorProfileBio {
-  display: block;
+  display: -webkit-box;
   margin: 0;
   font-size: 1.16rem;
+  line-height: 1.5;
   color: #5f6c80;
   overflow: hidden;
-  white-space: nowrap;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.authorProfileBio :global(h1),
+.authorProfileBio :global(h2),
+.authorProfileBio :global(h3),
+.authorProfileBio :global(p),
+.authorProfileBio :global(ul),
+.authorProfileBio :global(ol),
+.authorProfileBio :global(li),
+.authorProfileBio :global(blockquote),
+.authorProfileBio :global(pre),
+.authorProfileBio :global(code) {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.authorProfileBio :global(br) {
+  display: none;
 }
 
 .authorProfileMeta {

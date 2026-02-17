@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
-import { truncateWithEllipsis } from '@/app/shared/utils/truncateWithEllipsis.utils';
+import { renderMarkdownPreview } from '@/app/shared/utils/markdown';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -61,11 +61,6 @@ import { useToast } from '@/app/shared/components/toast/toast';
  * @description 게시물 상세 내용과 반응 정보를 표시
  */
 export default function PostDetailPage() {
-  // 소개글 길이 설정
-  const AUTHOR_PROFILE_BIO_LIMIT_DESKTOP = 36;
-  const AUTHOR_PROFILE_BIO_LIMIT_TABLET = 20;
-  const AUTHOR_PROFILE_BIO_LIMIT_MOBILE = 15;
-
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
@@ -77,7 +72,6 @@ export default function PostDetailPage() {
   const { data: currentUser } = useCurrentUserQuery();
   const [isPostDeleting, setIsPostDeleting] = useState(false);
   const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
-  const [authorBioLimit, setAuthorBioLimit] = useState(AUTHOR_PROFILE_BIO_LIMIT_DESKTOP);
   const [isAuthorFollowing, setIsAuthorFollowing] = useState(false);
   const [isAuthorFollowHover, setIsAuthorFollowHover] = useState(false);
   const [isAuthorFollowLoading, setIsAuthorFollowLoading] = useState(false);
@@ -97,7 +91,10 @@ export default function PostDetailPage() {
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
-  const authorProfileBioPreview = truncateWithEllipsis(authorProfileBio, authorBioLimit);
+  const authorProfileBioPreview = useMemo(() => {
+    const previewBlocks = renderMarkdownPreview(authorProfileBio);
+    return previewBlocks.flatMap((block, index) => (index ? [' ', block] : [block]));
+  }, [authorProfileBio]);
   const authorSocialLinks = [
     {
       href: data?.author?.profileContactEmail?.trim() ? `mailto:${data.author.profileContactEmail.trim()}` : '',
@@ -137,25 +134,6 @@ export default function PostDetailPage() {
     },
   ].filter(item => Boolean(item.href));
   const commentSkeletons = Array.from({ length: 3 });
-
-  // 소개글 말줄임 기준 동기화
-  useEffect(() => {
-    const syncAuthorBioLimit = () => {
-      if (window.innerWidth <= 480) {
-        setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_MOBILE);
-        return;
-      }
-      if (window.innerWidth <= 768) {
-        setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_TABLET);
-        return;
-      }
-      setAuthorBioLimit(AUTHOR_PROFILE_BIO_LIMIT_DESKTOP);
-    };
-
-    syncAuthorBioLimit();
-    window.addEventListener('resize', syncAuthorBioLimit);
-    return () => window.removeEventListener('resize', syncAuthorBioLimit);
-  }, [AUTHOR_PROFILE_BIO_LIMIT_DESKTOP, AUTHOR_PROFILE_BIO_LIMIT_MOBILE, AUTHOR_PROFILE_BIO_LIMIT_TABLET]);
 
   // 작성자 프로필 상태 동기화
   useEffect(() => {
@@ -836,7 +814,7 @@ export default function PostDetailPage() {
                     )}
                     <span className={styles.authorProfileRole}>{formatRole(data.author.role)}</span>
                   </div>
-                  {authorProfileBioPreview ? <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p> : null}
+                  {authorProfileBio ? <div className={styles.authorProfileBio}>{authorProfileBioPreview}</div> : null}
                   <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
                 </div>
               </div>
