@@ -781,7 +781,8 @@ export default function MyPage() {
                     <ul className={styles.listView}>
                       {filteredPosts.map((post, index) => {
                         const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
-                        const hasThumbnail = Boolean(post.thumbnailUrl);
+                        const thumbnailUrl = post.thumbnailUrl ?? '';
+                        const hasThumbnail = Boolean(thumbnailUrl);
                         const listTags = (post.tags ?? []).slice(0, 5);
                         return (
                           <Fragment key={post.id}>
@@ -913,12 +914,12 @@ export default function MyPage() {
                                   </div>
                                   {hasThumbnail ? (
                                     <div className={styles.listThumb} aria-hidden="true">
-                                      <img
-                                        className={postListStyles.listThumbImage}
-                                        src={post.thumbnailUrl}
-                                        alt=""
-                                        loading="lazy"
-                                      />
+                                          <img
+                                            className={postListStyles.listThumbImage}
+                                            src={thumbnailUrl}
+                                            alt=""
+                                            loading="lazy"
+                                          />
                                     </div>
                                   ) : null}
                                 </article>
@@ -1800,7 +1801,8 @@ export default function MyPage() {
                   <ul className={styles.listView}>
                     {sortedLikedPosts.map((post, index) => {
                       const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
-                      const hasThumbnail = Boolean(post.thumbnailUrl);
+                      const thumbnailUrl = post.thumbnailUrl ?? '';
+                      const hasThumbnail = Boolean(thumbnailUrl);
                       return (
                         <Fragment key={post.id}>
                           <li>
@@ -1937,7 +1939,7 @@ export default function MyPage() {
                                   <div className={styles.listThumb} aria-hidden="true">
                                     <img
                                       className={postListStyles.listThumbImage}
-                                      src={post.thumbnailUrl}
+                                      src={thumbnailUrl}
                                       alt=""
                                       loading="lazy"
                                     />
