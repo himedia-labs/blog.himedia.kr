@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -37,8 +37,6 @@ import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { usePostDetailQuery } from '@/app/api/posts/posts.queries';
 import { LOGIN_MESSAGES } from '@/app/shared/constants/messages/auth.message';
 import { isCommentContentTooLong } from '@/app/shared/utils/comment.utils';
-import { stripInlineMarkdown } from '@/app/shared/utils/markdown/helpers';
-import { truncateWithEllipsis } from '@/app/shared/utils/truncateWithEllipsis.utils';
 import { createTocClickHandler } from '@/app/(routes)/(public)/posts/[postId]/handlers';
 import {
   usePostDetailComments,
@@ -63,9 +61,6 @@ import styles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css
  * @description 게시물 상세 내용과 반응 정보를 표시
  */
 export default function PostDetailPage() {
-  // 소개글 길이 설정
-  const AUTHOR_PROFILE_BIO_SUMMARY_LIMIT = 60;
-
   // 라우트 데이터
   const params = useParams();
   const postId = typeof params?.postId === 'string' ? params.postId : '';
@@ -96,25 +91,6 @@ export default function PostDetailPage() {
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
   const authorProfileBio = data?.author?.profileBio?.trim() ?? '';
-  const authorProfileBioPreview = useMemo(() => {
-    const normalized = authorProfileBio
-      .split('\n')
-      .map(line => line.trim())
-      .filter(Boolean)
-      .map(line =>
-        line
-          .replace(/^#{1,3}\s+/, '')
-          .replace(/^>\s?/, '')
-          .replace(/^-+\s+/, '')
-          .replace(/^\d+\.\s+/, ''),
-      )
-      .map(line => stripInlineMarkdown(line))
-      .join(' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    return truncateWithEllipsis(normalized, AUTHOR_PROFILE_BIO_SUMMARY_LIMIT);
-  }, [AUTHOR_PROFILE_BIO_SUMMARY_LIMIT, authorProfileBio]);
   const authorSocialLinks = [
     {
       href: data?.author?.profileContactEmail?.trim() ? `mailto:${data.author.profileContactEmail.trim()}` : '',
@@ -840,8 +816,8 @@ export default function PostDetailPage() {
                       </>
                     )}
                   </div>
-                  {authorProfileBioPreview ? (
-                    <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p>
+                  {authorProfileBio ? (
+                    <p className={styles.authorProfileBio}>{authorProfileBio}</p>
                   ) : null}
                   <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
                 </div>
