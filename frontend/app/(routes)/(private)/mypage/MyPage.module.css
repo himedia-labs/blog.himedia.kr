@@ -1372,6 +1372,8 @@
 }
 
 .summary {
+  overflow: hidden;
+  display: -webkit-box;
   align-self: start;
 
   margin: 0;
@@ -1379,6 +1381,8 @@
   font-size: 14px;
   line-height: 1.7;
   color: #757575;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .meta {
