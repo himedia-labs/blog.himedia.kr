@@ -36,10 +36,10 @@ import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
 import EditorToolbar from '@/app/shared/components/markdown-editor/EditorToolbar';
 import { splitCommentMentions } from '@/app/(routes)/(public)/posts/[postId]/utils';
 import { WITHDRAW_MODAL_MESSAGES } from '@/app/shared/constants/messages/modal.message';
+import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 import {
   formatDateLabel,
   formatDateTimeLabel,
-  formatSummary,
   sortPostsByKey,
 } from '@/app/(routes)/(private)/mypage/utils';
 import {
@@ -834,7 +834,7 @@ export default function MyPage() {
                                         ) : null}
                                       </div>
                                     </div>
-                                    <p className={styles.summary}>{formatSummary(post.content)}</p>
+                                    <p className={styles.summary}>{formatPostPreview(post.content, { emptyText: '내용 없음' })}</p>
                                     <div className={styles.meta}>
                                       <span className={styles.metaGroup}>
                                         <span className={styles.metaItem}>
@@ -1805,7 +1805,7 @@ export default function MyPage() {
                                       </div>
                                     ) : null}
                                   </div>
-                                  <p className={styles.summary}>{formatSummary(post.content)}</p>
+                                  <p className={styles.summary}>{formatPostPreview(post.content, { emptyText: '내용 없음' })}</p>
                                   <div className={styles.meta}>
                                     <span className={styles.metaGroup}>
                                       <span className={styles.metaItem}>

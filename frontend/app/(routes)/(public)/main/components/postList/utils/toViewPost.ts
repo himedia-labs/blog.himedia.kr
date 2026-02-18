@@ -1,6 +1,7 @@
 import { formatDate } from '@/app/(routes)/(public)/main/components/postList/utils/formatDate';
 import { extractImageUrl } from '@/app/(routes)/(public)/main/components/postList/utils/extractImageUrl';
 import { buildRelativeTime } from '@/app/(routes)/(public)/main/components/postList/utils/buildRelativeTime';
+import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
 
 import type { Post, PostListItem } from '@/app/shared/types/post';
 
@@ -13,7 +14,7 @@ export const toViewPost = (item: PostListItem): Post => {
   return {
     id: item.id,
     title: item.title,
-    content: item.content ?? '',
+    content: formatPostPreview(item.content),
     imageUrl,
     authorId: item.author?.id ?? '',
     category: item.category?.name ?? 'ALL',
