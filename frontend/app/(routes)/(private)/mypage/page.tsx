@@ -782,7 +782,7 @@ export default function MyPage() {
                       {filteredPosts.map((post, index) => {
                         const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                         const hasThumbnail = Boolean(post.thumbnailUrl);
-                        const listTags = (post.tags ?? []).slice(0, 5).map(tag => tag.name);
+                        const listTags = (post.tags ?? []).slice(0, 5);
                         return (
                           <Fragment key={post.id}>
                             <li>
@@ -848,9 +848,9 @@ export default function MyPage() {
                                     />
                                     {listTags.length > 0 ? (
                                       <ul className={postListStyles.listTagList} aria-label="태그 목록">
-                                        {listTags.map(tagName => (
-                                          <li key={`${post.id}-list-${tagName}`} className={postListStyles.listTagItem}>
-                                            #{tagName}
+                                        {listTags.map(tag => (
+                                          <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
+                                            #{tag.name}
                                           </li>
                                         ))}
                                       </ul>
@@ -1870,10 +1870,9 @@ export default function MyPage() {
                                     <ul className={postListStyles.listTagList} aria-label="태그 목록">
                                       {(post.tags ?? [])
                                         .slice(0, 5)
-                                        .map(tag => tag.name)
-                                        .map(tagName => (
-                                          <li key={`${post.id}-list-${tagName}`} className={postListStyles.listTagItem}>
-                                            #{tagName}
+                                        .map(tag => (
+                                          <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
+                                            #{tag.name}
                                           </li>
                                         ))}
                                     </ul>
