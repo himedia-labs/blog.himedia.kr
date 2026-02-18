@@ -5,6 +5,7 @@ import { Fragment, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import LinesEllipsis from 'react-lines-ellipsis';
 import Skeleton from 'react-loading-skeleton';
 
 import { CiCalendar } from 'react-icons/ci';
@@ -58,6 +59,7 @@ import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
+import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
 import markdownStyles from '@/app/shared/components/markdown-editor/markdown.module.css';
 import commentStyles from '@/app/(routes)/(public)/posts/[postId]/PostDetail.module.css';
@@ -778,7 +780,9 @@ export default function MyPage() {
                   {filteredPosts.length ? (
                     <ul className={styles.listView}>
                       {filteredPosts.map((post, index) => {
+                        const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                         const hasThumbnail = Boolean(post.thumbnailUrl);
+                        const listTags = (post.tags ?? []).slice(0, 5).map(tag => tag.name);
                         return (
                           <Fragment key={post.id}>
                             <li>
@@ -834,39 +838,88 @@ export default function MyPage() {
                                         ) : null}
                                       </div>
                                     </div>
-                                    <p className={styles.summary}>{formatPostPreview(post.content, { emptyText: '내용 없음' })}</p>
-                                    <div className={styles.meta}>
-                                      <span className={styles.metaGroup}>
-                                        <span className={styles.metaItem}>
-                                          <CiCalendar aria-hidden="true" />{' '}
-                                          {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                    <LinesEllipsis
+                                      text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
+                                      maxLine="2"
+                                      ellipsis="..."
+                                      trimRight
+                                      basedOn="letters"
+                                      className={postListStyles.summary}
+                                    />
+                                    {listTags.length > 0 ? (
+                                      <ul className={postListStyles.listTagList} aria-label="태그 목록">
+                                        {listTags.map(tagName => (
+                                          <li key={`${post.id}-list-${tagName}`} className={postListStyles.listTagItem}>
+                                            #{tagName}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : null}
+                                    <div className={postListStyles.meta}>
+                                      <div className={postListStyles.metaAuthorDate}>
+                                        <div className={postListStyles.cardAuthor}>
+                                          <div
+                                            className={
+                                              isMyPost
+                                                ? `${postListStyles.cardAuthorAvatar} ${postListStyles.cardAuthorAvatarMine}`
+                                                : postListStyles.cardAuthorAvatar
+                                            }
+                                            aria-hidden="true"
+                                          >
+                                            {post.author?.profileImageUrl ? (
+                                              <img
+                                                className={postListStyles.cardAuthorImage}
+                                                src={post.author.profileImageUrl}
+                                                alt=""
+                                                loading="lazy"
+                                              />
+                                            ) : (
+                                              <FaUser />
+                                            )}
+                                          </div>
+                                          <span className={postListStyles.cardAuthorText}>
+                                            <span className={postListStyles.cardAuthorBy}>by.</span>
+                                            <span className={postListStyles.cardAuthorName}>{post.author?.name ?? '알 수 없음'}</span>
+                                          </span>
+                                        </div>
+                                        <span className={postListStyles.separator} aria-hidden="true">
+                                          |
                                         </span>
-                                      </span>
-                                      <span className={styles.metaGroup}>
-                                        <span className={styles.metaItem}>
+                                        <span className={postListStyles.metaGroup}>
+                                          <span className={postListStyles.metaItem}>
+                                            <CiCalendar aria-hidden="true" />{' '}
+                                            {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                          </span>
+                                        </span>
+                                      </div>
+                                      <span className={postListStyles.metaGroup}>
+                                        <span className={postListStyles.metaItem}>
                                           <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
                                         </span>
-                                        <span className={styles.separator} aria-hidden="true">
+                                        <span className={postListStyles.separator} aria-hidden="true">
                                           |
                                         </span>
-                                        <span className={styles.metaItem}>
+                                        <span className={postListStyles.metaItem}>
                                           <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
                                         </span>
-                                        <span className={styles.separator} aria-hidden="true">
+                                        <span className={postListStyles.separator} aria-hidden="true">
                                           |
                                         </span>
-                                        <span className={styles.metaItem}>
+                                        <span className={postListStyles.metaItem}>
                                           <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
                                         </span>
                                       </span>
                                     </div>
                                   </div>
                                   {hasThumbnail ? (
-                                    <div
-                                      className={styles.listThumb}
-                                      style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
-                                      aria-hidden="true"
-                                    />
+                                    <div className={styles.listThumb} aria-hidden="true">
+                                      <img
+                                        className={postListStyles.listThumbImage}
+                                        src={post.thumbnailUrl}
+                                        alt=""
+                                        loading="lazy"
+                                      />
+                                    </div>
                                   ) : null}
                                 </article>
                               </Link>
@@ -1805,39 +1858,91 @@ export default function MyPage() {
                                       </div>
                                     ) : null}
                                   </div>
-                                  <p className={styles.summary}>{formatPostPreview(post.content, { emptyText: '내용 없음' })}</p>
-                                  <div className={styles.meta}>
-                                    <span className={styles.metaGroup}>
-                                      <span className={styles.metaItem}>
-                                        <CiCalendar aria-hidden="true" />{' '}
-                                        {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                  <LinesEllipsis
+                                    text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
+                                    maxLine="2"
+                                    ellipsis="..."
+                                    trimRight
+                                    basedOn="letters"
+                                    className={postListStyles.summary}
+                                  />
+                                  {((post.tags ?? []).slice(0, 5).length > 0) ? (
+                                    <ul className={postListStyles.listTagList} aria-label="태그 목록">
+                                      {(post.tags ?? [])
+                                        .slice(0, 5)
+                                        .map(tag => tag.name)
+                                        .map(tagName => (
+                                          <li key={`${post.id}-list-${tagName}`} className={postListStyles.listTagItem}>
+                                            #{tagName}
+                                          </li>
+                                        ))}
+                                    </ul>
+                                  ) : null}
+                                  <div className={postListStyles.meta}>
+                                    <div className={postListStyles.metaAuthorDate}>
+                                      <div className={postListStyles.cardAuthor}>
+                                        <div
+                                          className={
+                                            isMyPost
+                                              ? `${postListStyles.cardAuthorAvatar} ${postListStyles.cardAuthorAvatarMine}`
+                                              : postListStyles.cardAuthorAvatar
+                                          }
+                                          aria-hidden="true"
+                                        >
+                                          {post.author?.profileImageUrl ? (
+                                            <img
+                                              className={postListStyles.cardAuthorImage}
+                                              src={post.author.profileImageUrl}
+                                              alt=""
+                                              loading="lazy"
+                                            />
+                                          ) : (
+                                            <FaUser />
+                                          )}
+                                        </div>
+                                        <span className={postListStyles.cardAuthorText}>
+                                          <span className={postListStyles.cardAuthorBy}>by.</span>
+                                          <span className={postListStyles.cardAuthorName}>{post.author?.name ?? '알 수 없음'}</span>
+                                        </span>
+                                      </div>
+                                      <span className={postListStyles.separator} aria-hidden="true">
+                                        |
                                       </span>
-                                    </span>
-                                    <span className={styles.metaGroup}>
-                                      <span className={styles.metaItem}>
+                                      <span className={postListStyles.metaGroup}>
+                                        <span className={postListStyles.metaItem}>
+                                          <CiCalendar aria-hidden="true" />{' '}
+                                          {formatDateLabel(post.publishedAt ?? post.createdAt)}
+                                        </span>
+                                      </span>
+                                    </div>
+                                    <span className={postListStyles.metaGroup}>
+                                      <span className={postListStyles.metaItem}>
                                         <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
                                       </span>
-                                      <span className={styles.separator} aria-hidden="true">
+                                      <span className={postListStyles.separator} aria-hidden="true">
                                         |
                                       </span>
-                                      <span className={styles.metaItem}>
+                                      <span className={postListStyles.metaItem}>
                                         <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
                                       </span>
-                                      <span className={styles.separator} aria-hidden="true">
+                                      <span className={postListStyles.separator} aria-hidden="true">
                                         |
                                       </span>
-                                      <span className={styles.metaItem}>
+                                      <span className={postListStyles.metaItem}>
                                         <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
                                       </span>
                                     </span>
                                   </div>
                                 </div>
                                 {hasThumbnail ? (
-                                  <div
-                                    className={styles.listThumb}
-                                    style={{ backgroundImage: `url(${post.thumbnailUrl})` }}
-                                    aria-hidden="true"
-                                  />
+                                  <div className={styles.listThumb} aria-hidden="true">
+                                    <img
+                                      className={postListStyles.listThumbImage}
+                                      src={post.thumbnailUrl}
+                                      alt=""
+                                      loading="lazy"
+                                    />
+                                  </div>
                                 ) : null}
                               </article>
                             </Link>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
+import LinesEllipsis from 'react-lines-ellipsis';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
@@ -181,7 +182,16 @@ export default function PostListSection() {
                           >
                             <div className={styles.listBody}>
                               <h3>{post.title}</h3>
-                              {post.content ? <p className={styles.summary}>{post.content}</p> : null}
+                              {post.content ? (
+                                <LinesEllipsis
+                                  text={post.content}
+                                  maxLine="2"
+                                  ellipsis="..."
+                                  trimRight
+                                  basedOn="letters"
+                                  className={styles.summary}
+                                />
+                              ) : null}
                               {listTags.length > 0 ? (
                                 <ul className={styles.listTagList} aria-label="태그 목록">
                                   {listTags.map(tagName => (
@@ -379,14 +389,25 @@ export default function PostListSection() {
                                 }
                               >
                                 <h3>{cardTitle}</h3>
-                                {post.content ? <p className={styles.summary}>{post.content}</p> : null}
+                                {post.content ? (
+                                  <LinesEllipsis
+                                    text={post.content}
+                                    maxLine="2"
+                                    ellipsis="..."
+                                    trimRight
+                                    basedOn="letters"
+                                    className={styles.summary}
+                                  />
+                                ) : null}
                               </div>
                             </div>
                           </div>
                           {cardTags.length > 0 ? (
                             <ul
                               className={
-                                hasThumbnail ? `${styles.cardTagList} ${styles.cardTagListWithThumb}` : styles.cardTagList
+                                hasThumbnail
+                                  ? `${styles.cardTagList} ${styles.cardTagListWithThumb}`
+                                  : styles.cardTagList
                               }
                               aria-label="태그 목록"
                             >

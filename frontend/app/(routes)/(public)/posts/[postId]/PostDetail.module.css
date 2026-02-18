@@ -356,9 +356,6 @@
   font-size: 1.16rem;
   line-height: 1.5;
   color: #5f6c80;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .authorProfileMeta {

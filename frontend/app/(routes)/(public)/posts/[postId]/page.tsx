@@ -6,9 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { CiShoppingTag } from 'react-icons/ci';
 import { FaHeart } from 'react-icons/fa';
+import { CiShoppingTag } from 'react-icons/ci';
 import { FaFacebookF, FaLinkedinIn, FaUser, FaXTwitter } from 'react-icons/fa6';
+import LinesEllipsis from 'react-lines-ellipsis';
 import NumberFlow from '@number-flow/react';
 import {
   FiClock,
@@ -817,7 +818,14 @@ export default function PostDetailPage() {
                     )}
                   </div>
                   {authorProfileBio ? (
-                    <p className={styles.authorProfileBio}>{authorProfileBio}</p>
+                    <LinesEllipsis
+                      text={authorProfileBio}
+                      maxLine="1"
+                      ellipsis="..."
+                      trimRight
+                      basedOn="letters"
+                      className={styles.authorProfileBio}
+                    />
                   ) : null}
                   <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
                 </div>
