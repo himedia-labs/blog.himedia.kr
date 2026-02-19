@@ -1,0 +1,30 @@
+# @npm 의존성 업데이트 PR 자동 생성 설정
+
+# Dependabot 설정 버전
+version: 2
+
+# 업데이트 대상 목록
+updates:
+  # 프론트엔드 npm 의존성 업데이트
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
+    # 매주 월요일 KST 00:00에 업데이트 PR 생성
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '00:00'
+      timezone: 'Asia/Seoul'
+    # 동시에 열어둘 PR 최대 개수
+    open-pull-requests-limit: 5
+
+  # 백엔드 npm 의존성 업데이트
+  - package-ecosystem: 'npm'
+    directory: '/backend'
+    # 매주 월요일 KST 00:00에 업데이트 PR 생성
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '00:00'
+      timezone: 'Asia/Seoul'
+    # 동시에 열어둘 PR 최대 개수
+    open-pull-requests-limit: 5
