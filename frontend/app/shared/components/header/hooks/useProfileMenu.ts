@@ -8,12 +8,15 @@ export const useProfileMenu = (isLoggedIn: boolean) => {
   // UI 상태
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isProfileVisible, setIsProfileVisible] = useState(false);
+  const isMenuOpen = isLoggedIn && isProfileOpen;
+  const isMenuVisible = isLoggedIn && isProfileVisible;
 
   // UI 참조
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   // 프로필 메뉴 핸들러
   const openProfileMenu = () => {
+    if (!isLoggedIn) return;
     setIsProfileVisible(true);
     setIsProfileOpen(true);
   };
@@ -24,8 +27,9 @@ export const useProfileMenu = (isLoggedIn: boolean) => {
   };
 
   const toggleProfileMenu = (closeOtherMenus: () => void) => {
+    if (!isLoggedIn) return;
     closeOtherMenus();
-    if (isProfileOpen) {
+    if (isMenuOpen) {
       closeProfileMenu();
       return;
     }
@@ -34,7 +38,7 @@ export const useProfileMenu = (isLoggedIn: boolean) => {
 
   // 외부 클릭/ESC 키 처리
   useEffect(() => {
-    if (!isProfileOpen) return;
+    if (!isMenuOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (!profileRef.current || profileRef.current.contains(event.target as Node)) return;
@@ -51,19 +55,12 @@ export const useProfileMenu = (isLoggedIn: boolean) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isProfileOpen]);
-
-  // 로그아웃 시 메뉴 닫기
-  useEffect(() => {
-    if (isLoggedIn) return;
-    setIsProfileOpen(false);
-    setIsProfileVisible(false);
-  }, [isLoggedIn]);
+  }, [isMenuOpen]);
 
   return {
     profileRef,
-    isProfileOpen,
-    isProfileVisible,
+    isProfileOpen: isMenuOpen,
+    isProfileVisible: isMenuVisible,
     toggleProfileMenu,
     closeProfileMenu,
   };
