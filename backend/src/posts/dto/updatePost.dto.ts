@@ -19,11 +19,6 @@ export class UpdatePostDto {
   categoryId?: string | null;
 
   @IsOptional()
-  @IsString({ message: POST_VALIDATION_MESSAGES.THUMBNAIL_URL_STRING })
-  @MaxLength(500, { message: POST_VALIDATION_MESSAGES.THUMBNAIL_URL_MAX_LENGTH })
-  thumbnailUrl?: string;
-
-  @IsOptional()
   @IsArray({ message: POST_VALIDATION_MESSAGES.TAGS_ARRAY })
   @ArrayMaxSize(5, { message: POST_VALIDATION_MESSAGES.TAGS_MAX_COUNT })
   @IsString({ each: true, message: POST_VALIDATION_MESSAGES.TAG_STRING })

@@ -83,6 +83,15 @@ const extractImageUrls = (content: string) => {
   return Array.from(urls);
 };
 
+/**
+ * 첫 번째 이미지 URL 추출
+ * @description 본문에서 첫 번째 이미지 URL을 추출하여 썸네일로 사용
+ */
+const extractFirstImageUrl = (content: string): string | null => {
+  const imageUrls = extractImageUrls(content);
+  return imageUrls.length > 0 ? imageUrls[0] : null;
+};
+
 @Injectable()
 export class PostsService {
   /**
@@ -379,6 +388,9 @@ export class PostsService {
       const postTagRepository = manager.getRepository(PostTag);
       const postImageRepository = manager.getRepository(PostImage);
 
+      // 썸네일/추출
+      const thumbnailUrl = extractFirstImageUrl(payload.content);
+
       // 게시글/생성
       const post = postRepository.create({
         id: this.snowflakeService.generate(),
@@ -388,7 +400,7 @@ export class PostsService {
         content: payload.content,
         status,
         publishedAt: status === PostStatus.PUBLISHED ? new Date() : null,
-        thumbnailUrl: payload.thumbnailUrl ?? null,
+        thumbnailUrl,
       });
 
       // 게시글/저장
@@ -459,11 +471,12 @@ export class PostsService {
 
       // 값/반영
       if (payload.title !== undefined) post.title = payload.title;
-      if (payload.content !== undefined) post.content = payload.content;
-      if (normalizedCategoryId !== undefined) post.categoryId = normalizedCategoryId;
-      if (payload.thumbnailUrl !== undefined) {
-        post.thumbnailUrl = payload.thumbnailUrl.trim() ? payload.thumbnailUrl : null;
+      if (payload.content !== undefined) {
+        post.content = payload.content;
+        // 본문 변경 시 썸네일 자동 추출
+        post.thumbnailUrl = extractFirstImageUrl(payload.content);
       }
+      if (normalizedCategoryId !== undefined) post.categoryId = normalizedCategoryId;
       if (payload.status !== undefined) {
         post.status = payload.status;
         if (payload.status === PostStatus.PUBLISHED && !post.publishedAt) {
