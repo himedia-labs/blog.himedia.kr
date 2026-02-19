@@ -156,7 +156,6 @@ export type PostPayloadInput = {
   title: string;
   content: string;
   categoryId: string | null;
-  thumbnailUrl: string;
   tags: string[];
 };
 
@@ -172,7 +171,6 @@ export interface CreatePostRequest {
   content: string;
   categoryId?: string | null;
   status?: PostStatus;
-  thumbnailUrl?: string;
   tags?: string[];
 }
 
@@ -186,7 +184,6 @@ export interface UpdatePostRequest {
   content?: string;
   categoryId?: string | null;
   status?: PostStatus;
-  thumbnailUrl?: string;
   tags?: string[];
 }
 
@@ -259,7 +256,6 @@ export type PostTocItem = {
 export type DraftData = {
   title: string;
   categoryId: string;
-  thumbnailUrl: string;
   content: string;
   tags: string[];
 };
@@ -313,7 +309,6 @@ export type PostDetailsFormTag = {
 
 export type PostDetailsFormProps = {
   category: PostDetailsFormCategory;
-  thumbnail: PostDetailsFormThumbnail;
   tag: PostDetailsFormTag;
 };
 
@@ -351,7 +346,6 @@ export type PostPreviewProps = {
     likeCount: number;
     commentCount: number;
   };
-  thumbnailUrl: string;
   content: ReactNode;
   tags: string[];
 };

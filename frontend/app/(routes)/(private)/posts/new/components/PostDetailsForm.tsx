@@ -6,21 +6,11 @@ import type { PostDetailsFormProps } from '@/app/shared/types/post';
 
 /**
  * 게시물 상세 폼
- * @description 카테고리, 썸네일, 태그 입력 영역을 렌더링
+ * @description 카테고리, 태그 입력 영역을 렌더링
  */
-export default function PostDetailsForm({ category, thumbnail, tag }: PostDetailsFormProps) {
+export default function PostDetailsForm({ category, tag }: PostDetailsFormProps) {
   // 카테고리
   const { categoryId, categories, isLoading, onCategoryChange } = category;
-
-  // 썸네일
-  const {
-    thumbnailUrl,
-    thumbnailInputRef,
-    isThumbnailUploading,
-    onThumbnailChange,
-    onThumbnailFileClick,
-    onThumbnailFileSelect,
-  } = thumbnail;
 
   // 태그
   const {
@@ -65,84 +55,53 @@ export default function PostDetailsForm({ category, thumbnail, tag }: PostDetail
         </div>
 
         <div className={styles.metaField}>
-          <label className={styles.metaLabel} htmlFor="post-thumbnail">
-            썸네일
+          <label className={styles.metaLabel} htmlFor="post-tags">
+            태그
           </label>
-          <div className={styles.thumbnailControls}>
-            <input
-              id="post-thumbnail"
-              className={styles.metaControl}
-              type="url"
-              placeholder="https://"
-              value={thumbnailUrl}
-              onChange={onThumbnailChange}
-            />
-            <button
-              type="button"
-              className={styles.thumbnailButton}
-              onClick={onThumbnailFileClick}
-              disabled={isThumbnailUploading}
-            >
-              {isThumbnailUploading ? '업로드 중...' : '파일 업로드'}
-            </button>
-            <input
-              ref={thumbnailInputRef}
-              className={styles.srOnly}
-              type="file"
-              accept="image/*"
-              onChange={onThumbnailFileSelect}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.metaField}>
-        <label className={styles.metaLabel} htmlFor="post-tags">
-          태그
-        </label>
-        <div className={`${styles.metaControl} ${styles.tagInput} ${tagLengthError ? styles.tagInputError : ''}`}>
-          {tags.map(tag => (
-            <button
-              key={tag}
-              type="button"
-              className={styles.tagChip}
-              onClick={() => onRemoveTag(tag)}
-              aria-label={`태그 삭제: ${tag}`}
-            >
-              #{tag}
-            </button>
-          ))}
-          <input
-            id="post-tags"
-            className={styles.tagInputField}
-            type="text"
-            placeholder="태그 입력 후 스페이스/엔터"
-            value={tagInput}
-            onChange={onTagChange}
-            onKeyDown={onTagKeyDown}
-            onBlur={onTagBlur}
-            onCompositionStart={onTagCompositionStart}
-            onCompositionEnd={onTagCompositionEnd}
-          />
-        </div>
-        {hasTagSuggestions ? (
-          <div className={styles.tagSuggestions} role="listbox" aria-label="태그 추천">
-            {tagSuggestions.map(tag => (
+          <div className={`${styles.metaControl} ${styles.tagInput} ${tagLengthError ? styles.tagInputError : ''}`}>
+            {tags.map(tag => (
               <button
-                key={tag.id}
+                key={tag}
                 type="button"
-                className={styles.tagSuggestionItem}
-                onMouseDown={onTagSuggestionMouseDown(tag.name)}
+                className={styles.tagChip}
+                onClick={() => onRemoveTag(tag)}
+                aria-label={`태그 삭제: ${tag}`}
               >
-                <span className={styles.tagSuggestionName}>#{tag.name}</span>
-                <span className={styles.tagSuggestionCount}>게시물 {tag.postCount.toLocaleString()}개</span>
-                <span className={styles.tagSuggestionIcon} aria-hidden="true">
-                  <IoMdCheckmark />
-                </span>
+                #{tag}
               </button>
             ))}
+            <input
+              id="post-tags"
+              className={styles.tagInputField}
+              type="text"
+              placeholder="태그 입력 후 스페이스/엔터"
+              value={tagInput}
+              onChange={onTagChange}
+              onKeyDown={onTagKeyDown}
+              onBlur={onTagBlur}
+              onCompositionStart={onTagCompositionStart}
+              onCompositionEnd={onTagCompositionEnd}
+            />
           </div>
-        ) : null}
+          {hasTagSuggestions ? (
+            <div className={styles.tagSuggestions} role="listbox" aria-label="태그 추천">
+              {tagSuggestions.map(tag => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  className={styles.tagSuggestionItem}
+                  onMouseDown={onTagSuggestionMouseDown(tag.name)}
+                >
+                  <span className={styles.tagSuggestionName}>#{tag.name}</span>
+                  <span className={styles.tagSuggestionCount}>게시물 {tag.postCount.toLocaleString()}개</span>
+                  <span className={styles.tagSuggestionIcon} aria-hidden="true">
+                    <IoMdCheckmark />
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </>
   );

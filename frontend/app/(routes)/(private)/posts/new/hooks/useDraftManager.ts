@@ -54,7 +54,6 @@ export const useDraftManager = (formData: DraftData, setFormData: (data: Partial
       setFormData({
         title: '',
         categoryId: '',
-        thumbnailUrl: '',
         content: '',
         tags: [],
       });

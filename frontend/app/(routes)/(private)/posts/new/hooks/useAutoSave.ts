@@ -23,7 +23,6 @@ export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: AutoSavePa
       formData.title.trim() ||
       formData.content.trim() ||
       formData.categoryId ||
-      formData.thumbnailUrl ||
       formData.tags.length > 0;
     if (!hasDraft) return;
     if (!isAuthenticated) return;
@@ -33,5 +32,5 @@ export const useAutoSave = ({ formData, isAuthenticated, saveDraft }: AutoSavePa
     }, AUTO_SAVE_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [formData.title, formData.categoryId, formData.thumbnailUrl, formData.content, formData.tags, isAuthenticated]);
+  }, [formData.title, formData.categoryId, formData.content, formData.tags, isAuthenticated]);
 };

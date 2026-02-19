@@ -7,7 +7,6 @@ import type { DraftData, PostDetailResponse } from '@/app/shared/types/post';
 export const mapDraftToForm = (draft: PostDetailResponse): DraftData => ({
   title: draft.title ?? '',
   categoryId: draft.category?.id ?? '',
-  thumbnailUrl: draft.thumbnailUrl ?? '',
   content: draft.content ?? '',
   tags: draft.tags?.map(tag => tag.name) ?? [],
 });

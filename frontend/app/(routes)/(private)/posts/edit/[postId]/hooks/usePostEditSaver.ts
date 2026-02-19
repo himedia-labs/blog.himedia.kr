@@ -34,7 +34,6 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
     tags: formData.tags,
     title: formData.title.trim(),
     content: formData.content.trim(),
-    thumbnail: formData.thumbnailUrl.trim(),
     categoryId: formData.categoryId,
   });
 
@@ -77,10 +76,8 @@ export const usePostEditSaver = ({ postId, formData }: PostEditSaverParams) => {
           title: validated.title,
           content: validated.content,
           categoryId: validated.categoryId,
-          thumbnailUrl: validated.thumbnail,
         },
         'PUBLISHED',
-        { includeEmptyThumbnail: true },
       );
 
       await updatePostMutation.mutateAsync({ id: postId, ...payload });

@@ -88,7 +88,6 @@ export default function PostDetailPage() {
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const commentCount = data?.commentCount ?? 0;
-  const thumbnailUrl = data?.thumbnailUrl ?? null;
   const postAuthorId = data?.author?.id ?? null;
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
@@ -644,9 +643,6 @@ export default function PostDetailPage() {
             </div>
           </aside>
           <div className={styles.mainContent}>
-            <div className={styles.thumbnail}>
-              <Skeleton height={700} borderRadius={16} />
-            </div>
             <div className={markdownStyles.markdown}>
               <Skeleton height={16} />
               <Skeleton height={16} />
@@ -782,21 +778,6 @@ export default function PostDetailPage() {
           </aside>
         ) : null}
         <div className={styles.mainContent}>
-          {thumbnailUrl ? (
-            <div className={styles.thumbnail}>
-              <Image
-                src={thumbnailUrl}
-                alt={data.title}
-                width={0}
-                height={0}
-                sizes="100vw"
-                unoptimized
-                priority
-                style={{ width: '100%', height: 'auto' }}
-              />
-            </div>
-          ) : null}
-
           <article className={markdownStyles.markdown} data-scroll-progress-end="post-content">
             {previewContent}
           </article>

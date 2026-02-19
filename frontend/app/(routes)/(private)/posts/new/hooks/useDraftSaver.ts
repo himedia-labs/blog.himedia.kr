@@ -36,7 +36,6 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
     tags: formData.tags,
     title: formData.title.trim(),
     content: formData.content.trim(),
-    thumbnail: formData.thumbnailUrl.trim(),
     categoryId: formData.categoryId,
   });
 
@@ -69,7 +68,7 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
     const silent = options?.silent ?? false;
     const validated = getValidatedFormData();
     const hasDraftInput = Boolean(
-      validated.title || validated.content || validated.categoryId || validated.thumbnail || validated.tags.length > 0,
+      validated.title || validated.content || validated.categoryId || validated.tags.length > 0,
     );
 
     if (!hasDraftInput) {
@@ -95,10 +94,8 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
           title: validated.title,
           content: validated.content,
           categoryId: validated.categoryId,
-          thumbnailUrl: validated.thumbnail,
         },
         'DRAFT',
-        { includeEmptyThumbnail: Boolean(draftId) },
       );
 
       let savedDraftId = draftId;
@@ -139,10 +136,8 @@ export const useDraftSaver = ({ formData, draftId, isAuthenticated }: DraftSaver
           title: validated.title,
           content: validated.content,
           categoryId: validated.categoryId,
-          thumbnailUrl: validated.thumbnail,
         },
         'PUBLISHED',
-        { includeEmptyThumbnail: Boolean(draftId) },
       );
 
       if (draftId) {

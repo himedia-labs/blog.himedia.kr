@@ -12,12 +12,7 @@ import { createEditPreview } from '@/app/(routes)/(private)/posts/edit/[postId]/
 import { createExitHandler } from '@/app/(routes)/(private)/posts/edit/[postId]/handlers';
 import { EditorToolbar, PostPreview, PostDetailsForm } from '@/app/(routes)/(private)/posts/new/components';
 import { usePostEditInitializer, usePostEditSaver } from '@/app/(routes)/(private)/posts/edit/[postId]/hooks';
-import {
-  useMarkdownEditor,
-  usePostForm,
-  useTagInput,
-  useThumbnailUpload,
-} from '@/app/(routes)/(private)/posts/new/hooks';
+import { useMarkdownEditor, usePostForm, useTagInput } from '@/app/(routes)/(private)/posts/new/hooks';
 
 import styles from '@/app/(routes)/(private)/posts/new/PostCreate.module.css';
 import markdownEditorStyles from '@/app/shared/components/markdown-editor/markdownEditor.module.css';
@@ -37,10 +32,9 @@ export default function PostEditPage() {
 
   // 기본 폼
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
-  const { title, categoryId, thumbnailUrl, content, titleLengthError } = formState;
-  const { setContent, setThumbnailUrl } = formSetters;
-  const { applyPartial, handleTitleChange, handleCategoryChange, handleThumbnailChange, handleContentChange } =
-    formHandlers;
+  const { title, categoryId, content, titleLengthError } = formState;
+  const { setContent } = formSetters;
+  const { applyPartial, handleTitleChange, handleCategoryChange, handleContentChange } = formHandlers;
 
   // 태그 입력
   const { state: tagState, data: tagData, setters: tagSetters, handlers: tagHandlers } = useTagInput();
@@ -56,13 +50,6 @@ export default function PostEditPage() {
     handleTagSuggestionMouseDown,
     handleRemoveTag,
   } = tagHandlers;
-
-  // 썸네일 업로드
-  const {
-    refs: { thumbnailInputRef },
-    state: { isThumbnailUploading },
-    handlers: { handleThumbnailFileClick, handleThumbnailFileSelect },
-  } = useThumbnailUpload(setThumbnailUrl);
 
   // 마크다운 에디터
   const {
@@ -85,7 +72,7 @@ export default function PostEditPage() {
   // 저장 처리
   const { handlePostUpdate } = usePostEditSaver({
     postId,
-    formData: { title, categoryId, thumbnailUrl, content, tags },
+    formData: { title, categoryId, content, tags },
   });
 
   // 데이터 적용
@@ -153,14 +140,6 @@ export default function PostEditPage() {
               categories,
               isLoading: isCategoryLoading,
               onCategoryChange: handleCategoryChange,
-            }}
-            thumbnail={{
-              thumbnailUrl,
-              thumbnailInputRef,
-              isThumbnailUploading,
-              onThumbnailChange: handleThumbnailChange,
-              onThumbnailFileClick: handleThumbnailFileClick,
-              onThumbnailFileSelect: handleThumbnailFileSelect,
             }}
             tag={{
               tagInput,
@@ -239,7 +218,6 @@ export default function PostEditPage() {
             authorName={authorName}
             dateLabel={dateLabel}
             previewStats={previewStats}
-            thumbnailUrl={thumbnailUrl}
             content={
               content ? (
                 previewContent

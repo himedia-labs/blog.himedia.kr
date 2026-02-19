@@ -17,7 +17,6 @@ export default function PostPreview({
   authorName,
   dateLabel,
   previewStats,
-  thumbnailUrl,
   content,
   tags,
 }: PostPreviewProps) {
@@ -57,12 +56,6 @@ export default function PostPreview({
           </span>
         </div>
       </div>
-      {thumbnailUrl ? (
-        <>
-          <div className={styles.previewDivider} aria-hidden="true" />
-          <div className={styles.previewThumb} style={{ backgroundImage: `url(${thumbnailUrl})` }} />
-        </>
-      ) : null}
       <div className={`${styles.previewContent} ${markdownStyles.markdown}`}>{content}</div>
       {tags.length > 0 ? (
         <div className={styles.previewTags}>

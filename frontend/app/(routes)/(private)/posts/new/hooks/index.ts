@@ -5,4 +5,3 @@ export { useDraftSaver } from './useDraftSaver';
 export { useDraftNotice } from './useDraftNotice';
 export { useDraftManager } from './useDraftManager';
 export { useMarkdownEditor } from './useMarkdownEditor';
-export { useThumbnailUpload } from './useThumbnailUpload';

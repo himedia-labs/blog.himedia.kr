@@ -20,7 +20,6 @@ import {
   useMarkdownEditor,
   usePostForm,
   useTagInput,
-  useThumbnailUpload,
 } from '@/app/(routes)/(private)/posts/new/hooks';
 
 import { formatDateLabel, renderMarkdownPreview } from '@/app/(routes)/(private)/posts/new/utils';
@@ -41,10 +40,9 @@ export default function PostCreatePage() {
 
   // 기본 폼 상태
   const { state: formState, setters: formSetters, handlers: formHandlers } = usePostForm();
-  const { title, categoryId, thumbnailUrl, content, titleLengthError } = formState;
-  const { setContent, setThumbnailUrl } = formSetters;
-  const { applyPartial, handleTitleChange, handleCategoryChange, handleThumbnailChange, handleContentChange } =
-    formHandlers;
+  const { title, categoryId, content, titleLengthError } = formState;
+  const { setContent } = formSetters;
+  const { applyPartial, handleTitleChange, handleCategoryChange, handleContentChange } = formHandlers;
 
   // 태그 입력
   const { state: tagState, data: tagData, setters: tagSetters, handlers: tagHandlers } = useTagInput();
@@ -61,13 +59,6 @@ export default function PostCreatePage() {
     handleRemoveTag,
   } = tagHandlers;
 
-  // 썸네일 업로드
-  const {
-    refs: { thumbnailInputRef },
-    state: { isThumbnailUploading },
-    handlers: { handleThumbnailFileClick, handleThumbnailFileSelect },
-  } = useThumbnailUpload(setThumbnailUrl);
-
   const applyDraftData = useCallback(
     (data: Partial<DraftData>) => {
       applyPartial(data);
@@ -80,7 +71,7 @@ export default function PostCreatePage() {
   const {
     data: { draftList },
     handlers: { saveDraft, publishPost, openDraftList },
-  } = useDraftManager({ title, categoryId, thumbnailUrl, content, tags }, applyDraftData);
+  } = useDraftManager({ title, categoryId, content, tags }, applyDraftData);
 
   // 마크다운 에디터
   const {
@@ -151,14 +142,6 @@ export default function PostCreatePage() {
               categories,
               isLoading,
               onCategoryChange: handleCategoryChange,
-            }}
-            thumbnail={{
-              thumbnailUrl,
-              thumbnailInputRef,
-              isThumbnailUploading,
-              onThumbnailChange: handleThumbnailChange,
-              onThumbnailFileClick: handleThumbnailFileClick,
-              onThumbnailFileSelect: handleThumbnailFileSelect,
             }}
             tag={{
               tagInput,
@@ -237,7 +220,6 @@ export default function PostCreatePage() {
             authorName={authorName}
             dateLabel={dateLabel}
             previewStats={previewStats}
-            thumbnailUrl={thumbnailUrl}
             content={
               content ? (
                 previewContent

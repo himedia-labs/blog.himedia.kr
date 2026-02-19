@@ -8,7 +8,7 @@ import type { DraftData } from '@/app/shared/types/post';
 
 /**
  * 게시물 폼 훅
- * @description 제목/카테고리/썸네일/본문 상태를 관리
+ * @description 제목/카테고리/본문 상태를 관리
  */
 export const usePostForm = () => {
   // 공통 훅
@@ -18,7 +18,6 @@ export const usePostForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [thumbnailUrl, setThumbnailUrl] = useState('');
 
   // 에러 상태
   const [titleLengthError, setTitleLengthError] = useState(false);
@@ -56,11 +55,6 @@ export const usePostForm = () => {
     setCategoryId(event.target.value);
   };
 
-  // 썸네일 핸들러
-  const handleThumbnailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setThumbnailUrl(event.target.value);
-  };
-
   // 본문 핸들러
   const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.target.value);
@@ -70,7 +64,6 @@ export const usePostForm = () => {
   const applyPartial = useCallback((data: Partial<DraftData>) => {
     if (data.title !== undefined) setTitle(data.title);
     if (data.categoryId !== undefined) setCategoryId(data.categoryId);
-    if (data.thumbnailUrl !== undefined) setThumbnailUrl(data.thumbnailUrl);
     if (data.content !== undefined) setContent(data.content);
   }, []);
 
@@ -78,20 +71,17 @@ export const usePostForm = () => {
     state: {
       title,
       categoryId,
-      thumbnailUrl,
       content,
       titleLengthError,
     },
     setters: {
       setTitle,
       setCategoryId,
-      setThumbnailUrl,
       setContent,
     },
     handlers: {
       handleTitleChange,
       handleCategoryChange,
-      handleThumbnailChange,
       handleContentChange,
       applyPartial,
     },
