@@ -60,6 +60,8 @@ export default function PostListSection() {
   const topSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
+  const listTagSkeletonWidths = [48, 64, 56];
+  const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
@@ -128,6 +130,13 @@ export default function PostListSection() {
                           <div className={styles.skeletonSummary}>
                             <Skeleton count={2} height={16} />
                           </div>
+                          <ul className={styles.listTagList} aria-hidden="true">
+                            {listTagSkeletonWidths.map(width => (
+                              <li key={`list-tag-skeleton-${index}-${width}`}>
+                                <Skeleton height={24} width={width} borderRadius={4} />
+                              </li>
+                            ))}
+                          </ul>
                           <div className={styles.meta}>
                             <div className={styles.metaAuthorDate}>
                               <div className={styles.cardAuthor}>
@@ -146,7 +155,7 @@ export default function PostListSection() {
                             </span>
                           </div>
                         </div>
-                        <Skeleton height={194} width="100%" borderRadius={12} />
+                        <Skeleton height={180} width="100%" borderRadius={12} />
                       </article>
                     </li>
                     {index < listSkeletons.length - 1 ? (
@@ -285,6 +294,13 @@ export default function PostListSection() {
                           <div className={styles.skeletonSummary}>
                             <Skeleton count={2} height={16} />
                           </div>
+                          <ul className={styles.listTagList} aria-hidden="true">
+                            {listTagSkeletonWidths.map(width => (
+                              <li key={`list-more-tag-skeleton-${index}-${width}`}>
+                                <Skeleton height={24} width={width} borderRadius={4} />
+                              </li>
+                            ))}
+                          </ul>
                           <div className={styles.meta}>
                             <div className={styles.metaAuthorDate}>
                               <div className={styles.cardAuthor}>
@@ -303,7 +319,7 @@ export default function PostListSection() {
                             </span>
                           </div>
                         </div>
-                        <Skeleton height={194} width="100%" borderRadius={12} />
+                        <Skeleton height={180} width="100%" borderRadius={12} />
                       </article>
                     </li>
                     {index < listSkeletons.length - 1 ? (
@@ -330,6 +346,13 @@ export default function PostListSection() {
                           </div>
                         </div>
                       </div>
+                      <ul className={`${styles.cardTagList} ${styles.cardTagListWithThumb}`} aria-hidden="true">
+                        {cardTagSkeletonWidths.map(width => (
+                          <li key={`card-tag-skeleton-${index}-${width}`}>
+                            <Skeleton height={24} width={width} borderRadius={4} />
+                          </li>
+                        ))}
+                      </ul>
                       <div className={styles.cardFooter}>
                         <div className={styles.cardDateRow}>
                           <Skeleton width={140} height={12} />
@@ -493,6 +516,13 @@ export default function PostListSection() {
                           </div>
                         </div>
                       </div>
+                      <ul className={`${styles.cardTagList} ${styles.cardTagListWithThumb}`} aria-hidden="true">
+                        {cardTagSkeletonWidths.map(width => (
+                          <li key={`card-more-tag-skeleton-${index}-${width}`}>
+                            <Skeleton height={24} width={width} borderRadius={4} />
+                          </li>
+                        ))}
+                      </ul>
                       <div className={styles.cardFooter}>
                         <div className={styles.cardDateRow}>
                           <Skeleton width={140} height={12} />
