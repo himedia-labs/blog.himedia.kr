@@ -1,15 +1,14 @@
 import { cookies } from 'next/headers';
 
+import { notoSansKr } from '@/app/styles/fonts';
 import Footer from '@/app/shared/components/footer/Footer';
 import Header from '@/app/shared/components/header/Header';
+import QueryProvider from '@/app/provider/ReactQuery/QueryProvider';
 import ToastProvider from '@/app/shared/components/toast/ToastProvider';
+import AuthInitializer from '@/app/provider/AuthProvider/AuthInitializer';
 import ScrollTopButton from '@/app/shared/components/scroll-top/ScrollTopButton';
 
-import QueryProvider from '@/app/provider/ReactQuery/QueryProvider';
-import AuthInitializer from '@/app/provider/AuthProvider/AuthInitializer';
-
-import './globals.css';
-import './reset.css';
+import '@/app/globals.css';
 
 export default async function RootLayout({
   children,
@@ -25,7 +24,7 @@ export default async function RootLayout({
 
   return (
     <html lang="ko">
-      <body>
+      <body className={notoSansKr.variable}>
         <QueryProvider>
           <AuthInitializer />
           <ToastProvider>

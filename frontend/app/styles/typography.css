@@ -1,0 +1,21 @@
+html,
+body {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family:
+    var(--font-sans),
+    'Apple SD Gothic Neo',
+    'Malgun Gothic',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

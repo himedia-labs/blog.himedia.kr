@@ -1,0 +1,9 @@
+.layout {
+  width: 100%;
+  max-width: 1500px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(3rem, 10vw, 8rem);
+  box-sizing: border-box;
+  user-select: none;
+}
