@@ -15,11 +15,13 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/f
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
+import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/components/CardPostSkeletonItem';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
   createHandleCreatePost,
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
+import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/postList/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -62,6 +64,14 @@ export default function PostListSection() {
   const categorySkeletons = Array.from({ length: 8 });
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
+  const cardSkeletonVariants = [
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: false, hasTags: true },
+    { hasThumbnail: false, hasTags: false },
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: false, hasTags: true },
+  ];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
@@ -335,51 +345,25 @@ export default function PostListSection() {
           <ul className={styles.cardGrid}>
             {isLoading
               ? cardSkeletons.map((_, index) => (
-                  <li key={`card-skeleton-${index}`}>
-                    <article className={styles.cardItem} aria-hidden="true">
-                      <div className={styles.cardTop}>
-                        <Skeleton className={styles.cardThumb} />
-                        <div className={styles.cardBody}>
-                          <Skeleton height={18} width="75%" />
-                          <div className={styles.skeletonSummary}>
-                            <Skeleton count={2} height={14} />
-                          </div>
-                        </div>
-                      </div>
-                      <ul className={`${styles.cardTagList} ${styles.cardTagListWithThumb}`} aria-hidden="true">
-                        {cardTagSkeletonWidths.map(width => (
-                          <li key={`card-tag-skeleton-${index}-${width}`}>
-                            <Skeleton height={24} width={width} borderRadius={4} />
-                          </li>
-                        ))}
-                      </ul>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardDateRow}>
-                          <Skeleton width={140} height={12} />
-                        </div>
-                        <div className={styles.cardFooterDivider} />
-                        <div className={styles.cardMetaRow}>
-                          <div className={styles.cardAuthor}>
-                            <Skeleton circle width={24} height={24} />
-                            <Skeleton width={80} height={12} />
-                          </div>
-                          <div className={styles.cardStats}>
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  </li>
+                  <CardPostSkeletonItem
+                    key={`card-skeleton-${index}`}
+                    index={index}
+                    cardTagSkeletonWidths={cardTagSkeletonWidths}
+                    skeletonKeyPrefix="card-skeleton"
+                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
+                  />
                 ))
               : filteredPosts.map(post => {
                   const thumbnailImageUrl = post.imageUrl;
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
+                  const visibleCardTags = getVisibleCardTags(displayCardTags);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
+                  const hasVisibleCardTags = visibleCardTags.length > 0;
+                  const hasTagsWithThumbnail = hasThumbnail && hasVisibleCardTags;
+                  const hasTagsWithoutThumbnail = !hasThumbnail && hasVisibleCardTags;
                   const cardTitle = post.title;
                   const cardFooterClassName = `${styles.cardFooter} ${styles.cardFooterWithThumb}`;
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
@@ -422,7 +406,15 @@ export default function PostListSection() {
                                 {post.content ? (
                                   <LinesEllipsis
                                     text={post.content}
-                                    maxLine="2"
+                                    maxLine={
+                                      hasTagsWithThumbnail
+                                        ? '4'
+                                        : hasThumbnail
+                                          ? '6'
+                                          : hasTagsWithoutThumbnail
+                                            ? '15'
+                                            : '16'
+                                    }
                                     ellipsis="..."
                                     trimRight
                                     basedOn="letters"
@@ -432,10 +424,10 @@ export default function PostListSection() {
                               </div>
                             </div>
                           </div>
-                          {cardTags.length > 0 ? (
+                          {visibleCardTags.length > 0 ? (
                             <ul className={cardTagListClassName} aria-label="태그 목록">
-                              {displayCardTags.map((displayTag, index) => (
-                                <li key={`${post.id}-card-${cardTags[index]}`} className={styles.cardTagItem}>
+                              {visibleCardTags.map((displayTag, index) => (
+                                <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
                                   {displayTag}
                                 </li>
                               ))}
@@ -505,43 +497,13 @@ export default function PostListSection() {
                 })}
             {isFetchingNextPage
               ? cardSkeletons.map((_, index) => (
-                  <li key={`card-more-skeleton-${index}`}>
-                    <article className={styles.cardItem} aria-hidden="true">
-                      <div className={styles.cardTop}>
-                        <Skeleton className={styles.cardThumb} />
-                        <div className={styles.cardBody}>
-                          <Skeleton height={18} width="75%" />
-                          <div className={styles.skeletonSummary}>
-                            <Skeleton count={2} height={14} />
-                          </div>
-                        </div>
-                      </div>
-                      <ul className={`${styles.cardTagList} ${styles.cardTagListWithThumb}`} aria-hidden="true">
-                        {cardTagSkeletonWidths.map(width => (
-                          <li key={`card-more-tag-skeleton-${index}-${width}`}>
-                            <Skeleton height={24} width={width} borderRadius={4} />
-                          </li>
-                        ))}
-                      </ul>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardDateRow}>
-                          <Skeleton width={140} height={12} />
-                        </div>
-                        <div className={styles.cardFooterDivider} />
-                        <div className={styles.cardMetaRow}>
-                          <div className={styles.cardAuthor}>
-                            <Skeleton circle width={24} height={24} />
-                            <Skeleton width={80} height={12} />
-                          </div>
-                          <div className={styles.cardStats}>
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  </li>
+                  <CardPostSkeletonItem
+                    key={`card-more-skeleton-${index}`}
+                    index={index}
+                    cardTagSkeletonWidths={cardTagSkeletonWidths}
+                    skeletonKeyPrefix="card-more-skeleton"
+                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
+                  />
                 ))
               : null}
           </ul>
