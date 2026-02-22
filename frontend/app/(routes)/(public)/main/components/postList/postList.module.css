@@ -9,15 +9,15 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-right: 3rem;
+  padding-right: clamp(1rem, 3vw, 3rem);
   border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .sortBar {
   display: flex;
-  gap: 1.5rem;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   padding: 0.5rem 0;
-  margin: 0 0 24px;
+  margin: 0 0 clamp(16px, 2.5vw, 24px);
 }
 
 .sortButton {
@@ -27,7 +27,7 @@
   background: none;
   border: none;
   padding: 0.5rem 0.25rem;
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
   font-weight: 600;
   color: #a5a5a5;
   cursor: pointer;
@@ -70,16 +70,16 @@
 
 .toggleButton {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: clamp(1rem, 3vw, 1.5rem);
+  right: clamp(1rem, 3vw, 1.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: 56px;
-  height: 56px;
+  width: clamp(48px, 6vw, 56px);
+  height: clamp(48px, 6vw, 56px);
   border: none;
-  border-radius: 24px;
+  border-radius: clamp(16px, 2.5vw, 24px);
   background-color: rgba(247, 247, 248, 0.9);
   box-shadow:
     rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
@@ -92,16 +92,16 @@
 
 .createButton {
   position: fixed;
-  bottom: 6rem;
-  right: 1.5rem;
+  bottom: clamp(5.25rem, 10vw, 6rem);
+  right: clamp(1rem, 3vw, 1.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: 56px;
-  height: 56px;
+  width: clamp(48px, 6vw, 56px);
+  height: clamp(48px, 6vw, 56px);
   border: none;
-  border-radius: 24px;
+  border-radius: clamp(16px, 2.5vw, 24px);
   background-color: rgba(247, 247, 248, 0.9);
   box-shadow:
     rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
@@ -147,7 +147,7 @@
 .listItem {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 262px;
-  gap: 32px;
+  gap: clamp(16px, 3vw, 32px);
   min-height: 150px;
 }
 
@@ -176,7 +176,7 @@
 
 .listBody h3 {
   margin: 0;
-  font-size: 24px;
+  font-size: clamp(20px, 2.6vw, 24px);
   display: -webkit-box;
   overflow: hidden;
 }
@@ -218,9 +218,11 @@
   margin-top: 0.35rem;
   display: flex;
   gap: 3rem;
-  font-size: 12px;
-  color: #9b9b9b;
   align-items: center;
+
+  font-size: 12px;
+  line-height: 1;
+  color: #9b9b9b;
   align-self: end;
 }
 
@@ -240,21 +242,24 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  line-height: 1;
 }
 
 .metaItem :global(svg) {
   font-size: 1rem;
-  transform: translateY(-1.5px);
 }
 
 .separator {
-  color: #d0d0d0;
+  width: 1px;
+  display: inline-block;
+  background: #d0d0d0;
+  color: transparent;
 }
 
 .cardGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: clamp(16px, 2vw, 24px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -345,20 +350,23 @@
 
 .listTagList {
   padding: 0;
-  gap: 6px;
+  gap: 0.3rem;
   display: flex;
   flex-wrap: wrap;
   list-style: none;
 }
 
 .listTagItem {
-  border: 0;
   color: #666;
+  background: #f5f5f5;
+  border: 0;
+  border-radius: 4px;
+  padding: 0 9px;
+  height: 24px;
+  display: flex;
+  align-items: center;
   font-size: 12px;
   line-height: 1;
-  border-radius: 4px;
-  background: #f5f5f5;
-  padding: 6px 9px 5px;
 }
 
 .cardTagList {
@@ -379,7 +387,9 @@
 .cardTagItem {
   border: 0;
   color: #666;
-  display: inline-block;
+  display: flex;
+  height: 24px;
+  align-items: center;
   font-size: 12px;
   line-height: 1;
   border-radius: 4px;
@@ -387,7 +397,7 @@
   max-width: 165px;
   overflow: hidden;
   white-space: nowrap;
-  padding: 6px 9px 5px;
+  padding: 0 9px;
 }
 
 .skeletonSummary {
@@ -468,31 +478,35 @@
 
 .cardAuthorName {
   display: inline-flex;
-  height: 24px;
   align-items: center;
-  line-height: 24px;
+
   max-width: 100px;
   color: #444;
   font-size: 0.82rem;
+  line-height: 1;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cardAuthorText {
-  gap: 2px;
-  min-width: 0;
   display: inline-flex;
   align-items: center;
+  gap: 2px;
+  min-width: 0;
+
+  line-height: 1;
 }
 
 .cardAuthorBy {
   display: inline-flex;
-  height: 24px;
   align-items: center;
-  line-height: 24px;
+
   color: #909090;
   font-size: 0.68rem;
+  line-height: 1;
+
   letter-spacing: 0.02em;
   text-transform: lowercase;
 }
@@ -532,9 +546,7 @@
 .cardStatCount {
   display: grid;
   place-items: center;
-  line-height: normal;
-  position: relative;
-  top: 1px;
+  line-height: 1;
 }
 
 .sidebar {
@@ -594,9 +606,6 @@
   color: #444;
   font-size: 14px;
   text-decoration: none;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .categoryList {

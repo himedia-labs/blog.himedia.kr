@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import LinesEllipsis from 'react-lines-ellipsis';
@@ -15,7 +15,7 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/f
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import { usePostList } from '@/app/(routes)/(public)/main/components/postList/hooks';
+import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
   createHandleCreatePost,
   createHandleSortFilter,
@@ -68,21 +68,7 @@ export default function PostListSection() {
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
 
   // 무한 스크롤
-  useEffect(() => {
-    const target = sentinelRef.current;
-    if (!target || !hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        if (!entries[0]?.isIntersecting || isFetchingNextPage) return;
-        fetchNextPage();
-      },
-      { rootMargin: '200px' },
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -172,7 +158,8 @@ export default function PostListSection() {
                 ))
               : filteredPosts.map((post, index) => {
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
-                  const hasThumbnail = Boolean(post.imageUrl);
+                  const thumbnailImageUrl = post.imageUrl;
+                  const hasThumbnail = Boolean(thumbnailImageUrl);
                   const listTags = post.tags.slice(0, 5);
                   return (
                     <Fragment key={post.id}>
@@ -263,11 +250,11 @@ export default function PostListSection() {
                                 </span>
                               </div>
                             </div>
-                            {post.imageUrl ? (
+                            {thumbnailImageUrl ? (
                               <div className={styles.listThumb} aria-hidden="true">
                                 <Image
                                   className={styles.listThumbImage}
-                                  src={post.imageUrl}
+                                  src={thumbnailImageUrl}
                                   alt=""
                                   width={0}
                                   height={0}
@@ -364,7 +351,8 @@ export default function PostListSection() {
                   </li>
                 ))
               : filteredPosts.map(post => {
-                  const hasThumbnail = Boolean(post.imageUrl);
+                  const thumbnailImageUrl = post.imageUrl;
+                  const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
                   const hasCardTags = cardTags.length > 0;
@@ -372,20 +360,30 @@ export default function PostListSection() {
                   const cardTitle = post.title;
                   const cardFooterClassName = `${styles.cardFooter} ${styles.cardFooterWithThumb}`;
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
+                  const cardItemClassName = noThumbNoTag
+                    ? `${styles.cardItem} ${styles.cardItemNoThumbNoTags}`
+                    : styles.cardItem;
+                  const cardBodyClassName = hasThumbnail
+                    ? styles.cardBody
+                    : `${styles.cardBody} ${styles.cardBodyNoThumb} ${
+                        hasCardTags ? styles.cardBodyNoThumbWithTags : ''
+                      } ${noThumbNoTag ? styles.cardBodyNoThumbNoTags : ''}`;
+                  const cardTagListClassName = hasThumbnail
+                    ? `${styles.cardTagList} ${styles.cardTagListWithThumb}`
+                    : styles.cardTagList;
+                  const cardTextClassName = hasThumbnail
+                    ? `${styles.cardText} ${styles.cardTextWithThumb}`
+                    : styles.cardText;
                   return (
                     <li key={post.id}>
                       <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                        <article
-                          className={
-                            noThumbNoTag ? `${styles.cardItem} ${styles.cardItemNoThumbNoTags}` : styles.cardItem
-                          }
-                        >
+                        <article className={cardItemClassName}>
                           <div className={styles.cardTop}>
-                            {post.imageUrl ? (
+                            {thumbnailImageUrl ? (
                               <div className={styles.cardThumb} aria-hidden="true">
                                 <Image
                                   className={styles.cardThumbImage}
-                                  src={post.imageUrl}
+                                  src={thumbnailImageUrl}
                                   alt=""
                                   width={0}
                                   height={0}
@@ -395,20 +393,8 @@ export default function PostListSection() {
                                 />
                               </div>
                             ) : null}
-                            <div
-                              className={
-                                post.imageUrl
-                                  ? styles.cardBody
-                                  : `${styles.cardBody} ${styles.cardBodyNoThumb} ${
-                                      hasCardTags ? styles.cardBodyNoThumbWithTags : ''
-                                    } ${noThumbNoTag ? styles.cardBodyNoThumbNoTags : ''}`
-                              }
-                            >
-                              <div
-                                className={
-                                  post.imageUrl ? `${styles.cardText} ${styles.cardTextWithThumb}` : styles.cardText
-                                }
-                              >
+                            <div className={cardBodyClassName}>
+                              <div className={cardTextClassName}>
                                 <h3>{cardTitle}</h3>
                                 {post.content ? (
                                   <LinesEllipsis
@@ -424,14 +410,7 @@ export default function PostListSection() {
                             </div>
                           </div>
                           {cardTags.length > 0 ? (
-                            <ul
-                              className={
-                                hasThumbnail
-                                  ? `${styles.cardTagList} ${styles.cardTagListWithThumb}`
-                                  : styles.cardTagList
-                              }
-                              aria-label="태그 목록"
-                            >
+                            <ul className={cardTagListClassName} aria-label="태그 목록">
                               {displayCardTags.map((displayTag, index) => (
                                 <li key={`${post.id}-card-${cardTags[index]}`} className={styles.cardTagItem}>
                                   {displayTag}
@@ -562,7 +541,7 @@ export default function PostListSection() {
                 <li key={item.id}>
                   <span className={styles.rank}>{index + 1}</span>
                   <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    {item.title}
+                    <LinesEllipsis text={item.title} maxLine="1" ellipsis="..." trimRight basedOn="letters" />
                   </Link>
                 </li>
               ))}
