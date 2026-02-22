@@ -172,6 +172,7 @@ export default function PostListSection() {
                   const thumbnailImageUrl = post.imageUrl;
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const listTags = post.tags.slice(0, 5);
+                  const hasListTags = listTags.length > 0;
                   return (
                     <Fragment key={post.id}>
                       <li>
@@ -184,7 +185,7 @@ export default function PostListSection() {
                               {post.content ? (
                                 <LinesEllipsis
                                   text={post.content}
-                                  maxLine="2"
+                                  maxLine={!hasListTags ? '3' : '2'}
                                   ellipsis="..."
                                   trimRight
                                   basedOn="letters"
