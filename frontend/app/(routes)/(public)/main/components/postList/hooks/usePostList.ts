@@ -12,12 +12,20 @@ import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
  * @description 메인 포스트 목록의 상태와 데이터를 제공
  */
 export const usePostList = () => {
+  // 라우팅 상태
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // 뷰/정렬 상태
   const viewMode: ViewMode = searchParams.get('view') === 'card' ? 'card' : 'list';
-  const [sortFilter, setSortFilter] = useState<SortFilter>('latest');
+  const sortParam = searchParams.get('sort');
+  const sortFilter: SortFilter = sortParam === 'top' || sortParam === 'following' ? sortParam : 'latest';
+
+  // 카테고리 상태
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+
+  // 뷰 모드 변경
   const setViewMode = (nextViewMode: ViewMode) => {
     const nextSearchParams = new URLSearchParams(searchParams.toString());
     if (nextViewMode === 'list') {
@@ -29,6 +37,21 @@ export const usePostList = () => {
     const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
     router.replace(nextUrl);
   };
+
+  // 정렬 필터 변경
+  const setSortFilter = (nextSortFilter: SortFilter) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (nextSortFilter === 'latest') {
+      nextSearchParams.delete('sort');
+    } else {
+      nextSearchParams.set('sort', nextSortFilter);
+    }
+    const nextQueryString = nextSearchParams.toString();
+    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+    router.replace(nextUrl);
+  };
+
+  // 데이터 조회
   const { data: categories, isLoading: isCategoriesLoading } = useCategoriesQuery();
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfinitePostsQuery({

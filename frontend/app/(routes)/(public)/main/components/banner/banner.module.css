@@ -1,7 +1,7 @@
 .banner {
   display: flex;
   justify-content: center;
-  margin: 2.5rem 0;
+  margin: clamp(1.25rem, 3.2vw, 2.5rem) 0;
 }
 
 .bannerInner {
@@ -15,7 +15,7 @@
   width: 100%;
   max-width: 1250px;
   height: auto;
-  border-radius: 12px;
+  border-radius: 15px;
 }
 
 .bannerIcon {
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 7.5rem;
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
   line-height: 1;
   color: #ffffff;
   text-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);

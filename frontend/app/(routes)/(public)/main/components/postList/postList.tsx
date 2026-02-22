@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import LinesEllipsis from 'react-lines-ellipsis';
@@ -15,11 +15,13 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/f
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import { usePostList } from '@/app/(routes)/(public)/main/components/postList/hooks';
+import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/components/CardPostSkeletonItem';
+import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
   createHandleCreatePost,
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
+import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/postList/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -60,6 +62,16 @@ export default function PostListSection() {
   const topSkeletons = Array.from({ length: 5 });
   const cardSkeletons = Array.from({ length: 6 });
   const categorySkeletons = Array.from({ length: 8 });
+  const listTagSkeletonWidths = [48, 64, 56];
+  const cardTagSkeletonWidths = [44, 58, 50];
+  const cardSkeletonVariants = [
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: false, hasTags: true },
+    { hasThumbnail: false, hasTags: false },
+    { hasThumbnail: true, hasTags: true },
+    { hasThumbnail: false, hasTags: true },
+  ];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
@@ -68,21 +80,7 @@ export default function PostListSection() {
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
 
   // 무한 스크롤
-  useEffect(() => {
-    const target = sentinelRef.current;
-    if (!target || !hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        if (!entries[0]?.isIntersecting || isFetchingNextPage) return;
-        fetchNextPage();
-      },
-      { rootMargin: '200px' },
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
 
   return (
     <section className={styles.container} aria-label="포스트 하이라이트">
@@ -142,6 +140,13 @@ export default function PostListSection() {
                           <div className={styles.skeletonSummary}>
                             <Skeleton count={2} height={16} />
                           </div>
+                          <ul className={styles.listTagList} aria-hidden="true">
+                            {listTagSkeletonWidths.map(width => (
+                              <li key={`list-tag-skeleton-${index}-${width}`}>
+                                <Skeleton height={24} width={width} borderRadius={4} />
+                              </li>
+                            ))}
+                          </ul>
                           <div className={styles.meta}>
                             <div className={styles.metaAuthorDate}>
                               <div className={styles.cardAuthor}>
@@ -160,7 +165,7 @@ export default function PostListSection() {
                             </span>
                           </div>
                         </div>
-                        <Skeleton height={194} width="100%" borderRadius={12} />
+                        <Skeleton height={180} width="100%" borderRadius={12} />
                       </article>
                     </li>
                     {index < listSkeletons.length - 1 ? (
@@ -172,7 +177,8 @@ export default function PostListSection() {
                 ))
               : filteredPosts.map((post, index) => {
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
-                  const hasThumbnail = Boolean(post.imageUrl);
+                  const thumbnailImageUrl = post.imageUrl;
+                  const hasThumbnail = Boolean(thumbnailImageUrl);
                   const listTags = post.tags.slice(0, 5);
                   return (
                     <Fragment key={post.id}>
@@ -263,11 +269,11 @@ export default function PostListSection() {
                                 </span>
                               </div>
                             </div>
-                            {post.imageUrl ? (
+                            {thumbnailImageUrl ? (
                               <div className={styles.listThumb} aria-hidden="true">
                                 <Image
                                   className={styles.listThumbImage}
-                                  src={post.imageUrl}
+                                  src={thumbnailImageUrl}
                                   alt=""
                                   width={0}
                                   height={0}
@@ -298,6 +304,13 @@ export default function PostListSection() {
                           <div className={styles.skeletonSummary}>
                             <Skeleton count={2} height={16} />
                           </div>
+                          <ul className={styles.listTagList} aria-hidden="true">
+                            {listTagSkeletonWidths.map(width => (
+                              <li key={`list-more-tag-skeleton-${index}-${width}`}>
+                                <Skeleton height={24} width={width} borderRadius={4} />
+                              </li>
+                            ))}
+                          </ul>
                           <div className={styles.meta}>
                             <div className={styles.metaAuthorDate}>
                               <div className={styles.cardAuthor}>
@@ -316,7 +329,7 @@ export default function PostListSection() {
                             </span>
                           </div>
                         </div>
-                        <Skeleton height={194} width="100%" borderRadius={12} />
+                        <Skeleton height={180} width="100%" borderRadius={12} />
                       </article>
                     </li>
                     {index < listSkeletons.length - 1 ? (
@@ -332,60 +345,52 @@ export default function PostListSection() {
           <ul className={styles.cardGrid}>
             {isLoading
               ? cardSkeletons.map((_, index) => (
-                  <li key={`card-skeleton-${index}`}>
-                    <article className={styles.cardItem} aria-hidden="true">
-                      <div className={styles.cardTop}>
-                        <Skeleton className={styles.cardThumb} />
-                        <div className={styles.cardBody}>
-                          <Skeleton height={18} width="75%" />
-                          <div className={styles.skeletonSummary}>
-                            <Skeleton count={2} height={14} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardDateRow}>
-                          <Skeleton width={140} height={12} />
-                        </div>
-                        <div className={styles.cardFooterDivider} />
-                        <div className={styles.cardMetaRow}>
-                          <div className={styles.cardAuthor}>
-                            <Skeleton circle width={24} height={24} />
-                            <Skeleton width={80} height={12} />
-                          </div>
-                          <div className={styles.cardStats}>
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  </li>
+                  <CardPostSkeletonItem
+                    key={`card-skeleton-${index}`}
+                    index={index}
+                    cardTagSkeletonWidths={cardTagSkeletonWidths}
+                    skeletonKeyPrefix="card-skeleton"
+                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
+                  />
                 ))
               : filteredPosts.map(post => {
-                  const hasThumbnail = Boolean(post.imageUrl);
+                  const thumbnailImageUrl = post.imageUrl;
+                  const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
+                  const visibleCardTags = getVisibleCardTags(displayCardTags);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
+                  const hasVisibleCardTags = visibleCardTags.length > 0;
+                  const hasTagsWithThumbnail = hasThumbnail && hasVisibleCardTags;
+                  const hasTagsWithoutThumbnail = !hasThumbnail && hasVisibleCardTags;
                   const cardTitle = post.title;
                   const cardFooterClassName = `${styles.cardFooter} ${styles.cardFooterWithThumb}`;
                   const isMyPost = !!currentUser?.id && currentUser.id === post.authorId;
+                  const cardItemClassName = noThumbNoTag
+                    ? `${styles.cardItem} ${styles.cardItemNoThumbNoTags}`
+                    : styles.cardItem;
+                  const cardBodyClassName = hasThumbnail
+                    ? styles.cardBody
+                    : `${styles.cardBody} ${styles.cardBodyNoThumb} ${
+                        hasCardTags ? styles.cardBodyNoThumbWithTags : ''
+                      } ${noThumbNoTag ? styles.cardBodyNoThumbNoTags : ''}`;
+                  const cardTagListClassName = hasThumbnail
+                    ? `${styles.cardTagList} ${styles.cardTagListWithThumb}`
+                    : styles.cardTagList;
+                  const cardTextClassName = hasThumbnail
+                    ? `${styles.cardText} ${styles.cardTextWithThumb}`
+                    : styles.cardText;
                   return (
                     <li key={post.id}>
                       <Link className={styles.postLink} href={`/posts/${post.id}`}>
-                        <article
-                          className={
-                            noThumbNoTag ? `${styles.cardItem} ${styles.cardItemNoThumbNoTags}` : styles.cardItem
-                          }
-                        >
+                        <article className={cardItemClassName}>
                           <div className={styles.cardTop}>
-                            {post.imageUrl ? (
+                            {thumbnailImageUrl ? (
                               <div className={styles.cardThumb} aria-hidden="true">
                                 <Image
                                   className={styles.cardThumbImage}
-                                  src={post.imageUrl}
+                                  src={thumbnailImageUrl}
                                   alt=""
                                   width={0}
                                   height={0}
@@ -395,25 +400,21 @@ export default function PostListSection() {
                                 />
                               </div>
                             ) : null}
-                            <div
-                              className={
-                                post.imageUrl
-                                  ? styles.cardBody
-                                  : `${styles.cardBody} ${styles.cardBodyNoThumb} ${
-                                      hasCardTags ? styles.cardBodyNoThumbWithTags : ''
-                                    } ${noThumbNoTag ? styles.cardBodyNoThumbNoTags : ''}`
-                              }
-                            >
-                              <div
-                                className={
-                                  post.imageUrl ? `${styles.cardText} ${styles.cardTextWithThumb}` : styles.cardText
-                                }
-                              >
+                            <div className={cardBodyClassName}>
+                              <div className={cardTextClassName}>
                                 <h3>{cardTitle}</h3>
                                 {post.content ? (
                                   <LinesEllipsis
                                     text={post.content}
-                                    maxLine="2"
+                                    maxLine={
+                                      hasTagsWithThumbnail
+                                        ? '4'
+                                        : hasThumbnail
+                                          ? '6'
+                                          : hasTagsWithoutThumbnail
+                                            ? '15'
+                                            : '16'
+                                    }
                                     ellipsis="..."
                                     trimRight
                                     basedOn="letters"
@@ -423,17 +424,10 @@ export default function PostListSection() {
                               </div>
                             </div>
                           </div>
-                          {cardTags.length > 0 ? (
-                            <ul
-                              className={
-                                hasThumbnail
-                                  ? `${styles.cardTagList} ${styles.cardTagListWithThumb}`
-                                  : styles.cardTagList
-                              }
-                              aria-label="태그 목록"
-                            >
-                              {displayCardTags.map((displayTag, index) => (
-                                <li key={`${post.id}-card-${cardTags[index]}`} className={styles.cardTagItem}>
+                          {visibleCardTags.length > 0 ? (
+                            <ul className={cardTagListClassName} aria-label="태그 목록">
+                              {visibleCardTags.map((displayTag, index) => (
+                                <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
                                   {displayTag}
                                 </li>
                               ))}
@@ -503,36 +497,13 @@ export default function PostListSection() {
                 })}
             {isFetchingNextPage
               ? cardSkeletons.map((_, index) => (
-                  <li key={`card-more-skeleton-${index}`}>
-                    <article className={styles.cardItem} aria-hidden="true">
-                      <div className={styles.cardTop}>
-                        <Skeleton className={styles.cardThumb} />
-                        <div className={styles.cardBody}>
-                          <Skeleton height={18} width="75%" />
-                          <div className={styles.skeletonSummary}>
-                            <Skeleton count={2} height={14} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardDateRow}>
-                          <Skeleton width={140} height={12} />
-                        </div>
-                        <div className={styles.cardFooterDivider} />
-                        <div className={styles.cardMetaRow}>
-                          <div className={styles.cardAuthor}>
-                            <Skeleton circle width={24} height={24} />
-                            <Skeleton width={80} height={12} />
-                          </div>
-                          <div className={styles.cardStats}>
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                            <Skeleton width={36} height={12} />
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  </li>
+                  <CardPostSkeletonItem
+                    key={`card-more-skeleton-${index}`}
+                    index={index}
+                    cardTagSkeletonWidths={cardTagSkeletonWidths}
+                    skeletonKeyPrefix="card-more-skeleton"
+                    variant={cardSkeletonVariants[index % cardSkeletonVariants.length]}
+                  />
                 ))
               : null}
           </ul>
@@ -562,7 +533,7 @@ export default function PostListSection() {
                 <li key={item.id}>
                   <span className={styles.rank}>{index + 1}</span>
                   <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    {item.title}
+                    <LinesEllipsis text={item.title} maxLine="1" ellipsis="..." trimRight basedOn="letters" />
                   </Link>
                 </li>
               ))}

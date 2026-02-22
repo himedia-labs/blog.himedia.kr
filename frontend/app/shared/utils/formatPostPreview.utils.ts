@@ -26,6 +26,7 @@ export const formatPostPreview = (value?: string | null, options?: FormatPostPre
     .filter(Boolean)
     .map(line =>
       line
+        .replace(/!\[[^\]]*]\([^)]+\)/g, ' ')
         .replace(/^#{1,6}\s+/, '')
         .replace(/^>\s?/, '')
         .replace(/^[-*+]\s+/, '')
