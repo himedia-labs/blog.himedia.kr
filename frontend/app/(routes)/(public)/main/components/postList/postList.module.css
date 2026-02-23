@@ -175,7 +175,11 @@
   gap: 0.75rem;
 }
 
-.listBody h3 {
+.listTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   margin: 0;
   font-size: clamp(20px, 2.6vw, 24px);
   width: 100%;
@@ -199,7 +203,23 @@
   object-fit: cover;
 }
 
-.summary {
+.listSummary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+  align-self: start;
+}
+
+.listSummaryWithTags {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: 14px;
   margin: 0;
   color: #757575;
@@ -303,7 +323,11 @@
   object-fit: cover;
 }
 
-.cardBody h3 {
+.cardTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   margin: 0;
   font-size: 1.1rem;
   width: 100%;
@@ -326,6 +350,50 @@
 
 .cardTextWithThumb {
   margin-top: 0;
+}
+
+.cardSummaryThumbTag {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummaryThumb {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummaryTag {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 14;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 15;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
 }
 
 .cardBodyNoThumb {
@@ -612,9 +680,12 @@
 }
 
 .topTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   color: #444;
   font-size: 14px;
-  display: block;
   text-decoration: none;
 }
 
@@ -684,11 +755,12 @@
     aspect-ratio: 16 / 9;
   }
 
-  .listBody h3 {
+  .listTitle {
     font-size: 18px;
   }
 
-  .summary {
+  .listSummary,
+  .listSummaryWithTags {
     font-size: 13px;
   }
 
@@ -777,11 +849,12 @@
     gap: 0.625rem;
   }
 
-  .listBody h3 {
+  .listTitle {
     font-size: 16px;
   }
 
-  .summary {
+  .listSummary,
+  .listSummaryWithTags {
     font-size: 12px;
     line-height: 1.6;
   }
@@ -855,7 +928,7 @@
     margin-bottom: 0.75rem;
   }
 
-  .cardBody h3 {
+  .cardTitle {
     font-size: 1rem;
   }
 
@@ -945,6 +1018,12 @@
   .categoryButton {
     padding: 6px 12px;
     font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardSummaryThumbTag {
+    -webkit-line-clamp: 4;
   }
 }
 

@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
-import LinesEllipsis from 'react-lines-ellipsis';
-import responsiveHOC from 'react-lines-ellipsis/lib/responsiveHOC';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
@@ -27,8 +25,6 @@ import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/post
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
-
-const ResponsiveLinesEllipsis = responsiveHOC()(LinesEllipsis);
 
 /**
  * 메인 포스트 리스트
@@ -195,24 +191,11 @@ export default function PostListSection() {
                             }
                           >
                             <div className={styles.listBody}>
-                              <h3>
-                                <ResponsiveLinesEllipsis
-                                  text={post.title}
-                                  maxLine="1"
-                                  ellipsis="..."
-                                  trimRight
-                                  basedOn="letters"
-                                />
-                              </h3>
+                              <h3 className={styles.listTitle}>{post.title}</h3>
                               {post.content ? (
-                                <ResponsiveLinesEllipsis
-                                  text={post.content}
-                                  maxLine={!hasListTags ? '3' : '2'}
-                                  ellipsis="..."
-                                  trimRight
-                                  basedOn="letters"
-                                  className={styles.summary}
-                                />
+                                <p className={hasListTags ? styles.listSummaryWithTags : styles.listSummary}>
+                                  {post.content}
+                                </p>
                               ) : null}
                               {hasListTags ? <ListPostTagList postId={post.id} tags={displayListTags} /> : null}
                               <div className={styles.meta}>
@@ -408,32 +391,21 @@ export default function PostListSection() {
                             ) : null}
                             <div className={cardBodyClassName}>
                               <div className={cardTextClassName}>
-                                <h3>
-                                  <ResponsiveLinesEllipsis
-                                    text={cardTitle}
-                                    maxLine="1"
-                                    ellipsis="..."
-                                    trimRight
-                                    basedOn="letters"
-                                  />
-                                </h3>
+                                <h3 className={styles.cardTitle}>{cardTitle}</h3>
                                 {post.content ? (
-                                  <ResponsiveLinesEllipsis
-                                    text={post.content}
-                                    maxLine={
+                                  <p
+                                    className={
                                       hasTagsWithThumbnail
-                                        ? '3'
+                                        ? styles.cardSummaryThumbTag
                                         : hasThumbnail
-                                          ? '5'
+                                          ? styles.cardSummaryThumb
                                           : hasTagsWithoutThumbnail
-                                            ? '14'
-                                            : '15'
+                                            ? styles.cardSummaryTag
+                                            : styles.cardSummary
                                     }
-                                    ellipsis="..."
-                                    trimRight
-                                    basedOn="letters"
-                                    className={styles.summary}
-                                  />
+                                  >
+                                    {post.content}
+                                  </p>
                                 ) : null}
                               </div>
                             </div>
@@ -551,13 +523,7 @@ export default function PostListSection() {
                 <li key={item.id}>
                   <span className={styles.rank}>{index + 1}</span>
                   <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    <ResponsiveLinesEllipsis
-                      text={item.title}
-                      maxLine="1"
-                      ellipsis="..."
-                      trimRight
-                      basedOn="letters"
-                    />
+                    {item.title}
                   </Link>
                 </li>
               ))}
