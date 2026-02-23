@@ -532,21 +532,53 @@
   cursor: pointer;
 }
 
-/* Mobile only */
+/* Nav always visible */
 .nav {
-  display: none;
+  display: block;
 }
 
 .menuButton {
-  display: flex;
+  display: none;
 }
 
-@media (width >= 768px) {
-  .nav {
-    display: block;
+@media (max-width: 768px) {
+  .wrap {
+    height: 4rem;
   }
 
-  .menuButton {
-    display: none;
+  .logoMark {
+    width: 30px;
+    height: 24px;
+  }
+
+  .logoText {
+    font-size: 0.85rem;
+  }
+
+  .logoSub {
+    font-size: 0.5rem;
+    letter-spacing: 1.5px;
+  }
+
+  .navLink,
+  .navButton {
+    font-size: 1.2rem;
+    padding: 3px;
+  }
+
+  .profileIconButton {
+    width: 20px;
+    height: 20px;
+  }
+
+  .profileIconButton :global(svg) {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+@media (max-width: 425px) {
+  .wrap {
+    padding: 0 0.75rem;
   }
 }
