@@ -7,6 +7,7 @@ import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import LinesEllipsis from 'react-lines-ellipsis';
+import responsiveHOC from 'react-lines-ellipsis/lib/responsiveHOC';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
@@ -15,16 +16,19 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/f
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/components/CardPostSkeletonItem';
+import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
   createHandleCreatePost,
   createHandleSortFilter,
 } from '@/app/(routes)/(public)/main/components/postList/handlers';
+import CardPostSkeletonItem from '@/app/(routes)/(public)/main/components/postList/postList.skeleton';
 import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/postList/utils';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
+
+const ResponsiveLinesEllipsis = responsiveHOC()(LinesEllipsis);
 
 /**
  * 메인 포스트 리스트
@@ -78,7 +82,12 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
+          <button
+            type="button"
+            className={styles.createButton}
+            aria-label="게시물 작성"
+            onClick={handleCreatePost}
+          >
             <FiPlus />
           </button>
           <button
@@ -172,18 +181,31 @@ export default function PostListSection() {
                   const thumbnailImageUrl = post.imageUrl;
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const listTags = post.tags.slice(0, 5);
-                  const hasListTags = listTags.length > 0;
+                  const displayListTags = listTags.map(tagName => `#${tagName}`);
+                  const hasListTags = displayListTags.length > 0;
                   return (
                     <Fragment key={post.id}>
                       <li>
                         <Link className={styles.postLink} href={`/posts/${post.id}`}>
                           <article
-                            className={hasThumbnail ? styles.listItem : `${styles.listItem} ${styles.listItemNoThumb}`}
+                            className={
+                              hasThumbnail
+                                ? styles.listItem
+                                : `${styles.listItem} ${styles.listItemNoThumb}`
+                            }
                           >
                             <div className={styles.listBody}>
-                              <h3>{post.title}</h3>
+                              <h3>
+                                <ResponsiveLinesEllipsis
+                                  text={post.title}
+                                  maxLine="1"
+                                  ellipsis="..."
+                                  trimRight
+                                  basedOn="letters"
+                                />
+                              </h3>
                               {post.content ? (
-                                <LinesEllipsis
+                                <ResponsiveLinesEllipsis
                                   text={post.content}
                                   maxLine={!hasListTags ? '3' : '2'}
                                   ellipsis="..."
@@ -192,15 +214,7 @@ export default function PostListSection() {
                                   className={styles.summary}
                                 />
                               ) : null}
-                              {listTags.length > 0 ? (
-                                <ul className={styles.listTagList} aria-label="태그 목록">
-                                  {listTags.map(tagName => (
-                                    <li key={`${post.id}-list-${tagName}`} className={styles.listTagItem}>
-                                      #{tagName}
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : null}
+                              {hasListTags ? <ListPostTagList postId={post.id} tags={displayListTags} /> : null}
                               <div className={styles.meta}>
                                 <div className={styles.metaAuthorDate}>
                                   <div className={styles.cardAuthor}>
@@ -350,10 +364,10 @@ export default function PostListSection() {
                   const hasThumbnail = Boolean(thumbnailImageUrl);
                   const cardTags = post.tags.slice(0, 5);
                   const displayCardTags = cardTags.map(tagName => `#${tagName}`);
-                  const visibleCardTags = getVisibleCardTags(displayCardTags);
+                  const { hiddenCount, visibleTags } = getVisibleCardTags(displayCardTags);
                   const hasCardTags = cardTags.length > 0;
                   const noThumbNoTag = !hasThumbnail && !hasCardTags;
-                  const hasVisibleCardTags = visibleCardTags.length > 0;
+                  const hasVisibleCardTags = visibleTags.length > 0;
                   const hasTagsWithThumbnail = hasThumbnail && hasVisibleCardTags;
                   const hasTagsWithoutThumbnail = !hasThumbnail && hasVisibleCardTags;
                   const cardTitle = post.title;
@@ -394,18 +408,26 @@ export default function PostListSection() {
                             ) : null}
                             <div className={cardBodyClassName}>
                               <div className={cardTextClassName}>
-                                <h3>{cardTitle}</h3>
+                                <h3>
+                                  <ResponsiveLinesEllipsis
+                                    text={cardTitle}
+                                    maxLine="1"
+                                    ellipsis="..."
+                                    trimRight
+                                    basedOn="letters"
+                                  />
+                                </h3>
                                 {post.content ? (
-                                  <LinesEllipsis
+                                  <ResponsiveLinesEllipsis
                                     text={post.content}
                                     maxLine={
                                       hasTagsWithThumbnail
-                                        ? '4'
+                                        ? '3'
                                         : hasThumbnail
-                                          ? '6'
+                                          ? '5'
                                           : hasTagsWithoutThumbnail
-                                            ? '15'
-                                            : '16'
+                                            ? '14'
+                                            : '15'
                                     }
                                     ellipsis="..."
                                     trimRight
@@ -416,13 +438,18 @@ export default function PostListSection() {
                               </div>
                             </div>
                           </div>
-                          {visibleCardTags.length > 0 ? (
+                          {hasVisibleCardTags ? (
                             <ul className={cardTagListClassName} aria-label="태그 목록">
-                              {visibleCardTags.map((displayTag, index) => (
+                              {visibleTags.map((displayTag, index) => (
                                 <li key={`${post.id}-card-${index}-${displayTag}`} className={styles.cardTagItem}>
                                   {displayTag}
                                 </li>
                               ))}
+                              {hiddenCount > 0 ? (
+                                <li className={styles.cardTagItem} aria-label={`숨겨진 태그 ${hiddenCount}개`}>
+                                  +{hiddenCount}
+                                </li>
+                              ) : null}
                             </ul>
                           ) : null}
                           <div className={cardFooterClassName}>
@@ -524,7 +551,13 @@ export default function PostListSection() {
                 <li key={item.id}>
                   <span className={styles.rank}>{index + 1}</span>
                   <Link className={styles.topTitle} href={`/posts/${item.id}`}>
-                    <LinesEllipsis text={item.title} maxLine="1" ellipsis="..." trimRight basedOn="letters" />
+                    <ResponsiveLinesEllipsis
+                      text={item.title}
+                      maxLine="1"
+                      ellipsis="..."
+                      trimRight
+                      basedOn="letters"
+                    />
                   </Link>
                 </li>
               ))}
