@@ -354,3 +354,8 @@ export type PostPreviewProps = {
 export type PostsQueryOptions = {
   enabled?: boolean;
 };
+
+export type ListPostTagListProps = {
+  tags: string[];
+  postId: number | string;
+};

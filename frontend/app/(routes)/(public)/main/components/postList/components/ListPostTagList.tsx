@@ -1,13 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
-type ListPostTagListProps = {
-  tags: string[];
-  postId: number;
-};
+import type { ListPostTagListProps } from '@/app/shared/types/post';
 
 /**
  * 태그 너비 측정
@@ -24,34 +21,18 @@ function measureTagWidth(measureNode: HTMLLIElement, tagText: string) {
  */
 export default function ListPostTagList({ tags, postId }: ListPostTagListProps) {
   // 측정 상태
-  const [containerWidth, setContainerWidth] = useState(0);
   const [visibleCount, setVisibleCount] = useState(tags.length);
   const listRef = useRef<HTMLUListElement | null>(null);
   const measureRef = useRef<HTMLLIElement | null>(null);
 
-  // 표시 데이터
-  const hiddenCount = Math.max(tags.length - visibleCount, 0);
-  const visibleTags = useMemo(() => tags.slice(0, visibleCount), [tags, visibleCount]);
-
-  // 크기 감지
-  useEffect(() => {
-    const listNode = listRef.current;
-    if (!listNode) return;
-
-    const handleResize = () => setContainerWidth(listNode.clientWidth);
-    const observer = new ResizeObserver(handleResize);
-
-    handleResize();
-    observer.observe(listNode);
-
-    return () => observer.disconnect();
-  }, []);
-
-  // 표시 계산
-  useEffect(() => {
+  // 표시 개수 계산
+  const calculateVisibleCount = useCallback(() => {
     const listNode = listRef.current;
     const measureNode = measureRef.current;
-    if (!listNode || !measureNode) return;
+    if (!listNode || !measureNode) return tags.length;
+
+    const containerWidth = listNode.clientWidth;
+    if (containerWidth === 0) return tags.length;
 
     const listStyle = getComputedStyle(listNode);
     const gap = parseFloat(listStyle.columnGap || listStyle.gap || '0');
@@ -66,13 +47,34 @@ export default function ListPostTagList({ tags, postId }: ListPostTagListProps) 
       const totalWidth = visibleWidth + visibleGap + hiddenWidth + hiddenGap;
 
       if (totalWidth <= containerWidth) {
-        setVisibleCount(count);
-        return;
+        return count;
       }
     }
 
-    setVisibleCount(0);
-  }, [containerWidth, tags]);
+    return 0;
+  }, [tags]);
+
+  // 크기 감지
+  useEffect(() => {
+    const listNode = listRef.current;
+    if (!listNode) return;
+
+    const handleResize = () => {
+      const count = calculateVisibleCount();
+      setVisibleCount(count);
+    };
+
+    const observer = new ResizeObserver(handleResize);
+
+    handleResize();
+    observer.observe(listNode);
+
+    return () => observer.disconnect();
+  }, [calculateVisibleCount]);
+
+  // 표시 데이터
+  const hiddenCount = Math.max(tags.length - visibleCount, 0);
+  const visibleTags = useMemo(() => tags.slice(0, visibleCount), [tags, visibleCount]);
 
   return (
     <ul ref={listRef} className={styles.listTagList} aria-label="태그 목록">
