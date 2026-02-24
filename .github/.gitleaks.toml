@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore social profile field false positives"
+regexes = [
+  '''profileLinkedin''',
+  '''profileTwitter''',
+  '''profileLinkedinUrl''',
+  '''profileTwitterUrl''',
+  '''PROFILE_LINKEDIN_PREFIX''',
+  '''PROFILE_TWITTER_PREFIX''',
+]
