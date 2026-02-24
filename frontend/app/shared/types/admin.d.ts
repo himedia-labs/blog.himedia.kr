@@ -99,3 +99,8 @@ export interface UpdateAdminUserRoleRequest {
   userId: string;
   role: 'TRAINEE' | 'GRADUATE' | 'MENTOR' | 'INSTRUCTOR';
 }
+
+export interface CreateAdminReportRequest {
+  title: string;
+  content: string;
+}

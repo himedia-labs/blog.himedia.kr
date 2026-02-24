@@ -169,6 +169,62 @@
   transform: translateY(1px) scale(0.92);
 }
 
+.noticeModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noticeField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.noticeLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #667085;
+}
+
+.noticeInput,
+.noticeTextarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.noticeInput {
+  height: 38px;
+  padding: 0 11px;
+}
+
+.noticeTextarea {
+  height: 180px;
+  padding: 10px 11px;
+  resize: none;
+  overflow-y: auto;
+}
+
+.noticeInput:focus,
+.noticeTextarea:focus {
+  outline: none;
+  border-color: #8faee9;
+}
+
+.noticeCount {
+  align-self: flex-end;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #98a2b3;
+}
+
 .listView {
   display: flex;
   flex-direction: column;

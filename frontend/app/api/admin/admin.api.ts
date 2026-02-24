@@ -6,6 +6,7 @@ import type {
   AdminPendingUsersResponse,
   AdminReportsResponse,
   AdminUsersResponse,
+  CreateAdminReportRequest,
   UpdateAdminReportStatusRequest,
   UpdateAdminUserRoleRequest,
 } from '@/app/shared/types/admin';
@@ -32,6 +33,12 @@ const getUsers = async () => {
 const updateReportStatus = async (payload: UpdateAdminReportStatusRequest) => {
   const { reportId, status } = payload;
   const res = await axiosInstance.patch(`/admin/reports/${reportId}/status`, { status });
+  return res.data;
+};
+
+// 버그 제보 생성
+const createReport = async (payload: CreateAdminReportRequest) => {
+  const res = await axiosInstance.post('/reports', payload);
   return res.data;
 };
 
@@ -74,6 +81,7 @@ export const adminApi = {
   getUsers,
   getAuditLogs,
   getAccessLogs,
+  createReport,
   trackAccessLog,
   updateReportStatus,
 };

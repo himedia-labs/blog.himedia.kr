@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useRef } from 'react';
+import { Fragment, useRef, useState } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
@@ -11,7 +11,10 @@ import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
 import { FiEye, FiFlag, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/fi';
 
+import { adminApi } from '@/app/api/admin/admin.api';
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
+import ActionModal from '@/app/shared/components/modal/ActionModal';
+import { useToast } from '@/app/shared/components/toast/toast';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
@@ -26,6 +29,11 @@ import { getVisibleCardTags } from '@/app/(routes)/(public)/main/components/post
 import 'react-loading-skeleton/dist/skeleton.css';
 import styles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
 
+import type { KeyboardEvent } from 'react';
+
+const NOTICE_TITLE_MAX_LENGTH = 30;
+const NOTICE_CONTENT_MAX_LENGTH = 3000;
+
 /**
  * 메인 포스트 리스트
  * @description 게시물 목록과 카테고리, 인기글 영역을 표시
@@ -33,10 +41,15 @@ import styles from '@/app/(routes)/(public)/main/components/postList/postList.mo
 export default function PostListSection() {
   // 라우트 훅
   const router = useRouter();
+  const { showToast } = useToast();
 
   // 인증 상태
   const { accessToken } = useAuthStore();
   const { data: currentUser } = useCurrentUserQuery();
+  const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [isNoticeSubmitting, setIsNoticeSubmitting] = useState(false);
+  const [noticeTitle, setNoticeTitle] = useState('');
+  const [noticeContent, setNoticeContent] = useState('');
 
   // 목록 상태
   const {
@@ -65,11 +78,160 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const noticeTitleLimitToastAtRef = useRef(0);
+  const noticeContentLimitToastAtRef = useRef(0);
   const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
   const handleSortFilter = createHandleSortFilter({ accessToken, router, setSortFilter });
+
+  /**
+   * 공지 입력 모달 열기
+   * @description 좌측 하단 버튼 클릭 시 입력 모달을 연다
+   */
+  const handleOpenNoticeModal = () => {
+    setIsNoticeModalOpen(true);
+  };
+
+  /**
+   * 공지 입력 모달 닫기
+   * @description 입력값을 초기화하고 모달을 닫는다
+   */
+  const handleCloseNoticeModal = () => {
+    setNoticeTitle('');
+    setNoticeContent('');
+    setIsNoticeModalOpen(false);
+  };
+
+  /**
+   * 공지 입력 등록
+   * @description 간단 입력값 유효성 검증 후 신고 데이터를 저장한다
+   */
+  const handleSubmitNotice = async () => {
+    if (!noticeTitle.trim() || !noticeContent.trim()) {
+      showToast({ message: '제목과 내용을 입력해주세요.', type: 'warning' });
+      return;
+    }
+    if (noticeTitle.trim().length > NOTICE_TITLE_MAX_LENGTH) {
+      showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+      return;
+    }
+    if (noticeContent.trim().length > NOTICE_CONTENT_MAX_LENGTH) {
+      showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+      return;
+    }
+
+    try {
+      setIsNoticeSubmitting(true);
+      await adminApi.createReport({ title: noticeTitle.trim(), content: noticeContent.trim() });
+      showToast({ message: '버그 제보가 접수되었습니다.', type: 'success' });
+      handleCloseNoticeModal();
+    } catch {
+      showToast({ message: '버그 제보 등록에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsNoticeSubmitting(false);
+    }
+  };
+
+  /**
+   * 제목 입력 제한
+   * @description 최대 글자수 초과 입력을 차단하고 안내 토스트를 표시한다
+   */
+  const handleNoticeTitleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const target = event.currentTarget;
+    const key = event.key;
+    const isControlKey =
+      key === 'Backspace' ||
+      key === 'Delete' ||
+      key === 'ArrowLeft' ||
+      key === 'ArrowRight' ||
+      key === 'ArrowUp' ||
+      key === 'ArrowDown' ||
+      key === 'Home' ||
+      key === 'End' ||
+      key === 'Tab' ||
+      key === 'Enter';
+
+    if (event.nativeEvent.isComposing || event.metaKey || event.ctrlKey || event.altKey || isControlKey) return;
+    if (target.selectionStart !== target.selectionEnd) return;
+    if (noticeTitle.length < NOTICE_TITLE_MAX_LENGTH) return;
+
+    event.preventDefault();
+
+    const now = Date.now();
+    if (now - noticeTitleLimitToastAtRef.current < 1000) return;
+    noticeTitleLimitToastAtRef.current = now;
+    showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+  };
+
+  /**
+   * 제목 변경 처리
+   * @description 붙여넣기/조합 입력까지 포함해 제목 길이를 최대값으로 고정한다
+   */
+  const handleNoticeTitleChange = (nextValue: string) => {
+    if (nextValue.length <= NOTICE_TITLE_MAX_LENGTH) {
+      setNoticeTitle(nextValue);
+      return;
+    }
+
+    const trimmedValue = nextValue.slice(0, NOTICE_TITLE_MAX_LENGTH);
+    setNoticeTitle(trimmedValue);
+
+    const now = Date.now();
+    if (now - noticeTitleLimitToastAtRef.current < 1000) return;
+    noticeTitleLimitToastAtRef.current = now;
+    showToast({ message: `제목은 최대 ${NOTICE_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+  };
+
+  /**
+   * 내용 입력 제한
+   * @description 최대 글자수 초과 입력을 차단하고 안내 토스트를 표시한다
+   */
+  const handleNoticeContentKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    const target = event.currentTarget;
+    const key = event.key;
+    const isControlKey =
+      key === 'Backspace' ||
+      key === 'Delete' ||
+      key === 'ArrowLeft' ||
+      key === 'ArrowRight' ||
+      key === 'ArrowUp' ||
+      key === 'ArrowDown' ||
+      key === 'Home' ||
+      key === 'End' ||
+      key === 'Tab';
+
+    if (event.nativeEvent.isComposing || event.metaKey || event.ctrlKey || event.altKey || isControlKey) return;
+    if (target.selectionStart !== target.selectionEnd) return;
+    if (noticeContent.length < NOTICE_CONTENT_MAX_LENGTH) return;
+
+    event.preventDefault();
+
+    const now = Date.now();
+    if (now - noticeContentLimitToastAtRef.current < 1000) return;
+    noticeContentLimitToastAtRef.current = now;
+    showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+  };
+
+  /**
+   * 내용 변경 처리
+   * @description 붙여넣기/조합 입력까지 포함해 내용 길이를 최대값으로 고정한다
+   */
+  const handleNoticeContentChange = (nextValue: string) => {
+    if (nextValue.length <= NOTICE_CONTENT_MAX_LENGTH) {
+      setNoticeContent(nextValue);
+      return;
+    }
+
+    const trimmedValue = nextValue.slice(0, NOTICE_CONTENT_MAX_LENGTH);
+    setNoticeContent(trimmedValue);
+
+    const now = Date.now();
+    if (now - noticeContentLimitToastAtRef.current < 1000) return;
+    noticeContentLimitToastAtRef.current = now;
+    showToast({ message: `내용은 최대 ${NOTICE_CONTENT_MAX_LENGTH}자까지 입력할 수 있습니다.`, type: 'warning' });
+  };
 
   // 무한 스크롤
   usePostListInfiniteScroll({ fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef });
@@ -78,7 +240,13 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <button type="button" className={styles.bugReportButton} aria-label="버그 신고" title="버그 신고">
+          <button
+            type="button"
+            className={styles.bugReportButton}
+            aria-label="버그 신고"
+            title="버그 신고"
+            onClick={handleOpenNoticeModal}
+          >
             <FiFlag />
           </button>
           <button
@@ -512,6 +680,51 @@ export default function PostListSection() {
         )}
         {!isFollowingEmpty ? <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" /> : null}
       </div>
+
+      {isNoticeModalOpen ? (
+        <ActionModal
+          title="버그 제보"
+          body={
+            <div className={styles.noticeModalBody}>
+              <label className={styles.noticeField}>
+                <span className={styles.noticeLabel}>제목</span>
+                <input
+                  type="text"
+                  value={noticeTitle}
+                  className={styles.noticeInput}
+                  placeholder="제목을 입력하세요"
+                  maxLength={NOTICE_TITLE_MAX_LENGTH}
+                  onKeyDown={handleNoticeTitleKeyDown}
+                  onChange={event => handleNoticeTitleChange(event.target.value)}
+                />
+                <span className={styles.noticeCount}>
+                  {noticeTitle.length}/{NOTICE_TITLE_MAX_LENGTH}
+                </span>
+              </label>
+              <label className={styles.noticeField}>
+                <span className={styles.noticeLabel}>내용</span>
+                <textarea
+                  value={noticeContent}
+                  className={styles.noticeTextarea}
+                  placeholder="내용을 입력하세요"
+                  maxLength={NOTICE_CONTENT_MAX_LENGTH}
+                  onKeyDown={handleNoticeContentKeyDown}
+                  onChange={event => handleNoticeContentChange(event.target.value)}
+                />
+                <span className={styles.noticeCount}>
+                  {noticeContent.length}/{NOTICE_CONTENT_MAX_LENGTH}
+                </span>
+              </label>
+            </div>
+          }
+          confirmLabel="등록"
+          cancelLabel="닫기"
+          confirmDisabled={!noticeTitle.trim() || !noticeContent.trim() || isNoticeSubmitting}
+          cancelDisabled={isNoticeSubmitting}
+          onClose={isNoticeSubmitting ? () => undefined : handleCloseNoticeModal}
+          onConfirm={handleSubmitNotice}
+        />
+      ) : null}
 
       <aside className={styles.sidebar} aria-label="TOP 5 인기글">
         <div className={styles.sidebarHeader}>
