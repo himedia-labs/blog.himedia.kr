@@ -8,6 +8,7 @@ export const AUTH_ERROR_MESSAGES = {
   PHONE_ALREADY_EXISTS: '이미 등록된 전화번호입니다.',
   ACCOUNT_WITHDRAWN: '탈퇴한 계정입니다.',
   PENDING_APPROVAL: '관리자 승인 대기 중입니다.',
+  FORBIDDEN_ROLE: '접근 권한이 없습니다.',
   TOO_MANY_LOGIN_ATTEMPTS: '로그인 시도가 많습니다. 잠시 후 다시 시도해주세요.',
 } as const;
 

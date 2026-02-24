@@ -6,5 +6,5 @@ import type { PathVisibilityConfig } from '@/app/shared/types/path';
  */
 export const LayoutVisibilityConfig: PathVisibilityConfig = {
   hidePaths: ['/login', '/register', '/find-password', '/posts/new'],
-  hidePrefixes: ['/posts/edit'],
+  hidePrefixes: ['/posts/edit', '/admin'],
 };

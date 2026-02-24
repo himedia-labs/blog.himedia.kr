@@ -85,6 +85,7 @@ export default function Header({ initialIsLoggedIn }: HeaderProps) {
   const handleToggleProfile = () => toggleProfileMenu(() => {});
 
   // 특정 경로에서는 Header 숨김
+  if (pathname?.startsWith('/admin')) return null;
   if (!isVisible) return null;
 
   // 로그아웃 핸들러

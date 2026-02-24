@@ -36,3 +36,12 @@
 
 - 하이미디어아카데미 클라우드 기반 자바 풀스택(Spring Boot, React, Flutter) 개발자 6기 수료
 - 심화 생성형 AI 활용 인재양성과정(조별 멘토) 6기 수료
+
+## Secret Scan
+
+- GitHub Actions: `.github/workflows/secret-scan.yml`에서 PR/Push마다 gitleaks 스캔이 실행됩니다.
+- 로컬 pre-commit 훅 설치:
+
+```bash
+sh scripts/setup-gitleaks-hook.sh
+```

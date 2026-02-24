@@ -9,7 +9,6 @@ import { useParams } from 'next/navigation';
 import { FaHeart } from 'react-icons/fa';
 import { CiShoppingTag } from 'react-icons/ci';
 import { FaFacebookF, FaLinkedinIn, FaUser, FaXTwitter } from 'react-icons/fa6';
-import LinesEllipsis from 'react-lines-ellipsis';
 import NumberFlow from '@number-flow/react';
 import {
   FiClock,
@@ -728,33 +727,6 @@ export default function PostDetailPage() {
       <div className={styles.headerDivider} aria-hidden="true" />
 
       <div className={styles.body}>
-        <aside className={styles.actions} aria-label="게시물 반응">
-          <div className={styles.actionsInner}>
-            <button
-              type="button"
-              className={`${styles.actionButton} ${data.liked ? styles.actionButtonActive : ''}`}
-              aria-label="좋아요"
-              onClick={handleLikeClick}
-            >
-              {data.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
-              <span className={styles.actionValue}>
-                <NumberFlow value={likeCount} />
-              </span>
-            </button>
-            <div className={styles.actionItem} aria-label="조회수">
-              <FiEye aria-hidden="true" />
-              <span className={styles.actionValue}>
-                <NumberFlow value={viewCount} />
-              </span>
-            </div>
-            <button type="button" className={styles.actionButton} onClick={handleShareCopy} aria-label="공유">
-              <FiShare2 aria-hidden="true" />
-              <span className={styles.actionValue}>
-                <NumberFlow value={shareCount} />
-              </span>
-            </button>
-          </div>
-        </aside>
         {tocItems.length > 0 ? (
           <aside className={styles.toc} aria-label="본문 목차">
             <div className={styles.tocInner}>
@@ -781,6 +753,33 @@ export default function PostDetailPage() {
           <article className={markdownStyles.markdown} data-scroll-progress-end="post-content">
             {previewContent}
           </article>
+          <aside className={styles.actions} aria-label="게시물 반응">
+            <div className={styles.actionsInner}>
+              <button
+                type="button"
+                className={`${styles.actionButton} ${data.liked ? styles.actionButtonActive : ''}`}
+                aria-label="좋아요"
+                onClick={handleLikeClick}
+              >
+                {data.liked ? <FaHeart aria-hidden="true" /> : <FiHeart aria-hidden="true" />}
+                <span className={styles.actionValue}>
+                  <NumberFlow value={likeCount} />
+                </span>
+              </button>
+              <div className={styles.actionItem} aria-label="조회수">
+                <FiEye aria-hidden="true" />
+                <span className={styles.actionValue}>
+                  <NumberFlow value={viewCount} />
+                </span>
+              </div>
+              <button type="button" className={styles.actionButton} onClick={handleShareCopy} aria-label="공유">
+                <FiShare2 aria-hidden="true" />
+                <span className={styles.actionValue}>
+                  <NumberFlow value={shareCount} />
+                </span>
+              </button>
+            </div>
+          </aside>
 
           {data.author ? (
             <section
@@ -823,14 +822,7 @@ export default function PostDetailPage() {
                     )}
                   </div>
                   {authorProfileBioPreview ? (
-                    <LinesEllipsis
-                      text={authorProfileBioPreview}
-                      maxLine="1"
-                      ellipsis="..."
-                      trimRight
-                      basedOn="letters"
-                      className={styles.authorProfileBio}
-                    />
+                    <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p>
                   ) : null}
                   <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
                 </div>

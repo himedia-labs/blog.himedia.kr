@@ -42,6 +42,14 @@
   color: #1f1f1f;
 }
 
+.sortDivider {
+  display: inline-flex;
+  align-items: center;
+  color: #c2c2c2;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-weight: 500;
+}
+
 .emptyState {
   padding: 3rem 1.5rem;
   border: 1px dashed rgba(0, 0, 0, 0.12);
@@ -112,6 +120,28 @@
   cursor: pointer;
 }
 
+.bugReportButton {
+  position: fixed;
+  bottom: clamp(1rem, 3vw, 1.5rem);
+  left: clamp(1rem, 3vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: clamp(48px, 6vw, 56px);
+  height: clamp(48px, 6vw, 56px);
+  border: none;
+  border-radius: clamp(16px, 2.5vw, 24px);
+  background-color: rgba(247, 247, 248, 0.9);
+  box-shadow:
+    rgba(255, 255, 255, 0.2) 0 0 0 1px inset,
+    rgba(0, 0, 0, 0.1) 0 4px 6px,
+    rgba(0, 0, 0, 0.15) 0 8px 30px;
+  color: #555;
+  font-size: 22px;
+  cursor: pointer;
+}
+
 .createButton:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.2);
   outline-offset: 4px;
@@ -128,6 +158,71 @@
 
 .toggleButton:active {
   transform: translateY(1px) scale(0.92);
+}
+
+.bugReportButton:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 4px;
+}
+
+.bugReportButton:active {
+  transform: translateY(1px) scale(0.92);
+}
+
+.noticeModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noticeField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.noticeLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #667085;
+}
+
+.noticeInput,
+.noticeTextarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.noticeInput {
+  height: 38px;
+  padding: 0 11px;
+}
+
+.noticeTextarea {
+  height: 180px;
+  padding: 10px 11px;
+  resize: none;
+  overflow-y: auto;
+}
+
+.noticeInput:focus,
+.noticeTextarea:focus {
+  outline: none;
+  border-color: #8faee9;
+}
+
+.noticeCount {
+  align-self: flex-end;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #98a2b3;
 }
 
 .listView {
@@ -175,7 +270,11 @@
   gap: 0.75rem;
 }
 
-.listBody h3 {
+.listTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   margin: 0;
   font-size: clamp(20px, 2.6vw, 24px);
   width: 100%;
@@ -199,7 +298,23 @@
   object-fit: cover;
 }
 
-.summary {
+.listSummary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+  align-self: start;
+}
+
+.listSummaryWithTags {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: 14px;
   margin: 0;
   color: #757575;
@@ -303,7 +418,11 @@
   object-fit: cover;
 }
 
-.cardBody h3 {
+.cardTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   margin: 0;
   font-size: 1.1rem;
   width: 100%;
@@ -326,6 +445,50 @@
 
 .cardTextWithThumb {
   margin-top: 0;
+}
+
+.cardSummaryThumbTag {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummaryThumb {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummaryTag {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 14;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
+}
+
+.cardSummary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 15;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 0;
+  color: #757575;
+  line-height: 1.7;
 }
 
 .cardBodyNoThumb {
@@ -612,9 +775,12 @@
 }
 
 .topTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
   color: #444;
   font-size: 14px;
-  display: block;
   text-decoration: none;
 }
 
@@ -684,11 +850,12 @@
     aspect-ratio: 16 / 9;
   }
 
-  .listBody h3 {
+  .listTitle {
     font-size: 18px;
   }
 
-  .summary {
+  .listSummary,
+  .listSummaryWithTags {
     font-size: 13px;
   }
 
@@ -728,6 +895,10 @@
   .toggleButton,
   .createButton {
     right: 1rem;
+  }
+
+  .bugReportButton {
+    left: 1rem;
   }
 
   .toggleButton {
@@ -777,11 +948,12 @@
     gap: 0.625rem;
   }
 
-  .listBody h3 {
+  .listTitle {
     font-size: 16px;
   }
 
-  .summary {
+  .listSummary,
+  .listSummaryWithTags {
     font-size: 12px;
     line-height: 1.6;
   }
@@ -855,7 +1027,7 @@
     margin-bottom: 0.75rem;
   }
 
-  .cardBody h3 {
+  .cardTitle {
     font-size: 1rem;
   }
 
@@ -897,10 +1069,18 @@
   }
 
   .toggleButton,
-  .createButton {
+  .createButton,
+  .bugReportButton {
     width: 44px;
     height: 44px;
     right: 0.75rem;
+  }
+
+  .bugReportButton {
+    right: auto;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    font-size: 20px;
   }
 
   .toggleButton {
@@ -945,6 +1125,12 @@
   .categoryButton {
     padding: 6px 12px;
     font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardSummaryThumbTag {
+    -webkit-line-clamp: 4;
   }
 }
 

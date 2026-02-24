@@ -9,6 +9,7 @@ import { HealthModule } from './health/health.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { AdminModule } from './admin/admin.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import appConfig from './common/config/app.config';
 
@@ -27,6 +28,7 @@ import appConfig from './common/config/app.config';
     PostsModule,
     CommentsModule,
     UploadsModule,
+    AdminModule,
     NotificationsModule,
   ],
   controllers: [],
