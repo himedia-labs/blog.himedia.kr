@@ -1,4 +1,6 @@
-import { useEffect, type RefObject } from 'react';
+import type { RefObject } from 'react';
+
+import { useInfiniteScrollObserver } from '@/app/shared/hooks/useInfiniteScrollObserver';
 
 /**
  * 메인 포스트 무한 스크롤 훅
@@ -10,24 +12,13 @@ export const usePostListInfiniteScroll = (params: {
   sentinelRef: RefObject<HTMLDivElement | null>;
   fetchNextPage: () => Promise<unknown>;
 }) => {
-  const { hasNextPage, isFetchingNextPage, sentinelRef, fetchNextPage } = params;
+  const { fetchNextPage, hasNextPage, sentinelRef, isFetchingNextPage } = params;
 
-  // 무한 스크롤
-  useEffect(() => {
-    // 존재/상태 확인
-    const target = sentinelRef.current;
-    if (!target || !hasNextPage) return;
-
-    // 옵저버 연결
-    const observer = new IntersectionObserver(
-      entries => {
-        if (!entries[0]?.isIntersecting || isFetchingNextPage) return;
-        fetchNextPage();
-      },
-      { rootMargin: '200px' },
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, sentinelRef]);
+  useInfiniteScrollObserver({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    targetRef: sentinelRef,
+    rootMargin: '200px',
+  });
 };
