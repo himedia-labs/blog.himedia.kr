@@ -706,9 +706,33 @@
 
 .reportContentRow {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
+}
+
+.reportImageList {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.reportImageLink {
+  display: inline-flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e4e9f2;
+  background: #f8fafc;
+}
+
+.reportImageThumbnail {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  display: block;
 }
 
 .reportCellExpanded {
@@ -775,6 +799,13 @@
   border-color: #c5d2ee;
   background: #f7f9fe;
   color: #334155;
+}
+
+.reportActionButton:disabled {
+  border-color: #e5e7eb;
+  background: #f5f6f8;
+  color: #98a2b3;
+  cursor: default;
 }
 
 .accessAdminMeta {

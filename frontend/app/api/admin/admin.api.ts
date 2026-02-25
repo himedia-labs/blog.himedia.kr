@@ -3,6 +3,7 @@ import { axiosInstance } from '@/app/shared/network/axios.instance';
 import type {
   AdminAccessLogsResponse,
   AdminAuditLogsResponse,
+  AdminMyReportsResponse,
   AdminPendingUsersResponse,
   AdminReportsResponse,
   AdminUsersResponse,
@@ -39,6 +40,12 @@ const updateReportStatus = async (payload: UpdateAdminReportStatusRequest) => {
 // 버그 제보 생성
 const createReport = async (payload: CreateAdminReportRequest) => {
   const res = await axiosInstance.post('/reports', payload);
+  return res.data;
+};
+
+// 내 신고 목록 조회
+const getMyReports = async () => {
+  const res = await axiosInstance.get<AdminMyReportsResponse>('/reports/me', { params: { limit: 50 } });
   return res.data;
 };
 
@@ -82,6 +89,7 @@ export const adminApi = {
   getAuditLogs,
   getAccessLogs,
   createReport,
+  getMyReports,
   trackAccessLog,
   updateReportStatus,
 };

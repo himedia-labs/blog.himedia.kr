@@ -32,6 +32,7 @@ export const createHandleStatusChange = (params: {
  * @description 신고 상태 코드를 토스트 문구용 라벨로 변환
  */
 const formatReportStatusLabel = (status: AdminReportStatus) => {
+  if (status === 'IN_PROGRESS') return '처리중으로';
   if (status === 'RESOLVED') return '해결로';
   if (status === 'REJECTED') return '반려로';
   return '처리';

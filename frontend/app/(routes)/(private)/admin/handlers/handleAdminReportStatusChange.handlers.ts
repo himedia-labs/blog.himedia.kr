@@ -1,4 +1,5 @@
 import { adminKeys } from '@/app/api/admin/admin.keys';
+import { notificationsKeys } from '@/app/api/notifications/notifications.keys';
 
 import type { QueryClient } from '@tanstack/react-query';
 import type { AdminReportStatus } from '@/app/shared/types/admin';
@@ -17,4 +18,5 @@ export const handleAdminReportStatusChange = async (params: {
   await params.queryClient.invalidateQueries({ queryKey: adminKeys.reports() });
   await params.queryClient.invalidateQueries({ queryKey: adminKeys.pendingUsers() });
   await params.queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
+  await params.queryClient.invalidateQueries({ queryKey: notificationsKeys.list() });
 };

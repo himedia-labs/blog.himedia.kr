@@ -74,3 +74,30 @@ export const formatReporterLabel = (
   if (reporterName) return `${reporterName} (${reporterUserId})`;
   return `회원 (${reporterUserId})`;
 };
+
+/**
+ * 신고 본문 분리
+ * @description 신고 본문에서 첨부 이미지 메타 블록을 제거한 텍스트를 반환
+ */
+export const getReportBodyText = (content: string) => {
+  const normalizedContent = content.replace(/\r\n/g, '\n');
+  const attachmentBlockStartIndex = normalizedContent.indexOf('\n\n첨부 이미지:\n');
+  if (attachmentBlockStartIndex < 0) return normalizedContent.trim();
+
+  return normalizedContent.slice(0, attachmentBlockStartIndex).trim();
+};
+
+/**
+ * 신고 첨부 이미지 URL 파싱
+ * @description 신고 본문에 저장된 첨부 이미지 URL 목록을 추출
+ */
+export const getReportImageUrls = (content: string) => {
+  const normalizedContent = content.replace(/\r\n/g, '\n');
+  const match = normalizedContent.match(/\n\n첨부 이미지:\n([\s\S]*)$/);
+  if (!match?.[1]) return [] as string[];
+
+  return match[1]
+    .split('\n')
+    .map(line => line.replace(/^- /, '').trim())
+    .filter(line => line.startsWith('http://') || line.startsWith('https://'));
+};

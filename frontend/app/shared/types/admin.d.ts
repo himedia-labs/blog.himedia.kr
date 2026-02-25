@@ -18,6 +18,10 @@ export interface AdminReportsResponse {
   items: AdminReport[];
 }
 
+export interface AdminMyReportsResponse {
+  items: AdminReport[];
+}
+
 export interface AdminAuditLog {
   id: string;
   adminUserId: string;

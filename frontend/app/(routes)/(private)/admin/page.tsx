@@ -49,6 +49,8 @@ import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePen
 import { formatDateTime } from '@/app/(routes)/(private)/admin/utils/formatDateTime.utils';
 import {
   getRoleBadgeClassName,
+  getReportBodyText,
+  getReportImageUrls,
   formatReporterLabel,
   getReportStatusLabel,
   getAccessStatusBadgeClassName,
@@ -547,6 +549,7 @@ export default function AdminPage() {
                             <th>순서</th>
                             <th>제목</th>
                             <th>내용</th>
+                            <th>첨부 이미지</th>
                             <th>신고자</th>
                             <th>접수일</th>
                             <th>상태</th>
@@ -556,7 +559,13 @@ export default function AdminPage() {
                         <tbody className={styles.pendingTableBody}>
                           {reports.map((report, index) => {
                             const isExpanded = Boolean(expandedReports[report.id]);
-                            const canExpand = report.title.length > 26 || report.content.length > 80;
+                            const reportBodyText = getReportBodyText(report.content);
+                            const reportImageUrls = getReportImageUrls(report.content);
+                            const canExpand = report.title.length > 26 || reportBodyText.length > 80;
+                            const isOpen = report.status === 'OPEN';
+                            const isResolved = report.status === 'RESOLVED';
+                            const isRejected = report.status === 'REJECTED';
+                            const isClosed = isResolved || isRejected;
 
                             return (
                               <tr key={report.id}>
@@ -584,9 +593,36 @@ export default function AdminPage() {
                                 <td>
                                   <div className={styles.reportContentRow}>
                                     <p className={`${styles.reportContentCell} ${isExpanded ? styles.reportCellExpanded : ''}`}>
-                                      {report.content}
+                                      {reportBodyText}
                                     </p>
                                   </div>
+                                </td>
+                                <td>
+                                  {reportImageUrls.length ? (
+                                    <div className={styles.reportImageList}>
+                                      {reportImageUrls.map(imageUrl => (
+                                        <a
+                                          key={`${report.id}-${imageUrl}`}
+                                          className={styles.reportImageLink}
+                                          href={imageUrl}
+                                          target="_blank"
+                                          rel="noreferrer noopener"
+                                          title="원본 이미지 열기"
+                                        >
+                                          <Image
+                                            src={imageUrl}
+                                            alt="신고 첨부 이미지"
+                                            width={56}
+                                            height={56}
+                                            className={styles.reportImageThumbnail}
+                                            unoptimized
+                                          />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span>N/A</span>
+                                  )}
                                 </td>
                                 <td>{formatReporterLabel(report.reporterUserId, report.reporterName, report.reporterEmail)}</td>
                                 <td>{formatDateTime(report.createdAt)}</td>
@@ -599,22 +635,33 @@ export default function AdminPage() {
                                   </span>
                                 </td>
                                 <td>
-                                  <div className={styles.reportActionGroup}>
-                                    <button
-                                      type="button"
-                                      className={styles.reportActionButton}
-                                      onClick={() => handleStatusChange(report.id, 'RESOLVED')}
-                                    >
-                                      해결
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className={styles.reportActionButton}
-                                      onClick={() => handleStatusChange(report.id, 'REJECTED')}
-                                    >
-                                      반려
-                                    </button>
-                                  </div>
+                                  {!isClosed ? (
+                                    <div className={styles.reportActionGroup}>
+                                      {isOpen ? (
+                                        <button
+                                          type="button"
+                                          className={styles.reportActionButton}
+                                          onClick={() => handleStatusChange(report.id, 'IN_PROGRESS')}
+                                        >
+                                          검토 시작
+                                        </button>
+                                      ) : null}
+                                      <button
+                                        type="button"
+                                        className={styles.reportActionButton}
+                                        onClick={() => handleStatusChange(report.id, 'RESOLVED')}
+                                      >
+                                        해결
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className={styles.reportActionButton}
+                                        onClick={() => handleStatusChange(report.id, 'REJECTED')}
+                                      >
+                                        반려
+                                      </button>
+                                    </div>
+                                  ) : null}
                                 </td>
                               </tr>
                             );

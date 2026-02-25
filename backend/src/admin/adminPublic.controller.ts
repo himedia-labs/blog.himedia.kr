@@ -1,10 +1,12 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 
+import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
 import { AdminService } from './admin.service';
 import { CreateAdminReportDto } from './dto/createAdminReport.dto';
+import type { AdminAuthRequest } from './admin.types';
 
 type OptionalAuthRequest = ExpressRequest & {
   user?: {
@@ -23,6 +25,19 @@ export class AdminPublicController {
    * @description 신고 생성 처리기를 초기화
    */
   constructor(private readonly adminService: AdminService) {}
+
+  /**
+   * 내 신고 목록 조회
+   * @description 로그인 사용자의 신고 목록을 최신순으로 반환
+   */
+  @Get('me')
+  @UseGuards(JwtGuard)
+  getMyReports(@Request() req: AdminAuthRequest, @Query('limit') limit?: string) {
+    const parsed = limit ? Number(limit) : undefined;
+    const safeLimit = Number.isFinite(parsed) ? Number(parsed) : undefined;
+
+    return this.adminService.getMyReports(req.user.sub, safeLimit);
+  }
 
   /**
    * 신고 생성

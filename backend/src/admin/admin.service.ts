@@ -85,6 +85,23 @@ export class AdminService {
   }
 
   /**
+   * 내 신고 목록 조회
+   * @description 신고자가 본인인 신고 목록을 최신순으로 반환
+   */
+  async getMyReports(reporterUserId: string, limit?: number) {
+    const normalizedReporterUserId = reporterUserId.trim();
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Number(limit), 1), 100) : 30;
+
+    const reports = await this.adminReportsRepository.find({
+      where: { reporterUserId: normalizedReporterUserId },
+      order: { createdAt: 'DESC' },
+      take: safeLimit,
+    });
+
+    return { items: reports };
+  }
+
+  /**
    * 감사로그 목록 조회
    * @description 최근 관리자 액션 이력을 반환
    */

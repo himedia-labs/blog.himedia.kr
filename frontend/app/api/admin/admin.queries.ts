@@ -6,6 +6,7 @@ import { adminKeys } from '@/app/api/admin/admin.keys';
 import type {
   AdminAccessLogsResponse,
   AdminAuditLogsResponse,
+  AdminMyReportsResponse,
   AdminPendingUsersResponse,
   AdminReportsResponse,
   AdminUsersResponse,
@@ -16,6 +17,15 @@ export const useAdminReportsQuery = (enabled: boolean) => {
   return useQuery<AdminReportsResponse, Error>({
     queryKey: adminKeys.reports(),
     queryFn: adminApi.getReports,
+    enabled,
+  });
+};
+
+// 내 신고 목록 조회
+export const useMyReportsQuery = (enabled: boolean) => {
+  return useQuery<AdminMyReportsResponse, Error>({
+    queryKey: adminKeys.myReports(),
+    queryFn: adminApi.getMyReports,
     enabled,
   });
 };
