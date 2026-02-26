@@ -51,7 +51,6 @@
 .message {
   flex: 1;
   font-size: 0.95rem;
-  line-height: 1;
   padding: 0;
   color: #3a414d;
   white-space: pre-line;
@@ -70,7 +69,6 @@
 }
 
 .multiline .message {
-  line-height: 1.4;
 }
 
 .actions {

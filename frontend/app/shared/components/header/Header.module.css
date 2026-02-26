@@ -78,13 +78,12 @@
   text-align: left;
   font-size: 1.25rem;
   font-weight: bold;
-  line-height: 1.1;
 }
 
 .logoSub {
   font-size: 0.7rem;
   font-weight: normal;
-  letter-spacing: 3px;
+  letter-spacing: 2.5px;
   color: #555;
   white-space: nowrap;
 }
@@ -110,7 +109,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
   vertical-align: middle;
 
   font-size: 1.75rem;
@@ -137,7 +135,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
   vertical-align: middle;
 
   font-size: 1.75rem;
@@ -172,7 +169,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 0;
   cursor: pointer;
 }
 
@@ -205,7 +201,6 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  line-height: 0;
 }
 
 .profileMenu {
@@ -274,7 +269,6 @@
 }
 
 .notificationBadgeText {
-  line-height: 1;
   transform: translateY(0.5px);
 }
 
@@ -450,7 +444,6 @@
 
 .notificationMessage {
   display: block;
-  line-height: 1.35;
   font-size: 0.8rem;
   color: #64748b;
 }
