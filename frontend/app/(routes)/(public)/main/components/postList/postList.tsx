@@ -14,7 +14,6 @@ import { FiEye, FiHeart, FiMessageCircle, FiPlus, FiShare2 } from 'react-icons/f
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
 
-import BugReportEntry from '@/app/(routes)/(public)/main/components/bugReport/BugReportEntry';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import { usePostList, usePostListInfiniteScroll } from '@/app/(routes)/(public)/main/components/postList/hooks';
 import {
@@ -79,7 +78,6 @@ export default function PostListSection() {
     <section className={styles.container} aria-label="포스트 하이라이트">
       <div className={styles.main}>
         <div className={styles.header}>
-          <BugReportEntry />
           <button
             type="button"
             className={styles.createButton}

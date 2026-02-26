@@ -161,6 +161,66 @@
   height: 14px;
 }
 
+.sidebarItemLabelGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.sidebarItemWithToggle {
+  justify-content: space-between;
+}
+
+.sidebarBottomMenu {
+  padding-top: 0.85rem;
+  border-top: 1px solid #edf1f7;
+}
+
+.sidebarToggleIcon {
+  width: 12px !important;
+  height: 12px !important;
+  color: #8b95a7;
+  transition: transform 0.16s ease;
+}
+
+.sidebarToggleIconOpen {
+  transform: rotate(180deg);
+}
+
+.sidebarSubList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.38rem;
+  padding-left: 0.35rem;
+}
+
+.sidebarSubItem {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #7a8699;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebarSubItem:hover {
+  border-color: #e4e9f2;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.sidebarSubItemActive {
+  border-color: #e4e9f2;
+  background: #f8fafc;
+  color: #334155;
+}
+
 .sidebarItem:hover {
   border-color: #e4e9f2;
   background: #f8fafc;

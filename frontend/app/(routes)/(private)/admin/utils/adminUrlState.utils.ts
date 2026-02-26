@@ -10,7 +10,6 @@ import type { AdminMenuLabel, AdminPendingSort } from '@/app/(routes)/(private)/
  */
 export const parseAdminMenuFromQuery = (value: string | null): AdminMenuLabel => {
   if (value === ADMIN_TAB_QUERY_VALUE.USERS) return ADMIN_MENU_LABELS.USERS;
-  if (value === ADMIN_TAB_QUERY_VALUE.REPORTS) return ADMIN_MENU_LABELS.REPORTS;
   if (value === ADMIN_TAB_QUERY_VALUE.AUDIT_LOGS) return ADMIN_MENU_LABELS.AUDIT_LOGS;
   if (value === ADMIN_TAB_QUERY_VALUE.ACCESS_LOGS) return ADMIN_MENU_LABELS.ACCESS_LOGS;
   return ADMIN_MENU_LABELS.PENDING_USERS;
@@ -35,7 +34,6 @@ export const parseAdminSortFromQuery = (value: string | null): AdminPendingSort 
  */
 export const serializeAdminMenuToQuery = (menu: AdminMenuLabel) => {
   if (menu === ADMIN_MENU_LABELS.USERS) return ADMIN_TAB_QUERY_VALUE.USERS;
-  if (menu === ADMIN_MENU_LABELS.REPORTS) return ADMIN_TAB_QUERY_VALUE.REPORTS;
   if (menu === ADMIN_MENU_LABELS.AUDIT_LOGS) return ADMIN_TAB_QUERY_VALUE.AUDIT_LOGS;
   if (menu === ADMIN_MENU_LABELS.ACCESS_LOGS) return ADMIN_TAB_QUERY_VALUE.ACCESS_LOGS;
   return ADMIN_TAB_QUERY_VALUE.PENDING_USERS;

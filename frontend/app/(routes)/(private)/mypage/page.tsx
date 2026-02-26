@@ -37,7 +37,6 @@ import {
   MyPageCommentsSkeleton,
   MyPageIntroSkeleton,
   MyPagePostListSkeleton,
-  MyPageSupportSkeleton,
   MyPageValueSkeleton,
 } from '@/app/(routes)/(private)/mypage/MyPage.skeleton';
 import { stopMenuPropagation } from '@/app/(routes)/(private)/mypage/handlers';
@@ -59,7 +58,6 @@ import {
   useProfileImageEditor,
 } from '@/app/(routes)/(private)/mypage/hooks';
 import { useWithdrawAccountMutation } from '@/app/api/auth/auth.mutations';
-import { useMyReportsQuery } from '@/app/api/admin/admin.queries';
 
 import styles from '@/app/(routes)/(private)/mypage/MyPage.module.css';
 import postListStyles from '@/app/(routes)/(public)/main/components/postList/postList.module.css';
@@ -71,41 +69,6 @@ import { useAuthStore } from '@/app/shared/store/authStore';
 
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/app/shared/types/error';
-import type { AdminReportStatus } from '@/app/shared/types/admin';
-
-/**
- * 신고 상태 라벨
- * @description 신고 상태 코드를 사용자 노출용 한글 라벨로 변환
- */
-const formatSupportStatusLabel = (status: AdminReportStatus) => {
-  if (status === 'RESOLVED') return '해결';
-  if (status === 'REJECTED') return '반려';
-  if (status === 'IN_PROGRESS') return '처리중';
-  return '접수 완료';
-};
-
-/**
- * 신고 상태 배지 클래스
- * @description 신고 상태 코드에 맞는 배지 클래스명을 반환
- */
-const getSupportStatusClassName = (status: AdminReportStatus) => {
-  if (status === 'IN_PROGRESS') return styles.supportStatusInProgress;
-  if (status === 'RESOLVED') return styles.supportStatusResolved;
-  if (status === 'REJECTED') return styles.supportStatusRejected;
-  return styles.supportStatusOpen;
-};
-
-/**
- * 신고 내용 정리
- * @description 첨부 URL 블록을 제거한 본문 텍스트를 반환
- */
-const getSupportReportContent = (content: string) => {
-  const normalizedContent = content.replace(/\r\n/g, '\n');
-  const attachmentBlockStartIndex = normalizedContent.indexOf('\n\n첨부 이미지:\n');
-  if (attachmentBlockStartIndex < 0) return normalizedContent.trim();
-
-  return normalizedContent.slice(0, attachmentBlockStartIndex).trim();
-};
 
 /**
  * 마이페이지
@@ -118,7 +81,6 @@ export default function MyPage() {
   const { clearAuth } = useAuthStore();
   const activeTab = useMyPageTab('settings');
   const { mutateAsync: withdrawAccount, isPending: isWithdrawing } = useWithdrawAccountMutation();
-  const { data: myReportsData, isLoading: isMyReportsLoading } = useMyReportsQuery(activeTab === 'support');
 
   // 데이터 상태
   const {
@@ -301,7 +263,6 @@ export default function MyPage() {
   };
   const selectedCategoryLabel = postCategories.find(category => category.id === selectedCategoryId)?.name;
   const selectedTagLabel = postTags.find(tag => tag.id === selectedTagId)?.name;
-  const myReports = myReportsData?.items ?? [];
 
   const filteredPosts = useMemo(() => {
     if (!selectedCategoryId && !selectedTagId) return sortedPosts;
@@ -1104,43 +1065,6 @@ export default function MyPage() {
                   <div className={styles.empty}>아직 작성한 게시물이 없습니다.</div>
                 </div>
               )
-            ) : activeTab === 'support' ? (
-              <div className={styles.settingsSection}>
-                <div className={styles.settingsRow}>
-                  <span className={styles.settingsLabel}>고객지원</span>
-                </div>
-                {isMyReportsLoading ? (
-                  <MyPageSupportSkeleton />
-                ) : myReports.length ? (
-                  <ul className={styles.supportList}>
-                    {myReports.map(report => (
-                      <li key={report.id} className={styles.supportItem}>
-                        <div className={styles.supportHeader}>
-                          <p className={styles.supportTitle}>{report.title}</p>
-                          <span className={`${styles.supportStatusBadge} ${getSupportStatusClassName(report.status)}`}>
-                            <span className={styles.supportStatusDot} aria-hidden="true" />
-                            {formatSupportStatusLabel(report.status)}
-                          </span>
-                        </div>
-                        <p className={styles.supportContent}>{getSupportReportContent(report.content)}</p>
-                        <div className={styles.supportMeta}>
-                          <span>접수일: {formatDateTimeLabel(report.createdAt)}</span>
-                          {report.status === 'RESOLVED' || report.status === 'REJECTED' ? (
-                            <>
-                              <span className={styles.supportMetaDivider} aria-hidden="true">
-                                |
-                              </span>
-                              <span>처리일: {report.handledAt ? formatDateTimeLabel(report.handledAt) : 'N/A'}</span>
-                            </>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className={styles.empty}>신고 내역이 없습니다.</div>
-                )}
-              </div>
             ) : activeTab === 'account' ? (
               isUserInfoLoading ? (
                 <MyPageAccountSkeleton />

@@ -82,9 +82,24 @@ export const formatReporterLabel = (
 export const getReportBodyText = (content: string) => {
   const normalizedContent = content.replace(/\r\n/g, '\n');
   const attachmentBlockStartIndex = normalizedContent.indexOf('\n\n첨부 이미지:\n');
-  if (attachmentBlockStartIndex < 0) return normalizedContent.trim();
+  const contentWithoutAttachment =
+    attachmentBlockStartIndex < 0
+      ? normalizedContent.trim()
+      : normalizedContent.slice(0, attachmentBlockStartIndex).trim();
 
-  return normalizedContent.slice(0, attachmentBlockStartIndex).trim();
+  return contentWithoutAttachment.replace(/^카테고리:\s*[^\n]+\n\n/, '').trim();
+};
+
+/**
+ * 신고 카테고리 파싱
+ * @description 신고 본문에 저장된 카테고리 라벨을 추출
+ */
+export const getReportCategoryLabel = (content: string) => {
+  const normalizedContent = content.replace(/\r\n/g, '\n');
+  const matched = normalizedContent.match(/^카테고리:\s*([^\n]+)$/m);
+  if (!matched?.[1]) return '기타';
+
+  return matched[1].trim() || '기타';
 };
 
 /**

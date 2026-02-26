@@ -19,43 +19,6 @@ export function MyPageValueSkeleton({ width, height }: MyPageValueSkeletonProps)
 }
 
 /**
- * 내 신고 내역 스켈레톤
- * @description 고객지원 탭 리스트 로딩 UI를 렌더링
- */
-export function MyPageSupportSkeleton() {
-  return (
-    <ul className={styles.supportList} aria-hidden="true">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <li key={`my-support-skeleton-${index}`} className={styles.supportItem}>
-          <div className={styles.supportHeader}>
-            <p className={styles.supportTitle}>
-              <span className={styles.supportSkeletonTitleLine}>
-                <Skeleton width={240} height={20} />
-              </span>
-            </p>
-            <span className={`${styles.supportStatusBadge} ${styles.supportStatusOpen}`}>
-              <span className={styles.supportStatusDot} aria-hidden="true" />
-              <Skeleton width={42} height={12} />
-            </span>
-          </div>
-          <p className={styles.supportContent}>
-            <span className={styles.supportSkeletonLine}>
-              <Skeleton width="100%" height={14} />
-            </span>
-            <span className={styles.supportSkeletonLine}>
-              <Skeleton width="100%" height={14} />
-            </span>
-          </p>
-          <div className={styles.supportMeta}>
-            <Skeleton width={160} height={14} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/**
  * 마이페이지 게시글 스켈레톤
  * @description 내 블로그/좋아요 탭의 리스트 로딩 UI를 렌더링
  */

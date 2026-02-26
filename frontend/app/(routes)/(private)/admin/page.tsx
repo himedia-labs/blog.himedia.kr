@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { FiChevronDown, FiChevronRight, FiFileText, FiFlag, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
+import { FiChevronDown, FiChevronRight, FiFileText, FiLogIn, FiUserCheck, FiUsers } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useToast } from '@/app/shared/components/toast/toast';
@@ -14,14 +14,12 @@ import {
   useAdminAccessLogsQuery,
   useAdminAuditLogsQuery,
   useAdminPendingUsersQuery,
-  useAdminReportsQuery,
   useAdminUsersQuery,
 } from '@/app/api/admin/admin.queries';
 import {
   useApproveAdminUserMutation,
   useTrackAdminAccessMutation,
   useUpdateAdminUserRoleMutation,
-  useUpdateAdminReportStatusMutation,
 } from '@/app/api/admin/admin.mutations';
 import { ADMIN_MENU_LABELS } from '@/app/(routes)/(private)/admin/constants/menu.constants';
 import { ADMIN_QUERY_KEYS } from '@/app/(routes)/(private)/admin/constants/query.constants';
@@ -35,7 +33,6 @@ import {
   createHandleSelectCourseFilter,
   createHandleSelectPendingSort,
 } from '@/app/(routes)/(private)/admin/handlers/adminFilter.handlers';
-import { createHandleStatusChange } from '@/app/(routes)/(private)/admin/handlers/adminReport.handlers';
 import {
   createHandleUserEdit,
   createHandleUserApprove,
@@ -49,12 +46,7 @@ import { usePendingUsersSort } from '@/app/(routes)/(private)/admin/hooks/usePen
 import { formatDateTime } from '@/app/(routes)/(private)/admin/utils/formatDateTime.utils';
 import {
   getRoleBadgeClassName,
-  getReportBodyText,
-  getReportImageUrls,
-  formatReporterLabel,
-  getReportStatusLabel,
   getAccessStatusBadgeClassName,
-  getReportStatusBadgeClassName,
   getAuditResultBadgeClassName,
 } from '@/app/(routes)/(private)/admin/utils/adminDisplay.utils';
 import {
@@ -91,7 +83,6 @@ export default function AdminPage() {
   const canAccess = Boolean(accessToken) && isAdmin;
 
   // 데이터 조회
-  const { data: reportsData, isLoading: isReportsLoading } = useAdminReportsQuery(canAccess);
   const { data: pendingUsersData, isLoading: isPendingUsersLoading } = useAdminPendingUsersQuery(canAccess);
   const { data: usersData, isLoading: isUsersLoading } = useAdminUsersQuery(canAccess);
   const { data: logsData, isLoading: isLogsLoading } = useAdminAuditLogsQuery(canAccess);
@@ -102,7 +93,6 @@ export default function AdminPage() {
     hasNextPage: hasNextAccessLogsPage,
     fetchNextPage: fetchNextAccessLogsPage,
   } = useAdminAccessLogsQuery(canAccess);
-  const updateStatusMutation = useUpdateAdminReportStatusMutation();
   const approveUserMutation = useApproveAdminUserMutation();
   const updateUserRoleMutation = useUpdateAdminUserRoleMutation();
   const trackAdminAccessMutation = useTrackAdminAccessMutation();
@@ -111,7 +101,6 @@ export default function AdminPage() {
   const [isCourseSortOpen, setIsCourseSortOpen] = useState(false);
   const [isPendingSortOpen, setIsPendingSortOpen] = useState(false);
   const [isUsersEditMode, setIsUsersEditMode] = useState(false);
-  const [expandedReports, setExpandedReports] = useState<Record<string, boolean>>({});
   const [userRoleDrafts, setUserRoleDrafts] = useState<Record<string, string>>({});
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<string>('ALL');
@@ -119,7 +108,6 @@ export default function AdminPage() {
   const pendingSort = parseAdminSortFromQuery(searchParams.get(ADMIN_QUERY_KEYS.SORT));
   const pendingUsers = useMemo(() => pendingUsersData?.items ?? [], [pendingUsersData]);
   const allUsers = useMemo(() => usersData?.items ?? [], [usersData]);
-  const reports = reportsData?.items ?? [];
   const auditLogs = logsData?.items ?? [];
   const accessLogs = useMemo(() => {
     return accessLogsData?.pages.flatMap(page => page.items) ?? [];
@@ -140,7 +128,6 @@ export default function AdminPage() {
   const menuIconMap: Record<string, IconType> = {
     [ADMIN_MENU_LABELS.PENDING_USERS]: FiUserCheck,
     [ADMIN_MENU_LABELS.USERS]: FiUsers,
-    [ADMIN_MENU_LABELS.REPORTS]: FiFlag,
     [ADMIN_MENU_LABELS.AUDIT_LOGS]: FiFileText,
     [ADMIN_MENU_LABELS.ACCESS_LOGS]: FiLogIn,
   };
@@ -169,11 +156,6 @@ export default function AdminPage() {
   const handleSelectRoleFilter = createHandleSelectRoleFilter({ setSelectedRoleFilter, setIsRoleSortOpen });
   const handleSelectCourseFilter = createHandleSelectCourseFilter({ setSelectedCourseFilter, setIsCourseSortOpen });
   const handleSelectPendingSort = createHandleSelectPendingSort({ handleSelectSort, setIsPendingSortOpen });
-  const handleStatusChange = createHandleStatusChange({
-    queryClient,
-    mutateAsync: updateStatusMutation.mutateAsync,
-    showToast,
-  });
   const handleUserApprove = createHandleUserApprove({
     queryClient,
     mutateAsync: approveUserMutation.mutateAsync,
@@ -189,9 +171,6 @@ export default function AdminPage() {
     showToast,
   });
   const handleChangeUserRoleDraft = createHandleChangeUserRoleDraft(setUserRoleDrafts);
-  const handleToggleReportExpand = (reportId: string) => {
-    setExpandedReports(prev => ({ ...prev, [reportId]: !prev[reportId] }));
-  };
 
   if (!isInitialized || !accessToken || isUserLoading || !isAdmin) {
     return null;
@@ -244,14 +223,6 @@ export default function AdminPage() {
               >
                 <FiUserCheck aria-hidden="true" />
                 회원 승인
-              </button>
-              <button
-                type="button"
-                className={`${styles.sidebarItem} ${selectedMenu === ADMIN_MENU_LABELS.REPORTS ? styles.sidebarItemActive : ''}`}
-                onClick={() => handleSelectMenu(ADMIN_MENU_LABELS.REPORTS)}
-              >
-                <FiFlag aria-hidden="true" />
-                신고 관리
               </button>
             </div>
 
@@ -533,144 +504,6 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     <p className={styles.notice}>회원 목록이 없습니다.</p>
-                  )}
-                </article>
-              ) : null}
-
-              {selectedMenu === ADMIN_MENU_LABELS.REPORTS ? (
-                <article className={`${styles.card} ${styles.tableCard}`}>
-                  {isReportsLoading ? (
-                    <p className={styles.notice}>불러오는 중입니다.</p>
-                  ) : reports.length ? (
-                    <div className={styles.tableWrap}>
-                      <table className={styles.pendingTable}>
-                        <thead className={styles.pendingTableHead}>
-                          <tr>
-                            <th>순서</th>
-                            <th>제목</th>
-                            <th>내용</th>
-                            <th>첨부 이미지</th>
-                            <th>신고자</th>
-                            <th>접수일</th>
-                            <th>상태</th>
-                            <th>처리</th>
-                          </tr>
-                        </thead>
-                        <tbody className={styles.pendingTableBody}>
-                          {reports.map((report, index) => {
-                            const isExpanded = Boolean(expandedReports[report.id]);
-                            const reportBodyText = getReportBodyText(report.content);
-                            const reportImageUrls = getReportImageUrls(report.content);
-                            const canExpand = report.title.length > 26 || reportBodyText.length > 80;
-                            const isOpen = report.status === 'OPEN';
-                            const isResolved = report.status === 'RESOLVED';
-                            const isRejected = report.status === 'REJECTED';
-                            const isClosed = isResolved || isRejected;
-
-                            return (
-                              <tr key={report.id}>
-                                <td>#{index + 1}</td>
-                                <td>
-                                  <div className={styles.reportTitleRow}>
-                                    <p className={`${styles.reportTitleCell} ${isExpanded ? styles.reportCellExpanded : ''}`}>
-                                      {report.title}
-                                    </p>
-                                    {canExpand ? (
-                                      <button
-                                        type="button"
-                                        className={styles.reportExpandButton}
-                                        onClick={() => handleToggleReportExpand(report.id)}
-                                        aria-label={isExpanded ? '신고 내용 접기' : '신고 내용 펼치기'}
-                                      >
-                                        <FiChevronDown
-                                          className={`${styles.reportExpandIcon} ${isExpanded ? styles.reportExpandIconOpen : ''}`}
-                                          aria-hidden="true"
-                                        />
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                </td>
-                                <td>
-                                  <div className={styles.reportContentRow}>
-                                    <p className={`${styles.reportContentCell} ${isExpanded ? styles.reportCellExpanded : ''}`}>
-                                      {reportBodyText}
-                                    </p>
-                                  </div>
-                                </td>
-                                <td>
-                                  {reportImageUrls.length ? (
-                                    <div className={styles.reportImageList}>
-                                      {reportImageUrls.map(imageUrl => (
-                                        <a
-                                          key={`${report.id}-${imageUrl}`}
-                                          className={styles.reportImageLink}
-                                          href={imageUrl}
-                                          target="_blank"
-                                          rel="noreferrer noopener"
-                                          title="원본 이미지 열기"
-                                        >
-                                          <Image
-                                            src={imageUrl}
-                                            alt="신고 첨부 이미지"
-                                            width={56}
-                                            height={56}
-                                            className={styles.reportImageThumbnail}
-                                            unoptimized
-                                          />
-                                        </a>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <span>N/A</span>
-                                  )}
-                                </td>
-                                <td>{formatReporterLabel(report.reporterUserId, report.reporterName, report.reporterEmail)}</td>
-                                <td>{formatDateTime(report.createdAt)}</td>
-                                <td>
-                                  <span
-                                    className={`${styles.auditResultBadge} ${getReportStatusBadgeClassName(styles, report.status)}`}
-                                  >
-                                    <span className={styles.auditResultDot} aria-hidden="true" />
-                                    {getReportStatusLabel(report.status)}
-                                  </span>
-                                </td>
-                                <td>
-                                  {!isClosed ? (
-                                    <div className={styles.reportActionGroup}>
-                                      {isOpen ? (
-                                        <button
-                                          type="button"
-                                          className={styles.reportActionButton}
-                                          onClick={() => handleStatusChange(report.id, 'IN_PROGRESS')}
-                                        >
-                                          검토 시작
-                                        </button>
-                                      ) : null}
-                                      <button
-                                        type="button"
-                                        className={styles.reportActionButton}
-                                        onClick={() => handleStatusChange(report.id, 'RESOLVED')}
-                                      >
-                                        해결
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className={styles.reportActionButton}
-                                        onClick={() => handleStatusChange(report.id, 'REJECTED')}
-                                      >
-                                        반려
-                                      </button>
-                                    </div>
-                                  ) : null}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className={styles.notice}>신고 내역이 없습니다.</p>
                   )}
                 </article>
               ) : null}

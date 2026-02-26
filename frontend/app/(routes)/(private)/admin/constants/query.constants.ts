@@ -6,7 +6,6 @@ export const ADMIN_QUERY_KEYS = {
 export const ADMIN_TAB_QUERY_VALUE = {
   PENDING_USERS: 'pending',
   USERS: 'users',
-  REPORTS: 'reports',
   AUDIT_LOGS: 'audit',
   ACCESS_LOGS: 'access',
 } as const;
