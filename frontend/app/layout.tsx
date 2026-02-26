@@ -1,11 +1,13 @@
 import { cookies } from 'next/headers';
 
-import { notoSansKr } from '@/app/styles/fonts';
 import Footer from '@/app/shared/components/footer/Footer';
 import Header from '@/app/shared/components/header/Header';
+
 import QueryProvider from '@/app/provider/ReactQuery/QueryProvider';
 import ToastProvider from '@/app/shared/components/toast/ToastProvider';
 import AuthInitializer from '@/app/provider/AuthProvider/AuthInitializer';
+import ChannelTalkLoader from '@/app/provider/ChannelTalk/ChannelTalkLoader';
+
 import ScrollTopButton from '@/app/shared/components/scroll-top/ScrollTopButton';
 
 import '@/app/globals.css';
@@ -24,9 +26,10 @@ export default async function RootLayout({
 
   return (
     <html lang="ko">
-      <body className={notoSansKr.variable}>
+      <body>
         <QueryProvider>
           <AuthInitializer />
+          <ChannelTalkLoader />
           <ToastProvider>
             <Header initialIsLoggedIn={initialIsLoggedIn} />
             <div className="layout">{children}</div>
