@@ -87,6 +87,8 @@ export default function PostDetailPage() {
   const likeCount = data?.likeCount ?? 0;
   const shareCount = data?.shareCount ?? 0;
   const commentCount = data?.commentCount ?? 0;
+  const authorPostCount = data?.author?.postCount ?? 0;
+  const authorFollowingCount = data?.author?.followingCount ?? 0;
   const postAuthorId = data?.author?.id ?? null;
   const isMyPost = Boolean(currentUser?.id && postAuthorId && currentUser.id === postAuthorId);
   const canShowAuthorFollowButton = Boolean(currentUser?.id && postAuthorId && currentUser.id !== postAuthorId);
@@ -824,7 +826,10 @@ export default function PostDetailPage() {
                   {authorProfileBioPreview ? (
                     <p className={styles.authorProfileBio}>{authorProfileBioPreview}</p>
                   ) : null}
-                  <span className={styles.authorProfileMeta}>팔로워 {authorFollowerCount.toLocaleString()}</span>
+                  <span className={styles.authorProfileMeta}>
+                    글 {authorPostCount.toLocaleString()} · 팔로워 {authorFollowerCount.toLocaleString()} · 팔로잉{' '}
+                    {authorFollowingCount.toLocaleString()}
+                  </span>
                 </div>
               </div>
               {canShowAuthorFollowButton ? (

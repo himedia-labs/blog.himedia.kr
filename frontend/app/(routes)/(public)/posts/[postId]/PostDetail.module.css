@@ -318,11 +318,19 @@
 }
 
 .authorProfileNameLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   text-decoration: none;
+  width: fit-content;
 }
 
 .authorProfileNameLink:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 calc(100% - 1px);
 }
 
 .authorProfileRoleLink {
@@ -335,15 +343,17 @@
 .authorProfileNameLinkIcon {
   width: 0.85rem;
   height: 0.85rem;
+  margin-left: 0.3rem;
   color: #97a3b5;
 }
 
 .authorProfileRole {
   display: inline;
   font-size: 1.06rem;
-  margin-left: 0.55rem;
+  margin-left: 0;
   color: #8291a8;
   vertical-align: middle;
+  font-weight: lighter;
 }
 
 .authorProfileBio {
