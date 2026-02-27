@@ -706,6 +706,31 @@
   border-color: #111;
 }
 
+.categoryOrderButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #333d4b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryOrderButton:hover {
+  background: #f2f4f6;
+  color: #1f1f1f;
+}
+
+.categoryOrderIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* 태블릿 (768px ~ 1024px) */
 @media (max-width: 1024px) {
   .container {

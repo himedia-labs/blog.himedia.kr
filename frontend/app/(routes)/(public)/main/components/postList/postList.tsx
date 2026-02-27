@@ -9,7 +9,7 @@ import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
 import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2 } from 'react-icons/fi';
+import { FiClock, FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2, FiTrendingUp } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -49,12 +49,16 @@ export default function PostListSection() {
     setSortFilter,
     selectedCategory,
     setSelectedCategory,
+    categoryOrder,
+    setCategoryOrder,
     categoryNames,
     filteredPosts,
     topPosts,
     isLoading,
     isCategoriesLoading,
     isTopPostsLoading,
+    isFollowingEmpty,
+    isCategoryEmpty,
   } = usePostList();
 
   // 스켈레톤
@@ -65,7 +69,9 @@ export default function PostListSection() {
   const listTagSkeletonWidths = [48, 64, 56];
   const cardTagSkeletonWidths = [44, 58, 50];
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const isFollowingEmpty = sortFilter === 'following' && !isLoading && filteredPosts.length === 0;
+
+  // 카테고리 선택 시 정렬 버튼 비활성화 표시
+  const isCategorySelected = selectedCategory !== 'ALL';
 
   // 핸들러
   const handleCreatePost = createHandleCreatePost({ router });
@@ -94,21 +100,21 @@ export default function PostListSection() {
         <div className={styles.sortBar}>
           <button
             type="button"
-            className={sortFilter === 'latest' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'latest' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('latest')}
           >
             최신
           </button>
           <button
             type="button"
-            className={sortFilter === 'top' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'top' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('top')}
           >
             TOP
           </button>
           <button
             type="button"
-            className={sortFilter === 'following' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            className={sortFilter === 'following' && !isCategorySelected ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
             onClick={() => handleSortFilter('following')}
           >
             피드
@@ -130,12 +136,42 @@ export default function PostListSection() {
           >
             채용
           </button>
+          {isCategorySelected ? (
+            <div style={{ marginLeft: 'auto' }}>
+              <button
+                type="button"
+                className={styles.categoryOrderButton}
+                onClick={() => setCategoryOrder(categoryOrder === 'latest' ? 'popular' : 'latest')}
+              >
+                {categoryOrder === 'popular' ? (
+                  <>
+                    <FiTrendingUp className={styles.categoryOrderIcon} aria-hidden="true" />
+                    인기순
+                  </>
+                ) : (
+                  <>
+                    <FiClock className={styles.categoryOrderIcon} aria-hidden="true" />
+                    최신순
+                  </>
+                )}
+              </button>
+            </div>
+          ) : null}
         </div>
 
-        {isFollowingEmpty ? (
+        {isFollowingEmpty || isCategoryEmpty ? (
           <div className={styles.emptyState} role="status">
-            <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
-            <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
+            {isFollowingEmpty ? (
+              <>
+                <p className={styles.emptyTitle}>팔로우한 작성자가 없어요.</p>
+                <p className={styles.emptyDescription}>관심있는 작성자를 팔로우하면 피드에 모아서 볼 수 있어요.</p>
+              </>
+            ) : (
+              <>
+                <p className={styles.emptyTitle}>해당 카테고리에 게시물이 없어요.</p>
+                <p className={styles.emptyDescription}>다른 카테고리를 선택하거나 첫 번째 글을 작성해보세요.</p>
+              </>
+            )}
           </div>
         ) : viewMode === 'list' ? (
           <ul className={styles.listView}>
@@ -508,7 +544,9 @@ export default function PostListSection() {
               : null}
           </ul>
         )}
-        {!isFollowingEmpty ? <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" /> : null}
+        {!isFollowingEmpty && !isCategoryEmpty ? (
+          <div ref={sentinelRef} className={styles.infiniteSentinel} aria-hidden="true" />
+        ) : null}
       </div>
 
       <aside className={styles.sidebar} aria-label="TOP 5 인기글">
