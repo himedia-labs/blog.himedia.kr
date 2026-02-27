@@ -1,7 +1,8 @@
-import { formatDate } from '@/app/(routes)/(public)/main/components/postList/utils/formatDate';
-import { extractImageUrl } from '@/app/(routes)/(public)/main/components/postList/utils/extractImageUrl';
-import { buildRelativeTime } from '@/app/(routes)/(public)/main/components/postList/utils/buildRelativeTime';
+import { buildRelativeTime } from '@/app/shared/utils/date.utils';
 import { formatPostPreview } from '@/app/shared/utils/formatPostPreview.utils';
+
+import { extractImageUrl } from '@/app/(routes)/(public)/main/components/postList/utils/extractImageUrl';
+import { formatDate } from '@/app/(routes)/(public)/main/components/postList/utils/formatDate';
 
 import type { Post, PostListItem } from '@/app/shared/types/post';
 
