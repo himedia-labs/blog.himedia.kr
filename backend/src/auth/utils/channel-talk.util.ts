@@ -17,7 +17,7 @@ const toSecretBuffer = (secretKey: string): Buffer => {
 
 /**
  * 채널톡 memberHash 생성
- * @description CHANNEL_TALK_SECRET_KEY와 memberId로 HMAC-SHA256 해시를 생성
+ * @description HM_CHANNEL_TALK_SECRET_KEY와 memberId로 HMAC-SHA256 해시를 생성
  */
 export const createChannelTalkMemberHash = (memberId: string, secretKey: string): string | null => {
   if (!memberId?.trim() || !secretKey?.trim()) {

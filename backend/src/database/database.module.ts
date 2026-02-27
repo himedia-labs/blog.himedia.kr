@@ -13,11 +13,11 @@ import { join } from 'path';
 
         return {
           type: 'postgres',
-          host: configService.get<string>('DB_HOST'),
-          port: configService.get<number>('DB_PORT'),
-          username: configService.get<string>('DB_USER'),
-          password: configService.get<string>('DB_PASSWORD'),
-          database: configService.get<string>('DB_NAME'),
+          host: configService.get<string>('HM_DB_HOST'),
+          port: configService.get<number>('HM_DB_PORT'),
+          username: configService.get<string>('HM_DB_USER'),
+          password: configService.get<string>('HM_DB_PASSWORD'),
+          database: configService.get<string>('HM_DB_NAME'),
           entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
           synchronize: !isProduction,
           ssl: isProduction ? { rejectUnauthorized: false } : false,

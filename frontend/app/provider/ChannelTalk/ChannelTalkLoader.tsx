@@ -20,7 +20,7 @@ export default function ChannelTalkLoader() {
   const shouldHideChannelButton = pathname === '/posts/new';
 
   useEffect(() => {
-    const pluginKey = process.env.NEXT_PUBLIC_CHANNEL_TALK_PLUGIN_KEY;
+    const pluginKey = process.env.NEXT_PUBLIC_HM_CHANNEL_TALK_PLUGIN_KEY;
 
     if (!pluginKey || !isInitialized || isBootedRef.current) return;
     if (accessToken && !user) return;
