@@ -565,10 +565,12 @@ export class PostsService {
     const authorId = post.author?.id ?? null;
     const isAuthorFollowLookupEnabled = Boolean(normalizedUserId && authorId && normalizedUserId !== authorId);
 
-    const [liked, commentCount, followerCount, isFollowing] = await Promise.all([
+    const [liked, commentCount, followerCount, followingCount, postCount, isFollowing] = await Promise.all([
       normalizedUserId ? this.postLikeRepository.exist({ where: { postId, userId: normalizedUserId } }) : false,
       this.commentsRepository.count({ where: { postId: post.id, deletedAt: IsNull() } }),
       authorId ? this.followsRepository.count({ where: { followingId: authorId } }) : 0,
+      authorId ? this.followsRepository.count({ where: { followerId: authorId } }) : 0,
+      authorId ? this.postsRepository.count({ where: { authorId, status: PostStatus.PUBLISHED } }) : 0,
       isAuthorFollowLookupEnabled
         ? this.followsRepository.exist({ where: { followerId: normalizedUserId!, followingId: authorId } })
         : false,
@@ -604,7 +606,9 @@ export class PostsService {
             profileTwitterUrl: post.author.profileTwitterUrl ?? null,
             profileFacebookUrl: post.author.profileFacebookUrl ?? null,
             profileWebsiteUrl: post.author.profileWebsiteUrl ?? null,
+            postCount,
             followerCount,
+            followingCount,
             isFollowing,
           }
         : null,
