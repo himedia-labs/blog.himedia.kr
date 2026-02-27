@@ -7,6 +7,9 @@ import { toViewPost } from '@/app/(routes)/(public)/main/components/postList/uti
 
 import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
+const ALL_CATEGORY = 'ALL';
+const EXTRA_CATEGORY_NAMES = ['Q&A', '채용'] as const;
+
 /**
  * 메인 포스트 목록 훅
  * @description 메인 포스트 목록의 상태와 데이터를 제공
@@ -23,7 +26,7 @@ export const usePostList = () => {
   const sortFilter: SortFilter = sortParam === 'top' || sortParam === 'following' ? sortParam : 'latest';
 
   // 카테고리 상태
-  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [selectedCategory, setSelectedCategory] = useState<string>(ALL_CATEGORY);
 
   // 뷰 모드 변경
   const setViewMode = (nextViewMode: ViewMode) => {
@@ -56,7 +59,7 @@ export const usePostList = () => {
   const selectedCategoryId = categories?.find(category => category.name === selectedCategory)?.id;
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfinitePostsQuery({
     status: 'PUBLISHED',
-    categoryId: selectedCategory === 'ALL' ? undefined : selectedCategoryId,
+    categoryId: selectedCategory === ALL_CATEGORY ? undefined : selectedCategoryId,
     feed: sortFilter === 'following' ? 'following' : undefined,
     sort: sortFilter === 'top' ? 'likeCount' : 'publishedAt',
     order: 'DESC',
@@ -68,9 +71,11 @@ export const usePostList = () => {
     order: 'DESC',
     limit: 5,
   });
-  const categoryNames = ['ALL', ...(categories ?? []).map(category => category.name)];
+  const dynamicCategoryNames = (categories ?? []).map(category => category.name);
+  const categoryNames = [ALL_CATEGORY, ...new Set([...dynamicCategoryNames, ...EXTRA_CATEGORY_NAMES])];
   const posts = (data?.pages ?? []).flatMap(page => page.items).map(item => toViewPost(item));
-  const filteredPosts = selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory);
+  const filteredPosts =
+    selectedCategory === ALL_CATEGORY ? posts : posts.filter(post => post.category === selectedCategory);
   const topPosts: TopPost[] = (topPostsData?.items ?? []).map(post => ({ id: post.id, title: post.title }));
 
   return {

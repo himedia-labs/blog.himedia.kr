@@ -116,10 +116,18 @@ export default function PostListSection() {
           <span className={styles.sortDivider} aria-hidden="true">
             |
           </span>
-          <button type="button" className={styles.sortButton}>
+          <button
+            type="button"
+            className={selectedCategory === 'Q&A' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => setSelectedCategory('Q&A')}
+          >
             Q&A
           </button>
-          <button type="button" className={styles.sortButton}>
+          <button
+            type="button"
+            className={selectedCategory === '채용' ? `${styles.sortButton} ${styles.active}` : styles.sortButton}
+            onClick={() => setSelectedCategory('채용')}
+          >
             채용
           </button>
         </div>
