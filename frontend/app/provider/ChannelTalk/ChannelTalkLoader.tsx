@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import * as ChannelService from '@channel.io/channel-web-sdk-loader';
@@ -16,8 +16,21 @@ export default function ChannelTalkLoader() {
   const pathname = usePathname();
   const { accessToken, isInitialized } = useAuthStore();
   const { data: user } = useCurrentUserQuery();
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const isBootedRef = useRef(false);
-  const shouldHideChannelButton = pathname === '/posts/new';
+  const shouldHideChannelButton = pathname === '/posts/new' || isMobileViewport;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+    const syncViewport = () => {
+      setIsMobileViewport(mediaQuery.matches);
+    };
+
+    syncViewport();
+    mediaQuery.addEventListener('change', syncViewport);
+    return () => mediaQuery.removeEventListener('change', syncViewport);
+  }, []);
 
   useEffect(() => {
     const pluginKey = process.env.NEXT_PUBLIC_HM_CHANNEL_TALK_PLUGIN_KEY;
