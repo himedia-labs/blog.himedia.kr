@@ -7,9 +7,9 @@ import { Fragment, useRef } from 'react';
 
 import { PiList } from 'react-icons/pi';
 import Skeleton from 'react-loading-skeleton';
-import { FaUser, FaRegPenToSquare } from 'react-icons/fa6';
+import { FaUser } from 'react-icons/fa6';
 import { CiCalendar, CiGrid41 } from 'react-icons/ci';
-import { FiEye, FiHeart, FiMessageCircle, FiShare2 } from 'react-icons/fi';
+import { FiEdit3, FiEye, FiHeart, FiMessageCircle, FiShare2 } from 'react-icons/fi';
 
 import { useCurrentUserQuery } from '@/app/api/auth/auth.queries';
 import { useAuthStore } from '@/app/shared/store/authStore';
@@ -79,7 +79,7 @@ export default function PostListSection() {
       <div className={styles.main}>
         <div className={styles.header}>
           <button type="button" className={styles.createButton} aria-label="게시물 작성" onClick={handleCreatePost}>
-            <FaRegPenToSquare />
+            <FiEdit3 />
           </button>
           <button
             type="button"
