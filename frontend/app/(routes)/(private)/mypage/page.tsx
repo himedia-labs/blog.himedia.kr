@@ -32,6 +32,7 @@ import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import ActionModal from '@/app/shared/components/modal/ActionModal';
+import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import {
   MyPageAccountSkeleton,
   MyPageCommentsSkeleton,
@@ -818,8 +819,10 @@ export default function MyPage() {
                         const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                         const thumbnailUrl = post.thumbnailUrl ?? '';
                         const hasThumbnail = Boolean(thumbnailUrl);
-                        const listTags = (post.tags ?? []).slice(0, 5);
-                        const hasListTags = listTags.length > 0;
+                        const tagNames = (post.tags ?? [])
+                          .slice(0, 5)
+                          .map(tag => `#${tag.name}`);
+                        const hasListTags = tagNames.length > 0;
                         return (
                           <Fragment key={post.id}>
                             <li>
@@ -879,7 +882,7 @@ export default function MyPage() {
                                     </div>
                                     <LinesEllipsis
                                       text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
-                                      maxLine="2"
+                                      maxLine={hasListTags ? '2' : '3'}
                                       ellipsis="..."
                                       trimRight
                                       basedOn="letters"
@@ -888,13 +891,7 @@ export default function MyPage() {
                                       }
                                     />
                                     {hasListTags ? (
-                                      <ul className={postListStyles.listTagList} aria-label="태그 목록">
-                                        {listTags.map(tag => (
-                                          <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
-                                            #{tag.name}
-                                          </li>
-                                        ))}
-                                      </ul>
+                                      <ListPostTagList postId={post.id} tags={tagNames} />
                                     ) : null}
                                     <div className={postListStyles.meta}>
                                       <div className={postListStyles.metaAuthorDate}>
@@ -1707,8 +1704,10 @@ export default function MyPage() {
                       const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
                       const thumbnailUrl = post.thumbnailUrl ?? '';
                       const hasThumbnail = Boolean(thumbnailUrl);
-                      const listTags = (post.tags ?? []).slice(0, 5);
-                      const hasListTags = listTags.length > 0;
+                      const tagNames = (post.tags ?? [])
+                        .slice(0, 5)
+                        .map(tag => `#${tag.name}`);
+                      const hasListTags = tagNames.length > 0;
                       return (
                         <Fragment key={post.id}>
                           <li>
@@ -1770,7 +1769,7 @@ export default function MyPage() {
                                   </div>
                                   <LinesEllipsis
                                     text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
-                                    maxLine="2"
+                                    maxLine={hasListTags ? '2' : '3'}
                                     ellipsis="..."
                                     trimRight
                                     basedOn="letters"
@@ -1779,13 +1778,7 @@ export default function MyPage() {
                                     }
                                   />
                                   {hasListTags ? (
-                                    <ul className={postListStyles.listTagList} aria-label="태그 목록">
-                                      {listTags.map(tag => (
-                                        <li key={`${post.id}-list-${tag.id}`} className={postListStyles.listTagItem}>
-                                          #{tag.name}
-                                        </li>
-                                      ))}
-                                    </ul>
+                                    <ListPostTagList postId={post.id} tags={tagNames} />
                                   ) : null}
                                   <div className={postListStyles.meta}>
                                     <div className={postListStyles.metaAuthorDate}>
