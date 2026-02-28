@@ -91,6 +91,11 @@ export default function PostEditPage() {
       }),
     [categories, categoryId, content],
   );
+  const authorStats = {
+    postCount: postDetail?.author?.postCount ?? 0,
+    followerCount: postDetail?.author?.followerCount ?? 0,
+    followingCount: postDetail?.author?.followingCount ?? 0,
+  };
 
   if (!postDetail && !isLoading) {
     return (
@@ -217,6 +222,7 @@ export default function PostEditPage() {
             categoryName={categoryName}
             authorName={authorName}
             dateLabel={dateLabel}
+            authorStats={authorStats}
             previewStats={previewStats}
             content={
               content ? (
