@@ -69,16 +69,81 @@ const extractImageUrls = (content: string) => {
     }
   };
 
+  /**
+   * img src 추출
+   * @description 단일 img 태그 문자열에서 src 속성 값을 선형 스캔으로 추출
+   */
+  const extractImgSrc = (imgTag: string) => {
+    const lowerTag = imgTag.toLowerCase();
+    let cursor = 0;
+
+    while (cursor < lowerTag.length) {
+      const srcIndex = lowerTag.indexOf('src', cursor);
+      if (srcIndex === -1) return null;
+
+      const prevChar = lowerTag[srcIndex - 1] ?? ' ';
+      const nextChar = lowerTag[srcIndex + 3] ?? ' ';
+      const isBoundaryBefore = /\s|<|\/|"/.test(prevChar);
+      const isBoundaryAfter = /\s|=|>|\/|"/.test(nextChar);
+
+      if (!isBoundaryBefore || !isBoundaryAfter) {
+        cursor = srcIndex + 3;
+        continue;
+      }
+
+      let valueStart = srcIndex + 3;
+      while (valueStart < imgTag.length && /\s/.test(imgTag[valueStart])) valueStart += 1;
+      if (imgTag[valueStart] !== '=') {
+        cursor = srcIndex + 3;
+        continue;
+      }
+
+      valueStart += 1;
+      while (valueStart < imgTag.length && /\s/.test(imgTag[valueStart])) valueStart += 1;
+      if (valueStart >= imgTag.length) return null;
+
+      const quote = imgTag[valueStart];
+      if (quote === '"' || quote === "'") {
+        const valueEnd = imgTag.indexOf(quote, valueStart + 1);
+        if (valueEnd === -1) return null;
+        return imgTag.slice(valueStart + 1, valueEnd);
+      }
+
+      let valueEnd = valueStart;
+      while (valueEnd < imgTag.length && !/\s|>/.test(imgTag[valueEnd])) valueEnd += 1;
+      return imgTag.slice(valueStart, valueEnd);
+    }
+
+    return null;
+  };
+
+  /**
+   * html 이미지 추출
+   * @description 본문에서 img 태그를 순회하며 src 속성 값을 수집
+   */
+  const collectHtmlImageUrls = () => {
+    const lowerContent = content.toLowerCase();
+    let cursor = 0;
+
+    while (cursor < lowerContent.length) {
+      const imgStart = lowerContent.indexOf('<img', cursor);
+      if (imgStart === -1) return;
+
+      const tagEnd = lowerContent.indexOf('>', imgStart + 4);
+      if (tagEnd === -1) return;
+
+      const imgTag = content.slice(imgStart, tagEnd + 1);
+      addUrl(extractImgSrc(imgTag) ?? undefined);
+      cursor = tagEnd + 1;
+    }
+  };
+
   const markdownImageRegex = /!\[[^\]]*]\(([^)]+)\)/g;
   let match: RegExpExecArray | null;
   while ((match = markdownImageRegex.exec(content)) !== null) {
     addUrl(match[1]);
   }
-
-  const htmlImageRegex = /<img[^>]+src=["']([^"']+)["']/gi;
-  while ((match = htmlImageRegex.exec(content)) !== null) {
-    addUrl(match[1]);
-  }
+  collectHtmlImageUrls();
 
   return Array.from(urls);
 };
