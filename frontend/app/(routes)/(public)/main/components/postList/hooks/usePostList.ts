@@ -9,7 +9,7 @@ import { toViewPost } from '@/app/(routes)/(public)/main/components/postList/uti
 import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
 const ALL_CATEGORY = 'ALL';
-const EXTRA_CATEGORY_NAMES = ['Q&A', '채용'] as const;
+const EXTRA_CATEGORY_NAMES = ['Q&A'] as const;
 
 /**
  * 메인 포스트 목록 훅
