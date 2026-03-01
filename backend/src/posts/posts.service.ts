@@ -138,11 +138,36 @@ const extractImageUrls = (content: string) => {
     }
   };
 
-  const markdownImageRegex = /!\[[^\]]*]\(([^)]+)\)/g;
-  let match: RegExpExecArray | null;
-  while ((match = markdownImageRegex.exec(content)) !== null) {
-    addUrl(match[1]);
-  }
+  /**
+   * 마크다운 이미지 추출
+   * @description 본문에서 ![]() 패턴을 순회하며 URL 값을 수집
+   */
+  const collectMarkdownImageUrls = () => {
+    let cursor = 0;
+
+    while (cursor < content.length) {
+      const markerStart = content.indexOf('![', cursor);
+      if (markerStart === -1) return;
+
+      const altClose = content.indexOf(']', markerStart + 2);
+      if (altClose === -1) return;
+
+      const openParen = content.indexOf('(', altClose + 1);
+      if (openParen === -1) {
+        cursor = altClose + 1;
+        continue;
+      }
+
+      const closeParen = content.indexOf(')', openParen + 1);
+      if (closeParen === -1) return;
+
+      const url = content.slice(openParen + 1, closeParen).trim();
+      addUrl(url);
+      cursor = closeParen + 1;
+    }
+  };
+
+  collectMarkdownImageUrls();
   collectHtmlImageUrls();
 
   return Array.from(urls);
