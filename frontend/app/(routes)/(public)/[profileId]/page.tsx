@@ -201,7 +201,7 @@ export default function ProfilePage() {
                       <a
                         key={label}
                         className={myPageStyles.profileSocialLink}
-                        href={href}
+                        href={href ?? ''}
                         aria-label={label}
                         target={external ? '_blank' : undefined}
                         rel={external ? 'noreferrer' : undefined}
