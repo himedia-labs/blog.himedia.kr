@@ -32,6 +32,7 @@ import { MYPAGE_TABS } from '@/app/shared/constants/config/mypage.config';
 import { EMAIL_VERIFICATION_CODE_LENGTH, PHONE_CONFIG } from '@/app/shared/constants/config/register.config';
 
 import ActionModal from '@/app/shared/components/modal/ActionModal';
+import PostSummaryList from '@/app/shared/components/post/PostSummaryList';
 import ListPostTagList from '@/app/(routes)/(public)/main/components/postList/components/ListPostTagList';
 import {
   MyPageAccountSkeleton,
@@ -814,171 +815,19 @@ export default function MyPage() {
                     </div>
                   </div>
                   {filteredPosts.length ? (
-                    <ul className={postListStyles.listView}>
-                      {filteredPosts.map((post, index) => {
-                        const isMyPost = Boolean(currentUserId) && post.author?.id === currentUserId;
-                        const thumbnailUrl = post.thumbnailUrl ?? '';
-                        const hasThumbnail = Boolean(thumbnailUrl);
-                        const tagNames = (post.tags ?? [])
-                          .slice(0, 5)
-                          .map(tag => `#${tag.name}`);
-                        const hasListTags = tagNames.length > 0;
-                        return (
-                          <Fragment key={post.id}>
-                            <li>
-                              <Link className={postListStyles.postLink} href={`/posts/${post.id}`}>
-                                <article
-                                  className={
-                                    hasThumbnail
-                                      ? postListStyles.listItem
-                                      : `${postListStyles.listItem} ${postListStyles.listItemNoThumb}`
-                                  }
-                                >
-                                  <div className={postListStyles.listBody}>
-                                    <div className={styles.listHeaderRow}>
-                                      <h3 className={postListStyles.listTitle}>{post.title || '제목 없음'}</h3>
-                                      <div className={styles.listMenuWrapper}>
-                                        <button
-                                          type="button"
-                                          className={styles.listMenuButton}
-                                          aria-label="게시글 옵션"
-                                          onClick={event => {
-                                            stopMenuPropagation(event);
-                                            handlePostMenuToggle(post.id);
-                                          }}
-                                        >
-                                          <FiMoreHorizontal aria-hidden="true" />
-                                        </button>
-                                        {openPostMenuId === post.id ? (
-                                          <div className={styles.listMenu} role="menu" onClick={stopMenuPropagation}>
-                                            <button
-                                              type="button"
-                                              className={styles.listMenuItem}
-                                              role="menuitem"
-                                              onClick={event => {
-                                                stopMenuPropagation(event);
-                                                handlePostEdit(post.id);
-                                              }}
-                                            >
-                                              <FiEdit2 aria-hidden="true" />
-                                              수정
-                                            </button>
-                                            <button
-                                              type="button"
-                                              className={styles.listMenuItem}
-                                              role="menuitem"
-                                              disabled={isPostDeleting}
-                                              onClick={event => {
-                                                stopMenuPropagation(event);
-                                                handlePostDelete(post.id);
-                                              }}
-                                            >
-                                              <FiTrash2 aria-hidden="true" />
-                                              삭제
-                                            </button>
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    </div>
-                                    <LinesEllipsis
-                                      text={formatPostPreview(post.content, { emptyText: '내용 없음' })}
-                                      maxLine={hasListTags ? '2' : '3'}
-                                      ellipsis="..."
-                                      trimRight
-                                      basedOn="letters"
-                                      className={
-                                        hasListTags ? postListStyles.listSummaryWithTags : postListStyles.listSummary
-                                      }
-                                    />
-                                    {hasListTags ? (
-                                      <ListPostTagList postId={post.id} tags={tagNames} />
-                                    ) : null}
-                                    <div className={postListStyles.meta}>
-                                      <div className={postListStyles.metaAuthorDate}>
-                                        <div className={postListStyles.cardAuthor}>
-                                          <div
-                                            className={
-                                              isMyPost
-                                                ? `${postListStyles.cardAuthorAvatar} ${postListStyles.cardAuthorAvatarMine}`
-                                                : postListStyles.cardAuthorAvatar
-                                            }
-                                            aria-hidden="true"
-                                          >
-                                            {post.author?.profileImageUrl ? (
-                                              <Image
-                                                className={postListStyles.cardAuthorImage}
-                                                src={post.author.profileImageUrl}
-                                                alt=""
-                                                width={24}
-                                                height={24}
-                                                unoptimized
-                                              />
-                                            ) : (
-                                              <FaUser />
-                                            )}
-                                          </div>
-                                          <span className={postListStyles.cardAuthorText}>
-                                            <span className={postListStyles.cardAuthorBy}>by.</span>
-                                            <span className={postListStyles.cardAuthorName}>
-                                              {post.author?.name ?? '알 수 없음'}
-                                            </span>
-                                          </span>
-                                        </div>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaGroup}>
-                                          <span className={postListStyles.metaItem}>
-                                            <CiCalendar aria-hidden="true" />{' '}
-                                            {formatDateLabel(post.publishedAt ?? post.createdAt)}
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <span className={postListStyles.metaGroup}>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiEye aria-hidden="true" /> {post.viewCount.toLocaleString()}
-                                        </span>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiHeart aria-hidden="true" /> {post.likeCount.toLocaleString()}
-                                        </span>
-                                        <span className={postListStyles.separator} aria-hidden="true">
-                                          |
-                                        </span>
-                                        <span className={postListStyles.metaItem}>
-                                          <FiMessageCircle aria-hidden="true" /> {post.commentCount.toLocaleString()}
-                                        </span>
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {hasThumbnail ? (
-                                    <div className={postListStyles.listThumb} aria-hidden="true">
-                                      <Image
-                                        className={postListStyles.listThumbImage}
-                                        src={thumbnailUrl}
-                                        alt=""
-                                        width={0}
-                                        height={0}
-                                        sizes="100vw"
-                                        unoptimized
-                                        style={{ width: '100%', height: '100%' }}
-                                      />
-                                    </div>
-                                  ) : null}
-                                </article>
-                              </Link>
-                            </li>
-                            {index < filteredPosts.length - 1 ? (
-                              <li className={postListStyles.listDividerItem} aria-hidden="true">
-                                <div className={postListStyles.listDivider} />
-                              </li>
-                            ) : null}
-                          </Fragment>
-                        );
-                      })}
-                    </ul>
+                    <PostSummaryList
+                      posts={filteredPosts}
+                      currentUserId={currentUserId}
+                      emptyText="조건에 맞는 게시물이 없습니다."
+                      emptyClassName={styles.empty}
+                      actionHandlers={{
+                        openPostMenuId,
+                        isPostDeleting,
+                        onPostDelete: handlePostDelete,
+                        onPostEdit: handlePostEdit,
+                        onPostMenuToggle: handlePostMenuToggle,
+                      }}
+                    />
                   ) : (
                     <div className={styles.empty}>조건에 맞는 게시물이 없습니다.</div>
                   )}
