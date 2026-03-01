@@ -9,7 +9,6 @@ import { toViewPost } from '@/app/(routes)/(public)/main/components/postList/uti
 import type { SortFilter, TopPost, ViewMode } from '@/app/shared/types/post';
 
 const ALL_CATEGORY = 'ALL';
-const EXTRA_CATEGORY_NAMES = ['Q&A'] as const;
 
 /**
  * 메인 포스트 목록 훅
@@ -127,7 +126,7 @@ export const usePostList = () => {
     limit: 5,
   });
   const dynamicCategoryNames = (categories ?? []).map(category => category.name);
-  const categoryNames = [ALL_CATEGORY, ...new Set([...dynamicCategoryNames, ...EXTRA_CATEGORY_NAMES])];
+  const categoryNames = [ALL_CATEGORY, ...dynamicCategoryNames];
   const posts = (data?.pages ?? []).flatMap(page => page.items).map(item => toViewPost(item));
   const filteredPosts =
     selectedCategory === ALL_CATEGORY ? posts : posts.filter(post => post.category === selectedCategory);
